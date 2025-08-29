@@ -3,7 +3,7 @@
 import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, Mail, Bell, Folder, Layers, X, LogOut, Menu, Clipboard, Cpu, ChevronDown, Paperclip,  BookAIcon } from "lucide-react";
+import { Home, Users, Mail, Bell, Folder, Layers, X, LogOut, Menu, Clipboard, Cpu, ChevronDown, Paperclip, BookAIcon } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -71,7 +71,7 @@ function Layout({ children }: { children: ReactNode }) {
   const [hasToken, setHasToken] = useState(false);
   const pathname = usePathname();
   if (pathname === "/login") {
-    return <>{children}</>
+    return <div>{children}</div>
   }
   useEffect(() => {
     // Kiểm tra token trong localStorage
@@ -150,7 +150,9 @@ function Layout({ children }: { children: ReactNode }) {
       ]);
     };
 
-    fetchCategoryTypes();
+    if (hasToken) {
+      fetchCategoryTypes();
+    }
   }, [isRefreshMenu]);
   const toggleSidebar = () => {
     if (window.innerWidth < 768) {
@@ -233,7 +235,7 @@ function Layout({ children }: { children: ReactNode }) {
                                   : "hover:bg-gray-100 text-gray-700"
                                   }`}
                                 title={sub.title}
-                                style={{fontSize: '16px'}}
+                                style={{ fontSize: '16px' }}
                               >
                                 {/* {sub.icon} */}
                                 <span className="ml-3 flex-1 truncate">{sub.title}</span>

@@ -2,10 +2,17 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package.json và cài đặt dependencies
-COPY package*.json ./
+# Cài đặt pnpm (global)
+RUN npm install -g pnpm
 
-RUN npm install
+# Copy package.json + pnpm-lock.yaml (nếu có)
+COPY package.json pnpm-lock.yaml* ./
 
-# Mặc định chạy lệnh dev
-CMD ["npm", "run", "dev"]
+# Cài dependencies
+RUN pnpm install
+
+# Copy toàn bộ source code
+COPY . .
+
+# Mặc định chạy dev
+CMD ["pnpm", "dev"]
