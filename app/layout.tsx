@@ -41,18 +41,27 @@ interface MenuItem {
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+
+  if (pathname === "/login") {
+    return (
+      <html lang="en">
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          {children}
+        </body>
+      </html>
+    );
+  }
 
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <GlobalProvider>
           <Layout>{children}</Layout>
         </GlobalProvider>
       </body>
     </html>
-  )
+  );
 }
 
 function Layout({ children }: { children: ReactNode }) {
@@ -70,9 +79,6 @@ function Layout({ children }: { children: ReactNode }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [hasToken, setHasToken] = useState(false);
   const pathname = usePathname();
-  if (pathname === "/login") {
-    return <div>{children}</div>
-  }
   useEffect(() => {
     // Kiểm tra token trong localStorage
     const token = localStorage.getItem("accessToken");
