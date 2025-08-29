@@ -153,7 +153,7 @@ function Layout({ children }: { children: ReactNode }) {
     if (hasToken) {
       fetchCategoryTypes();
     }
-  }, [isRefreshMenu]);
+  }, [isRefreshMenu,hasToken]);
   const toggleSidebar = () => {
     if (window.innerWidth < 768) {
       setIsMobileOpen(!isMobileOpen);
