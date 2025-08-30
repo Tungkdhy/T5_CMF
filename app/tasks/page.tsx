@@ -28,6 +28,7 @@ import { createTasks, deleteTask, getTasks, updateTask } from "@/api/task";
 import { mapTasksToBoard } from "@/utils/convert";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getComments } from "@/api/comment";
 interface Task {
   id: string;
   title: string;
@@ -95,6 +96,17 @@ const initialColumns: Record<string, Column> = {
 const columnOrder = ["open", "in progress", "done", "cancelled"];
 
 export default function TasksPage() {
+  const [comments, setComments] = useState([{
+    user: "TT",
+    text: "Tốt. Tiếp tục thực hiện các nội dung công việc khác"
+
+  },
+  {
+    user: "PM",
+    text: "Tốt"
+
+  }])
+  const [newComment, setNewComment] = useState("")
   const [tasks, setTasks] = useState(initialTasks);
   const [columns, setColumns] = useState(initialColumns);
   const [status, setStatus] = useState<any[]>([{
@@ -105,7 +117,9 @@ export default function TasksPage() {
   // loading skeleton
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
+  const handleAddComment = () => {
 
+  }
   const showAlert = (msg: string, type: "success" | "error") => {
     setMessage(msg);
     setType(type);
@@ -181,7 +195,7 @@ export default function TasksPage() {
 
     console.log(result);
     const id = status.find((s: any) => s.display_name.toUpperCase() === result.destination?.droppableId.toUpperCase())?.id;
-    console.log(id);
+    // console.log(id);
     await updateTask(result.draggableId, { status_id: id });
     setFormData((prev) => ({ ...prev, reload: !prev.reload }))
 
@@ -255,7 +269,21 @@ export default function TasksPage() {
 
     }
   };
+  const fetchComment = async (id:any) => {
+    try {
+      const res = await getComments({ pageSize: 1000, pageIndex: 1, taskId: id });
+      setComments(res.data.rows)
 
+    } catch (err) {
+      console.error(err);
+
+    }
+  };
+  useEffect(()=>{
+    fetchComment(editingTask?.id);
+  },[editingTask?.id])
+
+  // },[])
   useEffect(() => {
     fetchTask();
   }, [formData.reload]);
@@ -382,123 +410,126 @@ export default function TasksPage() {
 
       {/* Modal thêm/sửa task giữ nguyên như code cũ */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="w-[60vw] max-w-[60vw] h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>
               {editingTask ? "Chỉnh sửa nhiệm vụ" : "Thêm mới nhiệm vụ"}
             </DialogTitle>
           </DialogHeader>
-
-          <div className="grid gap-4 py-2">
-            {/* Tên task */}
-            <div>
-              <Label className="mb-2">Tên nhiệm vụ</Label>
-              <Input
-                placeholder="Nhập tên nhiệm vụ..."
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              />
-            </div>
-
-            {/* Thời gian */}
-            <div className="grid grid-cols-3 gap-3">
+          <div className="flex-1 overflow-y-auto pr-2">
+            <div className="grid gap-4 py-2">
+              {/* Tên task */}
               <div>
-                <Label className="mb-2">Ngày bắt đầu</Label>
+                <Label className="mb-2">Tên nhiệm vụ</Label>
                 <Input
-                  type="date"
-                  value={formData.startDate ? formData.startDate : ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, startDate: e.target.value })
-                  }
+                  placeholder="Nhập tên nhiệm vụ..."
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 />
               </div>
-              <div>
-                <Label className="mb-2">Ngày kết thúc</Label>
-                <Input
-                  type="date"
-                  value={formData.endDate ? formData.endDate : ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, endDate: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <Label className="mb-2">Ngày hoàn thành</Label>
-                <Input
-                  type="date"
-                  value={formData.dueDate ? formData.dueDate : ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, dueDate: e.target.value })
-                  }
-                />
-              </div>
-            </div>
 
-            {/* Trạng thái */}
-            <div>
-              <Label className="mb-2">Trạng thái</Label>
-              <Select
-                value={formData.status_id}
-                onValueChange={(v) => setFormData({ ...formData, status_id: v })}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Chọn trạng thái" />
-                </SelectTrigger>
-                {/* <SelectContent>
+              {/* Thời gian */}
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <Label className="mb-2">Ngày bắt đầu</Label>
+                  <Input
+                    type="date"
+                    className="w-full block min-w-0"
+                    value={formData.startDate ? formData.startDate : ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, startDate: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2">Ngày kết thúc</Label>
+                  <Input
+                    className="w-full block min-w-0"
+                    type="date"
+                    value={formData.endDate ? formData.endDate : ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, endDate: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2">Ngày hoàn thành</Label>
+                  <Input
+                    className="w-full block min-w-0"
+                    type="date"
+                    value={formData.dueDate ? formData.dueDate : ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, dueDate: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Trạng thái */}
+              <div>
+                <Label className="mb-2">Trạng thái</Label>
+                <Select
+                  value={formData.status_id}
+                  onValueChange={(v) => setFormData({ ...formData, status_id: v })}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn trạng thái" />
+                  </SelectTrigger>
+                  {/* <SelectContent>
                   <SelectItem value="todo">Todo</SelectItem>
                   <SelectItem value="in-progress">In Progress</SelectItem>
                   <SelectItem value="done">Done</SelectItem>
                 </SelectContent> */}
-                <SelectContent>
-                  {
-                    status.map((item: any) => (
-                      <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
-                    ))
-                  }
-                </SelectContent>
-              </Select>
-            </div>
+                  <SelectContent>
+                    {
+                      status.map((item: any) => (
+                        <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Người làm + Người giao */}
-            <div className="grid grid-cols-2 gap-3">
+              {/* Người làm + Người giao */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="mb-2">Người làm</Label>
+                  <Input
+                    placeholder="Tên người làm"
+                    value={formData.assignee}
+                    onChange={(e) =>
+                      setFormData({ ...formData, assignee: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2">Người giao</Label>
+                  <Input
+                    placeholder="Tên người giao"
+                    value={formData.reporter}
+                    onChange={(e) =>
+                      setFormData({ ...formData, reporter: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Mô tả */}
               <div>
-                <Label className="mb-2">Người làm</Label>
-                <Input
-                  placeholder="Tên người làm"
-                  value={formData.assignee}
+                <Label className="mb-2">Mô tả</Label>
+                <Textarea
+                  rows={6}
+                  placeholder="Nhập mô tả chi tiết..."
+                  value={formData.description}
+                  className="whitespace-pre-wrap break-words"
                   onChange={(e) =>
-                    setFormData({ ...formData, assignee: e.target.value })
+                    setFormData({ ...formData, description: e.target.value })
                   }
                 />
               </div>
-              <div>
-                <Label className="mb-2">Người giao</Label>
-                <Input
-                  placeholder="Tên người giao"
-                  value={formData.reporter}
-                  onChange={(e) =>
-                    setFormData({ ...formData, reporter: e.target.value })
-                  }
-                />
-              </div>
-            </div>
 
-            {/* Mô tả */}
-            <div>
-              <Label className="mb-2">Mô tả</Label>
-              <Textarea
-                rows={6}
-                placeholder="Nhập mô tả chi tiết..."
-                value={formData.description}
-                className="whitespace-pre-wrap break-words"
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-              />
-            </div>
-
-            {/* Ảnh */}
-            {/* <div>
+              {/* Ảnh */}
+              {/* <div>
               <Label className="mb-2">Ảnh đại diện</Label>
               <Input type="file" accept="image/*" onChange={handleImageUpload} />
               {formData.image && (
@@ -508,9 +539,38 @@ export default function TasksPage() {
                   className="mt-2 w-24 h-24 object-cover rounded-md shadow"
                 />
               )}
+                
             </div> */}
-          </div>
+              <div className="mt-2">
+                <Label className="mb-3 block font-semibold">Bình luận</Label>
 
+                {/* Danh sách bình luận */}
+                <div className="space-y-4 max-h-[250px] overflow-y-auto pr-2">
+                  {comments.map((c, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      {/* Avatar */}
+                      <div className="h-9 w-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-700">
+                        {c.user}
+                      </div>
+                      {/* Nội dung */}
+                      <div className="flex flex-col bg-gray-100 rounded-2xl px-3 py-2 max-w-[80%]">
+                        <span className="text-sm font-semibold">{c.user}</span>
+                        <span className="text-sm text-gray-800">{c.text}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 flex gap-2">
+                  <Input
+                    placeholder="Thêm bình luận..."
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                  />
+                  <Button onClick={handleAddComment}>Gửi</Button>
+                </div>
+              </div>
+            </div>
+          </div>
           <DialogFooter>
             {editingTask && (
               <Button
@@ -533,6 +593,7 @@ export default function TasksPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
     </div>
   );
 }

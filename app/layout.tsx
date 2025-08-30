@@ -69,6 +69,7 @@ function Layout({ children }: { children: ReactNode }) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
     { id: "dashboard", title: "Bảng điều khiển", icon: <Home className="w-5 h-5" />, href: "/" },
     { id: "profile", title: "Quản lý người dùng", icon: <Users className="w-5 h-5" />, href: "/user" },
+    { id: "staff", title: "Quản lý nhân viên", icon: <Users className="w-5 h-5" />, href: "/staff" },
     { id: "messages", title: "Quản lý công việc", icon: <Clipboard className="w-5 h-5" />, href: "/tasks" },
     // { id: "notifications", title: "Quản lý danh mục", icon: <Folder className="w-5 h-5" />,  href: "/category" },
     { id: "device", title: "Quản lý thiết bị", icon: <Cpu className="w-5 h-5" />, href: "/devices" },
@@ -117,6 +118,7 @@ function Layout({ children }: { children: ReactNode }) {
           icon: <Users className="w-5 h-5" />,
           href: "/user",
         },
+        { id: "staff", title: "Quản lý nhân viên", icon: <Users className="w-5 h-5" />, href: "/staff" },
         {
           id: "messages",
           title: "Quản lý công việc",
@@ -159,7 +161,7 @@ function Layout({ children }: { children: ReactNode }) {
     if (hasToken) {
       fetchCategoryTypes();
     }
-  }, [isRefreshMenu,hasToken]);
+  }, [isRefreshMenu, hasToken]);
   const toggleSidebar = () => {
     if (window.innerWidth < 768) {
       setIsMobileOpen(!isMobileOpen);

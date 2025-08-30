@@ -1,38 +1,28 @@
 import api from "./base";
 
-export interface User {
-  id: string;
-  user_name: string;
-  display_name: string;
-  email?: string;
-}
-
 // Lấy danh sách user
-export async function getUsers() {
-  const res = await api.get("/user");
-  return res.data;
+export async function getUsers({ pageSize = 10, pageIndex = 1, name = "" }) {
+  return api.get("/user/all", {
+    params: { pageSize, pageIndex, name },
+  });
+}
+export async function getAllRoles({ pageSize = 10, pageIndex = 1 }) {
+  return api.get("/role", {
+    params: { pageSize, pageIndex },
+  });
 }
 
-// Lấy chi tiết user theo id
-export async function getUserById(id: string) {
-  const res = await api.get(`/users/${id}`);
-  return res.data;
-}
-
-// Thêm user mới
-export async function createUser(user: Omit<User, "id">) {
-  const res = await api.post("/users", user);
-  return res.data;
+// Tạo user mới
+export async function createUser(data: any) {
+  return api.post("/users", data);
 }
 
 // Cập nhật user
-export async function updateUser(id: string, user: Partial<User>) {
-  const res = await api.put(`/users/${id}`, user);
-  return res.data;
+export async function updateUser(id: string, data: any) {
+  return api.put(`/users/${id}`, data);
 }
 
-// Xoá user
-export async function deleteUser(id: string): Promise<{ message: string }> {
-  const res = await api.delete(`users/${id}`);
-  return res.data;
+// Xóa user
+export async function deleteUser(id: string) {
+  return api.delete(`/users/${id}`);
 }
