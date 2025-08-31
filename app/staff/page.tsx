@@ -31,6 +31,7 @@ interface User {
 export default function UserManagement() {
   const { isRefreshMenu, setIsRefreshMenu } = useGlobalContext();
   const [users, setUsers] = useState<User[]>([]);
+
   const [pageIndex, setPageIndex] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");

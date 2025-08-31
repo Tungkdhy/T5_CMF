@@ -1,11 +1,36 @@
 "use client";
-
+import { cn } from "@/lib/utils";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/components/ui/avatar"
 import { Label } from "@/components/ui/label";
+// import {
+//   Select,
+//   SelectTrigger,
+//   SelectContent,
+// } from "@/components/ui/select"
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command"
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip"
+import { Check, Search } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -28,7 +53,8 @@ import { createTasks, deleteTask, getTasks, updateTask } from "@/api/task";
 import { mapTasksToBoard } from "@/utils/convert";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { getComments } from "@/api/comment";
+import { createComment, getComments } from "@/api/comment";
+import { getStaff } from "@/api/staff";
 interface Task {
   id: string;
   title: string;
@@ -42,7 +68,10 @@ interface Task {
   completedDate?: string;
   reload?: boolean,
   dueDate?: string,
-  status_id?: string
+  status_id?: string,
+  sender?: string,
+  receiver?: string,
+  assignee_name?: string,
 }
 
 interface Column {
@@ -96,16 +125,22 @@ const initialColumns: Record<string, Column> = {
 const columnOrder = ["open", "in progress", "done", "cancelled"];
 
 export default function TasksPage() {
-  const [comments, setComments] = useState([{
-    user: "TT",
-    text: "Tốt. Tiếp tục thực hiện các nội dung công việc khác"
+  // const [formData, setFormData] = useState({
 
-  },
-  {
-    user: "PM",
-    text: "Tốt"
-
-  }])
+  // })
+  const [searchTerm, setSearchTerm] = useState("");
+  function stringToColor(str: string) {
+    let hash = 0
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash)
+    }
+    const hue = hash % 360
+    return `hsl(${hue}, 70%, 50%)`
+  }
+  const [openSender, setOpenSender] = useState(false)
+  const [openReceiver, setOpenReceiver] = useState(false)
+  const [staff, setStaff] = useState<any[]>([]);
+  const [comments, setComments] = useState<any[]>([])
   const [newComment, setNewComment] = useState("")
   const [tasks, setTasks] = useState(initialTasks);
   const [columns, setColumns] = useState(initialColumns);
@@ -114,11 +149,22 @@ export default function TasksPage() {
     display_name: "Todo"
   }]);
   const [type, setType] = useState<"success" | "error" | null>(null);
+  const [isReload, setIsReload] = useState(false)
   // loading skeleton
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
-  const handleAddComment = () => {
-
+  const handleAddComment = async () => {
+    try {
+      const res = await createComment({
+        user_id: editingTask?.receiver || "",
+        content: newComment,
+        task_id: editingTask?.id || ""
+      });
+      showAlert("Thêm bình luận thành công", "success");
+      setIsReload(!isReload)
+    } catch (error) {
+      showAlert("Thêm bình luận thất bại", "error");
+    }
   }
   const showAlert = (msg: string, type: "success" | "error") => {
     setMessage(msg);
@@ -151,7 +197,9 @@ export default function TasksPage() {
     description: "",
     image: "",
     completedDate: "",
-    reload: false
+    reload: false,
+    sender: "",
+    receiver: "",
   });
 
   const onDragEnd = async (result: any) => {
@@ -218,6 +266,8 @@ export default function TasksPage() {
         reporter: "",
         description: "",
         image: "",
+        sender: "",
+        receiver: "",
       });
     }
     setOpen(true);
@@ -258,9 +308,9 @@ export default function TasksPage() {
     };
     reader.readAsDataURL(file);
   };
-  const fetchTask = async () => {
+  const fetchTask = async (searchTerm: string) => {
     try {
-      const res = await getTasks({ pageSize: 1000, pageIndex: 1 });
+      const res = await getTasks({ pageSize: 1000, pageIndex: 1, searchTerm });
       // console.log(mapTasksToBoard(res.data.rows));
       setColumns(mapTasksToBoard(res.data.rows).columns);
       setTasks(mapTasksToBoard(res.data.rows).tasks);
@@ -269,7 +319,7 @@ export default function TasksPage() {
 
     }
   };
-  const fetchComment = async (id:any) => {
+  const fetchComment = async (id: any) => {
     try {
       const res = await getComments({ pageSize: 1000, pageIndex: 1, taskId: id });
       setComments(res.data.rows)
@@ -279,14 +329,19 @@ export default function TasksPage() {
 
     }
   };
-  useEffect(()=>{
-    fetchComment(editingTask?.id);
-  },[editingTask?.id])
+  useEffect(() => {
+    setComments([])
+    if (editingTask?.id) fetchComment(editingTask.id);
+  }, [editingTask?.id, isReload]);
 
   // },[])
-  useEffect(() => {
-    fetchTask();
-  }, [formData.reload]);
+useEffect(() => {
+  const delayDebounce = setTimeout(() => {
+    fetchTask(searchTerm);
+  }, 500); // 500ms debounce
+
+  return () => clearTimeout(delayDebounce);
+}, [formData.reload,searchTerm]);
   const fetchStatus = async () => {
     try {
       const res = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "STATUS" });
@@ -299,7 +354,18 @@ export default function TasksPage() {
   useEffect(() => {
     fetchStatus();
   }, [])
+  const fetchStaff = async () => {
+    try {
+      const res = await getStaff({ pageSize: 1000, pageIndex: 1 });
+      setStaff(res.data.data.rows);
+    } catch (err) {
+      console.error(err);
 
+    }
+  }
+  useEffect(() => {
+    fetchStaff();
+  }, [])
   return (
     <div className="p-3 bg-gray-50 min-h-screen">
       {message && (
@@ -316,6 +382,19 @@ export default function TasksPage() {
           </Alert>
         </div>
       )}
+      <div className="mb-4 flex justify-between items-center">
+
+        <div className="relative ">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            type="text"
+            placeholder="Tìm kiếm danh mục..."
+            className="pl-10"
+            value={searchTerm}
+            onChange={(e: any) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {columnOrder.map((colId) => {
@@ -377,9 +456,13 @@ export default function TasksPage() {
                                     {/* {task.description} */}
                                   </span>
                                   <div className="flex items-center gap-1">
-                                    <span className="text-yellow-500">=</span>
-                                    <span className="w-6 h-6 flex items-center justify-center rounded-full bg-green-600 text-white text-xs">
-                                      {task.assignee?.slice(0, 2)}
+                                    <span className="text-yellow-500 text-2xl">=</span>
+                                    <span style={{
+                                      backgroundColor: stringToColor(
+                                        task?.assignee_name || task.id
+                                      ),
+                                    }} className="w-6 h-6 flex items-center justify-center rounded-full bg-green-600 text-white text-xs">
+                                      {task?.assignee_name?.slice(0, 2)}
                                     </span>
                                   </div>
                                 </div>
@@ -410,7 +493,7 @@ export default function TasksPage() {
 
       {/* Modal thêm/sửa task giữ nguyên như code cũ */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="w-[60vw] max-w-[60vw] h-[90vh] flex flex-col">
+        <DialogContent className="w-[60vw] max-w-[60vw] max-h-[80vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>
               {editingTask ? "Chỉnh sửa nhiệm vụ" : "Thêm mới nhiệm vụ"}
@@ -491,26 +574,143 @@ export default function TasksPage() {
               </div>
 
               {/* Người làm + Người giao */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
+                {/* Người giao */}
                 <div>
-                  <Label className="mb-2">Người làm</Label>
-                  <Input
-                    placeholder="Tên người làm"
-                    value={formData.assignee}
-                    onChange={(e) =>
-                      setFormData({ ...formData, assignee: e.target.value })
-                    }
-                  />
+                  <Label className="mb-2 block">Người giao</Label>
+                  <Select open={openSender} onOpenChange={setOpenSender}>
+                    <SelectTrigger className="w-full">
+                      {formData.sender
+                        ? staff.find((p) => p.id === formData.sender)?.display_name
+                        : "Chọn người giao"}
+                    </SelectTrigger>
+                    <SelectContent className="w-full">
+                      <TooltipProvider>
+                        <Command>
+                          <CommandInput placeholder="Tìm kiếm..." />
+                          <CommandList>
+                            <CommandEmpty>Không tìm thấy</CommandEmpty>
+                            <CommandGroup>
+                              {staff.map((person) => (
+                                <Tooltip key={person.id}>
+                                  <TooltipTrigger asChild>
+                                    <CommandItem
+                                      value={person.display_name}
+                                      onSelect={() => {
+                                        setFormData({ ...formData, sender: person.id })
+                                        setOpenSender(false)
+                                      }}
+                                      className={cn(
+                                        "truncate flex items-center justify-between gap-2",
+                                        formData.sender === person.id &&
+                                        "bg-blue-100 font-semibold"
+                                      )}
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <Avatar className="h-7 w-7">
+                                          {person.avatar ? (
+                                            <AvatarImage
+                                              src={person.avatar}
+                                              alt={person.display_name}
+                                            />
+                                          ) : (
+                                            <AvatarFallback
+                                              className="text-white font-medium"
+                                              style={{
+                                                backgroundColor: stringToColor(
+                                                  person.display_name || person.id
+                                                ),
+                                              }}
+                                            >
+                                              {person.display_name.charAt(0).toUpperCase()}
+                                            </AvatarFallback>
+                                          )}
+                                        </Avatar>
+                                        <span>{person.display_name}</span>
+                                      </div>
+                                      {formData.sender === person.id && (
+                                        <Check className="h-4 w-4 ml-2 text-blue-600" />
+                                      )}
+                                    </CommandItem>
+                                  </TooltipTrigger>
+                                  <TooltipContent>{person.display_name}</TooltipContent>
+                                </Tooltip>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </TooltipProvider>
+                    </SelectContent>
+                  </Select>
                 </div>
+
+                {/* Người nhận */}
                 <div>
-                  <Label className="mb-2">Người giao</Label>
-                  <Input
-                    placeholder="Tên người giao"
-                    value={formData.reporter}
-                    onChange={(e) =>
-                      setFormData({ ...formData, reporter: e.target.value })
-                    }
-                  />
+                  <Label className="mb-2 block">Người nhận</Label>
+                  <Select open={openReceiver} onOpenChange={setOpenReceiver}>
+                    <SelectTrigger className="w-full">
+                      {formData.receiver
+                        ? staff.find((p) => p.id === formData.receiver)?.display_name
+                        : "Chọn người nhận"}
+                    </SelectTrigger>
+                    <SelectContent className="w-full">
+                      <TooltipProvider>
+                        <Command>
+                          <CommandInput placeholder="Tìm kiếm..." />
+                          <CommandList>
+                            <CommandEmpty>Không tìm thấy</CommandEmpty>
+                            <CommandGroup>
+                              {staff.map((person) => (
+                                <Tooltip key={person.id}>
+                                  <TooltipTrigger asChild>
+                                    <CommandItem
+                                      value={person.display_name}
+                                      onSelect={() => {
+                                        setFormData({ ...formData, receiver: person.id })
+                                        setOpenReceiver(false)
+                                      }}
+                                      className={cn(
+                                        "truncate flex items-center justify-between gap-2",
+                                        formData.receiver === person.id &&
+                                        "bg-blue-100 font-semibold"
+                                      )}
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <Avatar className="h-7 w-7">
+                                          {person.avatar ? (
+                                            <AvatarImage
+                                              src={person.avatar}
+                                              alt={person.display_name}
+                                            />
+                                          ) : (
+                                            <AvatarFallback
+                                              className="text-white font-medium"
+                                              style={{
+                                                backgroundColor: stringToColor(
+                                                  person.display_name || person.id
+                                                ),
+                                              }}
+                                            >
+                                              {person.display_name.charAt(0).toUpperCase()}
+                                            </AvatarFallback>
+                                          )}
+                                        </Avatar>
+                                        <span>{person.display_name}</span>
+                                      </div>
+                                      {formData.receiver === person.id && (
+                                        <Check className="h-4 w-4 ml-2 text-blue-600" />
+                                      )}
+                                    </CommandItem>
+                                  </TooltipTrigger>
+                                  <TooltipContent>{person.display_name}</TooltipContent>
+                                </Tooltip>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </TooltipProvider>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -549,13 +749,17 @@ export default function TasksPage() {
                   {comments.map((c, idx) => (
                     <div key={idx} className="flex items-start gap-3">
                       {/* Avatar */}
-                      <div className="h-9 w-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-700">
-                        {c.user}
+                      <div style={{
+                        backgroundColor: stringToColor(
+                          c?.user_name || c?.user_id
+                        ),
+                      }} className="h-9 w-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-700">
+                        {c?.user_name.slice(0, 2)}
                       </div>
                       {/* Nội dung */}
                       <div className="flex flex-col bg-gray-100 rounded-2xl px-3 py-2 max-w-[80%]">
-                        <span className="text-sm font-semibold">{c.user}</span>
-                        <span className="text-sm text-gray-800">{c.text}</span>
+                        <span className="text-sm font-semibold">{c?.user_name}</span>
+                        <span className="text-sm text-gray-800">{c?.content}</span>
                       </div>
                     </div>
                   ))}

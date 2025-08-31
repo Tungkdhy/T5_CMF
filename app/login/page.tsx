@@ -20,11 +20,11 @@ export default function LoginPage() {
         // lưu token
         localStorage.setItem("accessToken", user.data.tokens.accessToken);
         localStorage.setItem("refreshToken", user.data.tokens.refreshToken);
-
-        alert(`Đăng nhập thành công với user: ${user.data.user.display_name}`);
+        localStorage.setItem("user", JSON.stringify(user.data.user.id));
+        // alert(`Đăng nhập thành công với user: ${user.data.user.display_name}`);
 
         // chuyển trang
-        router.push("/user");
+        router.push("/");
       } else {
         alert("Đăng nhập thất bại: " + user.message);
       }

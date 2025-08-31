@@ -5,23 +5,24 @@ import api from "./base";
 export async function getTasks({
   pageSize = 100000,
   pageIndex = 1,
-
+  searchTerm
   // name = "",
   // // visible = true,
   // scope = ""
 }: {
   pageSize?: number;
   pageIndex?: number;
+  searchTerm?:string
   // name?: string;
   // visible?: boolean;
   // scope?: any;
 }) {
-  // const nameSearch = name ? {name} : {};
+  const nameSearch = searchTerm ? {name:searchTerm} : {};
   const res = await api.get("/tasks", {
     params: {
       pageSize,
       pageIndex,
-      // ...nameSearch,
+      ...nameSearch,
       // scope,
     },
   });
@@ -61,7 +62,7 @@ export async function createTasks({
 export async function updateTask(
   id: string,
   {
-    title="Chỉnh sửa",
+    title,
     description,
     status_id,
     start_date,
