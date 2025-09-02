@@ -25,7 +25,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: any) => {
-    if (error.response?.status === 401) {
+    if (error.response?.data.message === "Token is expired") {
       // Xóa token (nếu có)
       if (typeof window !== "undefined") {
         localStorage.removeItem("accessToken");
