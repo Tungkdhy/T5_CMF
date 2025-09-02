@@ -14,7 +14,8 @@ export function mapTasksToBoard(data: any) {
   };
 
   const tasks: Record<string, any> = {};
-  let colFull;
+
+  // Tạo bản đồ task trước
   data.forEach((t: any) => {
     tasks[t.id] = {
       id: t.id,
@@ -31,11 +32,20 @@ export function mapTasksToBoard(data: any) {
       status_id: t.status?.id,
       receiver: t.assignee_id,
       assignee_name: t.assignee_name,
+      priority_id: t.priority?.id,
+      parent_task_id: t.parent_task_id,
+      subTasks: [], // luôn có mảng con
     };
+  });
 
-    const colKey = statusMap[t.status.display_name] || "open";
-    colFull = statusMap;
-    columns[colKey].taskIds.push(t.id);
+  // Gán subtask vào cha
+  data.forEach((t: any) => {
+    if (t.parent_task_id && tasks[t.parent_task_id]) {
+      tasks[t.parent_task_id].subTasks.push(tasks[t.id]);
+    } else {
+      const colKey = statusMap[t.status.display_name] || "open";
+      columns[colKey].taskIds.push(t.id);
+    }
   });
 
   // cập nhật lại title với số lượng task
@@ -44,5 +54,5 @@ export function mapTasksToBoard(data: any) {
     col.title = `${col.title} (${col.taskIds.length})`;
   });
 
-  return { tasks, colFull, columns, columnOrder: Object.keys(columns) };
+  return { tasks, columns, columnOrder: Object.keys(columns) };
 }

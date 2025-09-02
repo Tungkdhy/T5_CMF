@@ -19,14 +19,14 @@ import {
 } from "@/components/ui/select";
 import { set } from "react-hook-form";
 interface User {
-  id: string;
-  user_name: string;
-  display_name: string;
-  is_active: boolean;
+  id?: string;
+  user_name?: string;
+  display_name?: string;
+  is_active?: boolean;
   is_online?: boolean | null;
   role?: string;
-  password: string;
-  reload?:boolean
+  password?: string;
+  reload?: boolean
 }
 
 export default function UserManagement() {
@@ -44,12 +44,12 @@ export default function UserManagement() {
     is_online: false,
     role: "",
     password: "test",
-    reload:true
+    reload: true
   });
   const [status, setStatus] = useState<"success" | "error" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  const pageSize = 5;
+  const pageSize = 10;
 
   const showAlert = (msg: string, type: "success" | "error") => {
     setMessage(msg);
@@ -72,9 +72,15 @@ export default function UserManagement() {
     }
   };
 
-  useEffect(() => {
+ useEffect(() => {
+  const handler = setTimeout(() => {
     fetchUsers(pageIndex);
-  }, [pageIndex,formData.reload]);
+  }, 500); // 500ms debounce
+
+  return () => {
+    clearTimeout(handler);
+  };
+}, [pageIndex, formData.reload, searchTerm]);
   useEffect(() => {
     const fetchRoles = async () => {
       try {
@@ -91,7 +97,7 @@ export default function UserManagement() {
   const handleSave = async () => {
     try {
       if (editingUser) {
-        await updateUser(editingUser.id, formData);
+        await updateUser(editingUser.id ?? "", formData);
         showAlert("Cập nhật user thành công", "success");
       } else {
         await createUser({ user_name: formData.user_name, display_name: formData.display_name, role_id: formData.role, password: formData.password });
@@ -100,7 +106,7 @@ export default function UserManagement() {
       setIsModalOpen(false);
       setEditingUser(null);
       // fetchUsers(pageIndex);
-      setFormData({ ...formData,reload:!formData.reload });
+      setFormData({ ...formData, reload: !formData.reload });
     } catch (err) {
       console.error(err);
       showAlert("Lưu user thất bại", "error");
@@ -111,7 +117,7 @@ export default function UserManagement() {
     try {
       await deleteUser(id);
       showAlert("Xóa user thành công", "success");
-      setFormData({ ...formData,reload:!formData.reload });
+      setFormData({ ...formData, reload: !formData.reload });
     } catch (err) {
       console.error(err);
       showAlert("Xóa user thất bại", "error");
@@ -120,10 +126,8 @@ export default function UserManagement() {
 
   const handleToggleActive = async (user: User) => {
     try {
-      await updateUser(user.id, { ...user, is_active: !user.is_active });
-      setUsers((prev) =>
-        prev.map((u) => (u.id === user.id ? { ...u, is_active: !u.is_active } : u))
-      );
+      await updateUser(user.id ?? "", {  is_active: !user.is_active });
+      setFormData({ ...formData, reload: !formData.reload });
       showAlert("Cập nhật trạng thái thành công", "success");
     } catch (err) {
       console.error(err);
@@ -205,7 +209,8 @@ export default function UserManagement() {
                     variant="outline"
                     onClick={() => {
                       setEditingUser(u);
-                      setFormData(u);
+                      console.log(u);
+                      setFormData({ is_active: u.is_active, display_name: u.display_name, role: u?.role?.id });
                       setIsModalOpen(true);
                     }}
                   >
@@ -258,14 +263,25 @@ export default function UserManagement() {
               </Button>
             </div>
             <div className="p-6 space-y-4">
-              <div>
-                <Label className="mb-3">Username</Label>
-                <Input value={formData.user_name} onChange={(e) => handleChange("user_name", e.target.value)} />
-              </div>
-              <div>
-                <Label className="mb-3">Password</Label>
-                <Input type="password" value={formData.password} onChange={(e) => handleChange("password", e.target.value)} />
-              </div>
+              {
+
+              }
+              {
+                !editingUser && (
+                  <div>
+                    <Label className="mb-3">Username</Label>
+                    <Input value={formData.user_name} onChange={(e) => handleChange("user_name", e.target.value)} />
+                  </div>
+                )
+              }
+              {
+                !editingUser && (
+                  <div>
+                    <Label className="mb-3">Password</Label>
+                    <Input type="password" value={formData.password} onChange={(e) => handleChange("password", e.target.value)} />
+                  </div>
+                )
+              }
               <div>
                 <Label className="mb-3">Tên hiển thị</Label>
                 <Input value={formData.display_name} onChange={(e) => handleChange("display_name", e.target.value)} />
@@ -276,7 +292,7 @@ export default function UserManagement() {
                   value={formData.role}
                   onValueChange={(val) => {
                     console.log(val);
-                    
+
                     handleChange("role", val || null);
                   }}
                 >

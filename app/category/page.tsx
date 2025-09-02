@@ -23,13 +23,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { getCategoryType } from '@/api/category_type';
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { getCategoryType } from '@/api/category_type';
+
 import { cn } from '@/lib/utils';
 import { createCategory, deleteCategory, getCategory, updateCategory } from '@/api/categor';
 // Category Data Interface

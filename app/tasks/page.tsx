@@ -30,7 +30,7 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip"
-import { Check, Search } from "lucide-react"
+import { Check, Search, ChevronDown, ChevronRight, X } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -49,12 +49,13 @@ import { CheckCircle, Plus, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton"; // 👈 Skeleton từ shadcn
 
 import { getCategory } from "@/api/categor";
-import { createTasks, deleteTask, getTasks, updateTask } from "@/api/task";
+import { createTasks, deleteTask, getTaskById, getTasks, updateTask } from "@/api/task";
 import { mapTasksToBoard } from "@/utils/convert";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createComment, getComments } from "@/api/comment";
-import { getStaff } from "@/api/staff";
+import { createSubTask, getStaff } from "@/api/staff";
+import { set } from "react-hook-form";
 interface Task {
   id: string;
   title: string;
@@ -72,6 +73,8 @@ interface Task {
   sender?: string,
   receiver?: string,
   assignee_name?: string,
+  priority_id?: string,
+  subTasks?: any
 }
 
 interface Column {
@@ -128,6 +131,9 @@ export default function TasksPage() {
   // const [formData, setFormData] = useState({
 
   // })
+  const [showAddSubTask, setShowAddSubTask] = useState(false);
+  const [detail, setDetail] = useState<any>({})
+  const [priority, setPriority] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   function stringToColor(str: string) {
     let hash = 0
@@ -153,6 +159,32 @@ export default function TasksPage() {
   // loading skeleton
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
+  const [showSubTasks, setShowSubTasks] = useState(false);
+  const [subTasks, setSubTasks] = useState<any[]>([{
+    assign: "",
+    priority_id: "",
+    status_id: "",
+    person_id: "",
+    title: "Task"
+  }]);
+  // const [newSubTask, setNewSubTask] = useState("");
+  const handleUpdateSubTask =  async (data: any,field:string,v="") => {
+    const payload: any = { [field]: v };
+      const res = await updateTask(data.id, payload);
+      setFormData({ ...formData, reload: !formData.reload });
+  }
+  const handleAddSubTask = async () => {
+    const res = await createSubTask(detail)
+    // console.log(editingTask);
+
+    // if (!newSubTask.trim()) return;
+    // setSubTasks([...subTasks, { id: Date.now(), title: newSubTask }]);
+    // setNewSubTask("");
+  };
+
+  const handleDeleteSubTask = (id: number) => {
+    setSubTasks(subTasks.filter((t) => t.id !== id));
+  };
   const handleAddComment = async () => {
     try {
       const res = await createComment({
@@ -200,6 +232,8 @@ export default function TasksPage() {
     reload: false,
     sender: "",
     receiver: "",
+    priority_id: "",
+    
   });
 
   const onDragEnd = async (result: any) => {
@@ -241,7 +275,7 @@ export default function TasksPage() {
       [newFinish.id]: newFinish,
     });
 
-    console.log(result);
+
     const id = status.find((s: any) => s.display_name.toUpperCase() === result.destination?.droppableId.toUpperCase())?.id;
     // console.log(id);
     await updateTask(result.draggableId, { status_id: id });
@@ -249,12 +283,51 @@ export default function TasksPage() {
 
   };
 
-  const handleOpenModal = (task?: Task) => {
+  const handleOpenModal = async (task?: Task) => {
+
+
     if (task) {
       setEditingTask(task);
       console.log(task);
 
       setFormData({ ...task });
+      const res = await getTaskById(task.id);
+      const {
+        id,
+        code,
+        title,
+        description,
+        status_id,
+        priority_id,
+        type_id,
+        relation_domain_id,
+        start_date,
+        due_date,
+        end_date,
+        progress_percent,
+        // parent_task_id,
+        estimated_hours,
+        actual_hours,
+        assignee_id,
+        ...rest
+      } = res.data
+      setDetail({
+        code,
+        title,
+        description,
+        status_id,
+        priority_id,
+        type_id,
+        relation_domain_id,
+        start_date,
+        due_date,
+        end_date,
+        progress_percent,
+        parent_task_id: id,
+        estimated_hours,
+        actual_hours,
+        assignee_id,
+      })
     } else {
       setEditingTask(null);
       setFormData({
@@ -268,9 +341,11 @@ export default function TasksPage() {
         image: "",
         sender: "",
         receiver: "",
+        priority_id: ""
       });
     }
     setOpen(true);
+
   };
 
   const handleSave = async () => {
@@ -281,7 +356,9 @@ export default function TasksPage() {
         status_id: formData.status_id,
         start_date: formData.startDate,
         end_date: formData.endDate,
-        due_date: formData.dueDate
+        due_date: formData.dueDate,
+        priority_id: formData.priority_id,
+        assignee_id: formData.receiver,
       });
     } else {
       const res = await createTasks({
@@ -290,7 +367,8 @@ export default function TasksPage() {
         status_id: formData.status_id,
         start_date: formData.startDate,
         end_date: formData.endDate,
-        due_date: formData.dueDate
+        due_date: formData.dueDate,
+        priority_id: formData.priority_id
       });
       console.log(res);
 
@@ -329,23 +407,27 @@ export default function TasksPage() {
 
     }
   };
+
+  
   useEffect(() => {
     setComments([])
     if (editingTask?.id) fetchComment(editingTask.id);
   }, [editingTask?.id, isReload]);
 
   // },[])
-useEffect(() => {
-  const delayDebounce = setTimeout(() => {
-    fetchTask(searchTerm);
-  }, 500); // 500ms debounce
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      fetchTask(searchTerm);
+    }, 500); // 500ms debounce
 
-  return () => clearTimeout(delayDebounce);
-}, [formData.reload,searchTerm]);
+    return () => clearTimeout(delayDebounce);
+  }, [formData.reload, searchTerm]);
   const fetchStatus = async () => {
     try {
       const res = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "STATUS" });
+      const priority = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "PRIORITY" });
       setStatus(res.data.rows);
+      setPriority(priority.data.rows);
     } catch (err) {
       console.error(err);
 
@@ -549,30 +631,54 @@ useEffect(() => {
               </div>
 
               {/* Trạng thái */}
-              <div>
-                <Label className="mb-2">Trạng thái</Label>
-                <Select
-                  value={formData.status_id}
-                  onValueChange={(v) => setFormData({ ...formData, status_id: v })}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Chọn trạng thái" />
-                  </SelectTrigger>
-                  {/* <SelectContent>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="mb-2">Trạng thái</Label>
+                  <Select
+                    value={formData.status_id}
+                    onValueChange={(v) => setFormData({ ...formData, status_id: v })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Chọn trạng thái" />
+                    </SelectTrigger>
+                    {/* <SelectContent>
                   <SelectItem value="todo">Todo</SelectItem>
                   <SelectItem value="in-progress">In Progress</SelectItem>
                   <SelectItem value="done">Done</SelectItem>
                 </SelectContent> */}
-                  <SelectContent>
-                    {
-                      status.map((item: any) => (
-                        <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
-                      ))
-                    }
-                  </SelectContent>
-                </Select>
+                    <SelectContent>
+                      {
+                        status.map((item: any) => (
+                          <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="mb-2">Độ ưu tiên</Label>
+                  <Select
+                    value={formData.priority_id}
+                    onValueChange={(v) => setFormData({ ...formData, priority_id: v })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Chọn độ ưu tiên" />
+                    </SelectTrigger>
+                    {/* <SelectContent>
+                  <SelectItem value="todo">Todo</SelectItem>
+                  <SelectItem value="in-progress">In Progress</SelectItem>
+                  <SelectItem value="done">Done</SelectItem>
+                </SelectContent> */}
+                    <SelectContent>
+                      {
+                        priority.map((item: any) => (
+                          <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-
               {/* Người làm + Người giao */}
               <div className="grid grid-cols-2 gap-4">
                 {/* Người giao */}
@@ -728,6 +834,154 @@ useEffect(() => {
                 />
               </div>
 
+
+              {/* Task con */}
+              <div className="mt-1">
+                <div className="flex items-center justify-between">
+                  <Label className="mb-2 font-semibold flex items-center gap-2">
+                    Nhiệm vụ phụ
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setShowSubTasks((prev) => !prev)}
+                    >
+                      {showSubTasks ? (
+                        <ChevronDown className="h-5 w-5" />
+                      ) : (
+                        <ChevronRight className="h-5 w-5" />
+                      )}
+                    </Button>
+                  </Label>
+                </div>
+
+                {showSubTasks && (
+                  <div className="mt-1 space-y-2">
+                    {subTasks.length > 0 ? (
+                      <div className="overflow-x-auto rounded-lg border">
+                        <table className="w-full border-collapse">
+                          <thead>
+                            <tr className="bg-gray-100 text-left">
+                              <th className="px-3 py-2 text-sm font-semibold">Tên nhiệm vụ</th>
+                              <th className="px-3 py-2 text-sm font-semibold">Người làm</th>
+                              <th className="px-3 py-2 text-sm font-semibold">Độ ưu tiên</th>
+                              <th className="px-3 py-2 text-sm font-semibold">Trạng thái</th>
+
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {editingTask?.subTasks && editingTask?.subTasks.map((st:any, idx:number) => (
+                              <tr onClick={() => handleOpenModal(st)} key={idx} className="border-t hover:bg-gray-50" >
+                                {/* Tên task */}
+                                <td className="px-3 py-2 text-sm">{st.title}</td>
+
+                                {/* Người làm */}
+                                <td className="px-3 py-2 text-sm">
+                                  <Select
+                                    value={st.receiver}
+                                    onValueChange={(v) =>
+                                      handleUpdateSubTask(st,"assignee_id",v)
+                                    }
+                                  >
+                                    <SelectTrigger onClick={(e) => e.stopPropagation()} className="w-[150px]">
+                                      <SelectValue placeholder="Chọn người làm" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {staff.map((person) => (
+                                        <SelectItem key={person.id} value={person.id}>
+                                          {person.display_name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </td>
+
+                                {/* Độ ưu tiên */}
+                                <td className="px-3 py-2 text-sm">
+                                  <Select
+                                    value={st.priority_id}
+                                    onValueChange={(v) =>
+                                      handleUpdateSubTask(st,"priority_id",v)
+                                    }
+                                  >
+                                    <SelectTrigger onClick={(e) => e.stopPropagation()} className="w-[120px]">
+                                      <SelectValue placeholder="Chọn ưu tiên" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {priority.map((p) => (
+                                        <SelectItem key={p.id} value={p.id}>
+                                          {p.display_name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </td>
+
+                                {/* Trạng thái */}
+                                <td className="px-3 py-2 text-sm">
+                                  <Select
+                                    value={st.status_id}
+                                    onValueChange={(v) =>
+                                      handleUpdateSubTask(st,"status_id",v)
+                                    }
+                                  >
+                                    <SelectTrigger className="w-[130px]">
+                                      <SelectValue placeholder="Chọn trạng thái" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {status.map((s) => (
+                                        <SelectItem key={s.id} value={s.id}>
+                                          {s.display_name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </td>
+
+                                {/* Hành động */}
+
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">Chưa có task con nào</p>
+                    )}
+
+                    {/* Nút + để bật form thêm */}
+                    {!showAddSubTask ? (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setShowAddSubTask(true)}
+                      >
+                        <Plus className="h-5 w-5" />
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2 mt-2">
+                        <Input
+                          placeholder="Nhập tên task con..."
+                          value={detail.title}
+                          onChange={(e) => setDetail({
+                            ...detail,
+                            title: e.target.value
+                          })}
+                        />
+                        <Button onClick={handleAddSubTask}>Thêm</Button>
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            setShowAddSubTask(false);
+                            // setNewSubTask("");
+                          }}
+                        >
+                          Hủy
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
               {/* Ảnh */}
               {/* <div>
               <Label className="mb-2">Ảnh đại diện</Label>

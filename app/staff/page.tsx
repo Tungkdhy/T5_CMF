@@ -1,9 +1,40 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, X, XCircle, CheckCircle, Search } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+// import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+// import { Button } from "@/components/ui/button"
+import { Check, ChevronsUpDown } from "lucide-react"
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command"
+import {
+  // Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 
+const frameworks = [
+  { value: "next.js", label: "Next.js" },
+  { value: "react", label: "React" },
+  { value: "vue", label: "Vue" },
+  { value: "svelte", label: "Svelte" },
+]
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +45,10 @@ import { Switch } from "@/components/ui/switch";
 import { useGlobalContext } from '@/context/GlobalContext';
 
 // giả lập API (bạn thay bằng api thật)
-import { getStaff, createStaff, updateStaff, deleteStaff } from "@/api/staff";
+import { getStaff, createStaff, updateStaff, deleteStaff, getAllRoles } from "@/api/staff";
+import { Checkbox } from "@/components/ui/checkbox";
+import { getCategory } from "@/api/categor";
+import { Select } from "@/components/ui/select";
 
 interface User {
   id: string;
@@ -26,12 +60,18 @@ interface User {
   position_name: string | null;
   tckgm_level_name: string | null;
   is_active: boolean;
+  role_id?: string | null;
+  unit_id?: string | null;
+  organization_id?: string | null;
 }
 
 export default function UserManagement() {
   const { isRefreshMenu, setIsRefreshMenu } = useGlobalContext();
   const [users, setUsers] = useState<User[]>([]);
-
+  const [multiSelect, setMultiSelect] = useState<any>({
+    skill: [],
+    certificate: []
+  })
   const [pageIndex, setPageIndex] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -44,15 +84,29 @@ export default function UserManagement() {
     email: "",
     rank_name: "",
     position_name: "",
-    tckgm_level_name: "",
+    tckgm_level_name: "0b21e44f-93bf-4554-9c1f-1e4f3e29d390",
     is_active: true,
+    role_id: "",
+    unit_id: "",
+    organization_id: ""
   });
 
   const [status, setStatus] = useState<"success" | "error" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [selected, setSelected] = useState<any>({
+    skill: [],
+    certificate: []
+  })
 
+  const toggleValue = (value: string, type: "skill" | "certificate") => {
+    setSelected((prev: any) => ({
+      ...prev,
+      [type]: prev[type].includes(value) ? prev[type].filter((v: any) => v !== value) : [...prev[type], value]
+    }));
+
+  }
   const pageSize = 10;
-
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
   const showAlert = (msg: string, type: "success" | "error") => {
     setMessage(msg);
     setStatus(type);
@@ -62,10 +116,20 @@ export default function UserManagement() {
     }, 3000);
   };
 
-  const handleEdit = (user: User) => {
+  const handleEdit = (user: any) => {
     setEditingUser(user);
     const { id, ...rest } = user;
-    setFormData(rest);
+    setFormData({
+      ...rest,
+      rank_name: rest.rank_id ?? "",
+      position_name: rest.position_id ?? "",
+      tckgm_level_name: rest.tckgm_level_id ?? "",
+
+    });
+    setSelected({
+      skill: user.skills ? user.skills.map((s: any) => s.id) : [],
+      certificate: user.certificates ? user.certificates.map((c: any) => c.id) : []
+    })
     setIsModalOpen(true);
   };
 
@@ -78,10 +142,13 @@ export default function UserManagement() {
 
   const handleSave = async () => {
     if (editingUser) {
-      await updateStaff(editingUser.id, formData);
+      await updateStaff(editingUser.id, {
+        ...formData,
+        ...selected
+      });
       showAlert("Cập nhật người dùng thành công", "success");
     } else {
-      await createStaff(formData);
+      await createStaff({ ...formData, ...selected });
       showAlert("Thêm người dùng thành công", "success");
     }
     setIsModalOpen(false);
@@ -109,19 +176,46 @@ export default function UserManagement() {
       showAlert("Lấy danh sách thất bại", "error");
     }
   };
+  const fetchSelect = async (page: number) => {
+    try {
+      const res = await getCategory({ pageSize: 1000, pageIndex: page, scope: "SKILL" });
+      const res2 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "CERTIFICATE" });
+      const res3 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "POSITION" });
+      const res4 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "LEVEL" });
+      const res5 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "LEVEL_TCKGM" });
+      const res7 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "UNIT" });
+      const res8 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "ORGANIZATION" });
+      const res6 = await getAllRoles({ pageSize, pageIndex });
+      setMultiSelect({
+        skill: res.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
+        certificate: res2.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
+        position: res3.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
+        level: res4.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
+        level_tckgm: res5.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
+        roles: res6.data.data.roles,
+        unit: res7.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
+        organization: res8.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
+      });
+    } catch (err) {
+      console.error(err);
+      showAlert("Lấy danh sách thất bại", "error");
+    }
+  };
 
   useEffect(() => {
     fetchUsers(pageIndex);
   }, [pageIndex]);
-
+  useEffect(() => {
+    fetchSelect(1);
+  }, []);
   return (
     <div className="min-h-screen bg-gray-50 p-3">
       {message && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
           <Alert
             className={`rounded-xl shadow-lg ${status === "success"
-                ? "bg-green-100 border-green-500 text-green-800"
-                : "bg-red-100 border-red-500 text-red-800"
+              ? "bg-green-100 border-green-500 text-green-800"
+              : "bg-red-100 border-red-500 text-red-800"
               }`}
           >
             {status === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
@@ -132,7 +226,7 @@ export default function UserManagement() {
       )}
 
       <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-1">
           <div className="relative ">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
@@ -154,6 +248,12 @@ export default function UserManagement() {
               position_name: "",
               tckgm_level_name: "",
               is_active: true,
+              organization_id: "",
+              unit_id: "",
+            });
+            setSelected({
+              skill: [],
+              certificate: [],
             });
           }} className="flex items-center gap-2">
             <Plus className="w-4 h-4" /> Thêm nhân viên
@@ -255,32 +355,375 @@ export default function UserManagement() {
 
             <div className="p-6 space-y-4">
               <div>
-                <Label>Tên hiển thị</Label>
+                <Label className="mb-1">Tên hiển thị</Label>
                 <Input value={formData.display_name ?? ""} onChange={(e) => handleChange("display_name", e.target.value)} />
               </div>
               <div>
-                <Label>SĐT</Label>
+                <Label className="mb-1">SĐT</Label>
                 <Input value={formData.phone_number ?? ""} onChange={(e) => handleChange("phone_number", e.target.value)} />
               </div>
               <div>
-                <Label>Email</Label>
+                <Label className="mb-1">Email</Label>
                 <Input value={formData.email ?? ""} onChange={(e) => handleChange("email", e.target.value)} />
               </div>
-              <div>
-                <Label>Cấp bậc</Label>
-                <Input value={formData.rank_name ?? ""} onChange={(e) => handleChange("rank_name", e.target.value)} />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="mb-1">Vai trò</Label>
+                  <Select
+                    value={formData.role_id ?? ""}
+                    onValueChange={(val) => {
+                      console.log(val);
+
+                      handleChange("role_id", val || null);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Lọc theo loại">
+                        {multiSelect.roles.find((x: any) => x.value === formData.role_id)?.label}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent >
+                      {multiSelect.roles.map((r: any) => (
+                        <SelectItem key={r.value} value={r.value}>
+                          {r.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className='mb-3' htmlFor="status">Cấp bậc</Label>
+                  <Select value={formData.rank_name ?? ""} onValueChange={(value) => setFormData((prev) => ({ ...prev, rank_name: value }))}>
+                    <SelectTrigger className="w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                      <SelectValue placeholder="Lọc theo loại">
+                        {multiSelect.level.find((x: any) => x.value === formData.rank_name)?.label}
+                      </SelectValue>
+                    </SelectTrigger>
+
+                    <SelectContent className="w-full">
+                      <TooltipProvider>
+                        <Command>
+                          <CommandInput placeholder="Tìm kiếm..." />
+                          <CommandList>
+                            <CommandEmpty>Không tìm thấy</CommandEmpty>
+                            <CommandGroup>
+                              {multiSelect.level.map((item: any) => (
+                                <Tooltip key={item.value}>
+                                  <TooltipTrigger asChild>
+                                    <CommandItem
+                                      value={item.value}
+                                      onSelect={() => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          rank_name: item.value
+                                        }))
+                                        // đóng select
+                                      }}
+                                      className={cn(
+                                        "truncate flex items-center justify-between",
+                                        formData.rank_name === item.value && "bg-blue-100 font-semibold"
+                                      )}
+                                    >
+                                      {item.label}
+                                      {formData.rank_name === item.value && (
+                                        <Check className="h-4 w-4 ml-2 text-blue-600" />
+                                      )}
+                                    </CommandItem>
+                                  </TooltipTrigger>
+                                  <TooltipContent>{item.label}</TooltipContent>
+                                </Tooltip>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </TooltipProvider>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div>
-                <Label>Chức vụ</Label>
-                <Input value={formData.position_name ?? ""} onChange={(e) => handleChange("position_name", e.target.value)} />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className='mb-3' htmlFor="status">Chức vụ</Label>
+                  <Select value={formData.position_name ?? ""} onValueChange={(value) => setFormData((prev) => ({ ...prev, position_name: value }))}>
+                    <SelectTrigger className="w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                      <SelectValue placeholder="Lọc theo loại">
+                        {multiSelect.position.find((x: any) => x.value === formData.position_name)?.label}
+                      </SelectValue>
+                    </SelectTrigger>
+
+                    <SelectContent className="w-full">
+                      <TooltipProvider>
+                        <Command>
+                          <CommandInput placeholder="Tìm kiếm..." />
+                          <CommandList>
+                            <CommandEmpty>Không tìm thấy</CommandEmpty>
+                            <CommandGroup>
+                              {multiSelect.position.map((item: any) => (
+                                <Tooltip key={item.value}>
+                                  <TooltipTrigger asChild>
+                                    <CommandItem
+                                      value={item.value}
+                                      onSelect={() => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          position_name: item.value
+                                        }))
+                                        // đóng select
+                                      }}
+                                      className={cn(
+                                        "truncate flex items-center justify-between",
+                                        formData.position_name === item.value && "bg-blue-100 font-semibold"
+                                      )}
+                                    >
+                                      {item.label}
+                                      {formData.position_name === item.value && (
+                                        <Check className="h-4 w-4 ml-2 text-blue-600" />
+                                      )}
+                                    </CommandItem>
+                                  </TooltipTrigger>
+                                  <TooltipContent>{item.label}</TooltipContent>
+                                </Tooltip>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </TooltipProvider>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className='mb-3' htmlFor="status">Trình độ</Label>
+                  <Select value={formData.tckgm_level_name ?? ""} onValueChange={(value) => setFormData((prev) => ({ ...prev, tckgm_level_name: value }))}>
+                    <SelectTrigger className="w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                      <SelectValue placeholder="Chọn trình độ">
+                        {multiSelect.level_tckgm.find((x: any) => x.value === formData.tckgm_level_name)?.label}
+                      </SelectValue>
+                    </SelectTrigger>
+
+                    <SelectContent className="w-full">
+                      <TooltipProvider>
+                        <Command>
+                          <CommandInput placeholder="Tìm kiếm..." />
+                          <CommandList>
+                            <CommandEmpty>Không tìm thấy</CommandEmpty>
+                            <CommandGroup>
+                              {multiSelect.level_tckgm.map((item: any) => (
+                                <Tooltip key={item.value}>
+                                  <TooltipTrigger asChild>
+                                    <CommandItem
+                                      value={item.value}
+                                      onSelect={() => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          tckgm_level_name: item.value
+                                        }))
+                                        // đóng select
+                                      }}
+                                      className={cn(
+                                        "truncate flex items-center justify-between",
+                                        formData.tckgm_level_name === item.value && "bg-blue-100 font-semibold"
+                                      )}
+                                    >
+                                      {item.label}
+                                      {formData.tckgm_level_name === item.value && (
+                                        <Check className="h-4 w-4 ml-2 text-blue-600" />
+                                      )}
+                                    </CommandItem>
+                                  </TooltipTrigger>
+                                  <TooltipContent>{item.label}</TooltipContent>
+                                </Tooltip>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </TooltipProvider>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div>
-                <Label>Trình độ</Label>
-                <Input value={formData.tckgm_level_name ?? ""} onChange={(e) => handleChange("tckgm_level_name", e.target.value)} />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className='mb-3' htmlFor="status">Đơn vị</Label>
+                  <Select value={formData.unit_id ?? ""} onValueChange={(value) => setFormData((prev) => ({ ...prev, unit_id: value }))}>
+                    <SelectTrigger className="w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                      <SelectValue placeholder="Lọc theo loại">
+                        {multiSelect.unit.find((x: any) => x.value === formData.unit_id)?.label}
+                      </SelectValue>
+                    </SelectTrigger>
+
+                    <SelectContent className="w-full">
+                      <TooltipProvider>
+                        <Command>
+                          <CommandInput placeholder="Tìm kiếm..." />
+                          <CommandList>
+                            <CommandEmpty>Không tìm thấy</CommandEmpty>
+                            <CommandGroup>
+                              {multiSelect.unit.map((item: any) => (
+                                <Tooltip key={item.value}>
+                                  <TooltipTrigger asChild>
+                                    <CommandItem
+                                      value={item.value}
+                                      onSelect={() => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          unit_id: item.value
+                                        }))
+                                        // đóng select
+                                      }}
+                                      className={cn(
+                                        "truncate flex items-center justify-between",
+                                        formData.unit_id === item.value && "bg-blue-100 font-semibold"
+                                      )}
+                                    >
+                                      {item.label}
+                                      {formData.unit_id === item.value && (
+                                        <Check className="h-4 w-4 ml-2 text-blue-600" />
+                                      )}
+                                    </CommandItem>
+                                  </TooltipTrigger>
+                                  <TooltipContent>{item.label}</TooltipContent>
+                                </Tooltip>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </TooltipProvider>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className='mb-3' htmlFor="status">Tổ chức</Label>
+                  <Select value={formData.organization_id ?? ""} onValueChange={(value) => setFormData((prev) => ({ ...prev, organization_id: value }))}>
+                    <SelectTrigger className="w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                      <SelectValue placeholder="Chọn tổ chức">
+                        {multiSelect.organization.find((x: any) => x.value === formData.organization_id)?.label}
+                      </SelectValue>
+                    </SelectTrigger>
+
+                    <SelectContent className="w-full">
+                      <TooltipProvider>
+                        <Command>
+                          <CommandInput placeholder="Tìm kiếm..." />
+                          <CommandList>
+                            <CommandEmpty>Không tìm thấy</CommandEmpty>
+                            <CommandGroup>
+                              {multiSelect.organization.map((item: any) => (
+                                <Tooltip key={item.value}>
+                                  <TooltipTrigger asChild>
+                                    <CommandItem
+                                      value={item.value}
+                                      onSelect={() => {
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          organization_id: item.value
+                                        }))
+                                        // đóng select
+                                      }}
+                                      className={cn(
+                                        "truncate flex items-center justify-between",
+                                        formData.organization_id === item.value && "bg-blue-100 font-semibold"
+                                      )}
+                                    >
+                                      {item.label}
+                                      {formData.organization_id === item.value && (
+                                        <Check className="h-4 w-4 ml-2 text-blue-600" />
+                                      )}
+                                    </CommandItem>
+                                  </TooltipTrigger>
+                                  <TooltipContent>{item.label}</TooltipContent>
+                                </Tooltip>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </TooltipProvider>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Label>Hoạt động</Label>
-                <Switch checked={formData.is_active} onCheckedChange={(checked) => handleChange("is_active", checked)} />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="mb-1">Chứng chỉ</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+
+
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {selected.certificate.length > 0
+                          ? multiSelect.certificate
+                            .filter((f: any) => selected.certificate.includes(f.value))
+                            .map((f: any) => f.label)
+                            .join(", ")
+                          : "Chọn chứng chỉ"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandGroup>
+                          {multiSelect.certificate.map((f: any) => (
+                            <CommandItem
+                              key={f.value}
+                              className="flex items-center gap-2 w-full"
+                              onSelect={() => toggleValue(f.value, "certificate")}
+                            >
+                              <Checkbox
+                                checked={selected.certificate.includes(f.value)}
+                                onCheckedChange={() => toggleValue(f.value, "certificate")}
+                                className="pointer-events-none" // tránh bị conflict khi click item
+                              />
+                              <span>{f.label}</span>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div>
+                  <Label className="mb-1">Kỹ năng</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between"
+                      >
+                        {selected.skill.length > 0
+                          ? multiSelect.skill
+                            .filter((f: any) => selected.skill.includes(f.value))
+                            .map((f: any) => f.label)
+                            .join(", ")
+                          : "Chọn kỹ năng"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandGroup >
+                          {multiSelect.skill.map((f: any) => (
+                            <CommandItem
+                              key={f.value}
+                              className="flex items-center gap-2 w-full"
+                              onSelect={() => toggleValue(f.value, "skill")}
+                            >
+                              <Checkbox
+                                checked={selected.skill.includes(f.value)}
+                                onCheckedChange={() => toggleValue(f.value, "skill")}
+                                className="pointer-events-none" // tránh bị conflict khi click item
+                              />
+                              <span>{f.label}</span>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
             </div>
 

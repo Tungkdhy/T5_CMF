@@ -30,8 +30,8 @@ export async function getTasks({
 }
 
 // Lấy chi tiết user theo id
-export async function getUserById(id: string) {
-  const res = await api.get(`/users/${id}`);
+export async function getTaskById(id: string) {
+  const res = await api.get(`/tasks/${id}`);
   return res.data;
 }
 export async function createTasks({
@@ -41,6 +41,7 @@ export async function createTasks({
   start_date,
   end_date,
   due_date,
+  priority_id
 }: {
   title: string;
   description: string;
@@ -48,15 +49,18 @@ export async function createTasks({
   start_date?: string;
   end_date?: string;
   due_date?: string;
+  priority_id?: string;
 }) {
-  const res = await api.post("/tasks", {
-    title,
-    description,
-    status_id,
-    start_date,
-    end_date,
-    due_date
-  });
+  const payload: any = {};
+
+  if (title) payload.title = title;
+  if (description) payload.description = description;
+  if (status_id) payload.status_id = status_id;
+  if (start_date) payload.start_date = start_date;
+  if (end_date) payload.end_date = end_date;
+  if (due_date) payload.due_date = due_date;
+  if (priority_id) payload.priority_id = priority_id;
+  const res = await api.post("/tasks", payload);
   return res.data;
 }
 export async function updateTask(
@@ -67,7 +71,9 @@ export async function updateTask(
     status_id,
     start_date,
     end_date,
-    due_date
+    due_date,
+    priority_id,
+    assignee_id
   }: {
     title?: string;
     description?: string;
@@ -75,6 +81,8 @@ export async function updateTask(
     start_date?: string;
     end_date?: string;
     due_date?: string;
+    priority_id?: string;
+    assignee_id?: string;
   }
 ) {
   // tạo payload chỉ chứa field có giá trị
@@ -86,6 +94,8 @@ export async function updateTask(
   if (start_date) payload.start_date = start_date;
   if (end_date) payload.end_date = end_date;
   if (due_date) payload.due_date = due_date;
+  if (priority_id) payload.priority_id = priority_id;
+  if (assignee_id) payload.assignee_id = assignee_id;
 
   const res = await api.put(`/tasks/${id}`, payload);
   return res.data;

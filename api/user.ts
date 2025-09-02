@@ -14,15 +14,16 @@ export async function getAllRoles({ pageSize = 10, pageIndex = 1 }) {
 
 // Tạo user mới
 export async function createUser(data: any) {
-  return api.post("/users", data);
+  return api.post("/user", data);
 }
 
 // Cập nhật user
 export async function updateUser(id: string, data: any) {
-  return api.put(`/users/${id}`, data);
+  const {password,role, ...rest} = data;
+  return api.put(`/user/${id}`, {...rest,role_id: role});
 }
 
 // Xóa user
 export async function deleteUser(id: string) {
-  return api.delete(`/users/${id}`);
+  return api.delete(`/user/${id}`);
 }

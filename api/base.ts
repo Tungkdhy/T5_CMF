@@ -25,6 +25,14 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: any) => {
+    if (error.response?.status === 401) {
+      // Xóa token (nếu có)
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("accessToken");
+        // Redirect sang login
+        window.location.href = "/login";
+      }
+    }
     console.error("API error:", error.response?.data || error.message);
     return Promise.reject(error);
   }

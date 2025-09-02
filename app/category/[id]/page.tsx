@@ -45,7 +45,7 @@ import { useParams } from "next/navigation";
 import { get } from 'http';
 export default function CategoryManagementPage() {
     const params = useParams();
-    const id = params.id;
+    const id_scope = params.id;
     const [open, setOpen] = useState(false)
     const [open2, setOpen2] = useState(false)
     const [categories, setCategories] = useState<Category[]>([
@@ -173,7 +173,7 @@ export default function CategoryManagementPage() {
             setFormData((prev) => ({
                 ...prev,
                 reload: !prev.reload,
-                category_type_id: getIdByScope(id, categoryTypes)
+                category_type_id: getIdByScope(id_scope, categoryTypes)
             }))
             showAlert(`Thêm mới thành công`, "success")
             // Add new category
@@ -211,7 +211,7 @@ export default function CategoryManagementPage() {
                 visible: true,
             });
             setCategoryTypes(data.data.rows);
-            const categoryTypeId = getIdByScope(id, data.data.rows);
+            const categoryTypeId = getIdByScope(id_scope, data.data.rows);
 
             setFormData((prev) => ({ ...prev, category_type_id: categoryTypeId }))
 
@@ -222,14 +222,14 @@ export default function CategoryManagementPage() {
 
         };
         fetchCategoryTypes();
-    }, [id]);
+    }, [id_scope]);
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
             const fetchCategories = async () => {
                 const data = await getCategory({
                     pageSize: 10,
                     pageIndex: 1,
-                    scope: id,
+                    scope: id_scope,
                     name: searchTerm, // truyền thêm name
                 });
                 setCategories(data.data.rows);
@@ -238,7 +238,7 @@ export default function CategoryManagementPage() {
         }, 500); // 500ms debounce
 
         return () => clearTimeout(delayDebounce); // clear nếu user tiếp tục gõ
-    }, [id, formData.reload, searchTerm]);
+    }, [id_scope, formData.reload, searchTerm]);
     return (
         <div className="min-h-screen bg-gray-50 p-3">
             {message && (
