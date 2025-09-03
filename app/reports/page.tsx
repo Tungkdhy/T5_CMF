@@ -23,6 +23,7 @@ import {
     updateReport,
     deleteReport
 } from "@/api/reports";
+import { getCategory } from "@/api/categor";
 // Report Data Interface
 interface Report {
     id: string;
@@ -38,7 +39,7 @@ export default function ReportManagementPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingReport, setEditingReport] = useState<Report | null>(null);
-
+    const [level, setLevel] = useState<any>([])
     const [formData, setFormData] = useState<Report>({
         id: "",
         report_name: "",
@@ -149,7 +150,17 @@ export default function ReportManagementPage() {
         };
         fetchReports();
     }, [searchTerm]);
-
+    useEffect(() => {
+        const fetchLevel = async () => {
+            const data = await getCategory({
+                pageSize: 10,
+                pageIndex: 1,
+                scope:"LEVEL_REPORT",
+            });
+            setLevel(data.data.rows);
+        };
+        fetchLevel();
+    }, [searchTerm]);
     return (
         <div className="min-h-screen bg-gray-50 p-3">
             {/* Alert */}
@@ -376,11 +387,11 @@ export default function ReportManagementPage() {
                                         <SelectValue placeholder="Chọn cấp báo cáo" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="1">Bộ Tư Lệnh</SelectItem>
-                                        <SelectItem value="2">Cục tác chiến</SelectItem>
-                                        <SelectItem value="3">BTTM, BQP</SelectItem>
-
-                                        <SelectItem value="5">Đảng, Nhà nước</SelectItem>
+                                       
+                                        {
+                                            level.map((item:any)=> <SelectItem value={item.id}>{item.display_name}</SelectItem>)
+                                        }
+                                        
 
                                     </SelectContent>
                                 </Select>
