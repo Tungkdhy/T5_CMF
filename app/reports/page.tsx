@@ -40,6 +40,7 @@ export default function ReportManagementPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingReport, setEditingReport] = useState<Report | null>(null);
     const [level, setLevel] = useState<any>([])
+    const [reload,setReload] = useState(false)
     const [formData, setFormData] = useState<Report>({
         id: "",
         report_name: "",
@@ -116,12 +117,14 @@ export default function ReportManagementPage() {
                     prev.map((r) => (r.id === formData.id ? { ...r, ...formData } : r))
                 );
                 showAlert("Cập nhật thành công", "success");
+                setReload(!reload)
             }
         } else {
             const res = await createReport(formData);
             if (res) {
                 setReports((prev) => [...prev, { ...formData, id: res.data.id }]);
                 showAlert("Thêm mới thành công", "success");
+                setReload(!reload)
             }
         }
         setIsModalOpen(false);
@@ -149,7 +152,7 @@ export default function ReportManagementPage() {
             setReports(data.data.rows);
         };
         fetchReports();
-    }, [searchTerm]);
+    }, [searchTerm,reload]);
     useEffect(() => {
         const fetchLevel = async () => {
             const data = await getCategory({
