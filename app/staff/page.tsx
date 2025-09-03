@@ -45,7 +45,7 @@ import { Switch } from "@/components/ui/switch";
 import { useGlobalContext } from '@/context/GlobalContext';
 
 // giả lập API (bạn thay bằng api thật)
-import { getStaff, createStaff, updateStaff, deleteStaff, getAllRoles } from "@/api/staff";
+import { getStaff, createStaff, updateStaff, deleteStaff, getAllRoles, getOrganozations } from "@/api/staff";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getCategory } from "@/api/categor";
 import { Select } from "@/components/ui/select";
@@ -141,7 +141,7 @@ export default function UserManagement() {
 
   const handleDelete = async (id: string) => {
     await deleteStaff(id);
-    fetchUsers(pageIndex,filters);
+    fetchUsers(pageIndex, filters);
     setIsRefreshMenu(!isRefreshMenu);
     showAlert("Xóa người dùng thành công", "success");
   };
@@ -182,6 +182,22 @@ export default function UserManagement() {
       showAlert("Lấy danh sách thất bại", "error");
     }
   };
+  const fetchOrganization = async (unit_id: any) => {
+    try {
+      const res = await getOrganozations(unit_id);
+      // console.log(res.data);
+      
+      setMultiSelect({
+        ...multiSelect,
+        organization: Array.isArray(res.data.data.rows) && res.data.data.rows.length > 0
+          ? res.data.data.rows.map((item: any) => ({ value: item.id, label: item.organization_name }))
+          : [],
+      });
+    } catch (err) {
+      console.error(err);
+      showAlert("Lấy danh sách thất bại", "error");
+    }
+  };
   const fetchSelect = async (page: number) => {
     try {
       const res = await getCategory({ pageSize: 1000, pageIndex: page, scope: "SKILL" });
@@ -207,7 +223,11 @@ export default function UserManagement() {
       showAlert("Lấy danh sách thất bại", "error");
     }
   };
-
+  useEffect(() => {
+    if (formData.unit_id) {
+      fetchOrganization(formData.unit_id)
+    }
+  }, [formData.unit_id])
   useEffect(() => {
     fetchUsers(pageIndex, filters);
   }, [pageIndex, filters]);
@@ -631,7 +651,7 @@ export default function UserManagement() {
                   <Label className='mb-3' htmlFor="status">Đơn vị</Label>
                   <Select value={formData.unit_id ?? ""} onValueChange={(value) => setFormData((prev) => ({ ...prev, unit_id: value }))}>
                     <SelectTrigger className="w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                      <SelectValue placeholder="Lọc theo loại">
+                      <SelectValue placeholder="Lọc theo đơn vị">
                         {multiSelect.unit.find((x: any) => x.value === formData.unit_id)?.label}
                       </SelectValue>
                     </SelectTrigger>

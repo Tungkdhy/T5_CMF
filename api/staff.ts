@@ -44,6 +44,12 @@ export async function updateStaff(id: string, data: any) {
 
   });
 }
+export async function getOrganozations(id: string) {
+  return api.get(`/category/organizations/by-unit/${id}`, {
+    params: { pageSize:1000, pageIndex:1 },
+
+  });
+}
 export async function createSubTask({
   code,
   title,
