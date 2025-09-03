@@ -1,9 +1,12 @@
 import api from "./base";
 
 // Lấy danh sách staff
-export async function getStaff({ pageSize = 10, pageIndex = 1, name = "" }) {
+export async function getStaff({ pageSize = 10, pageIndex = 1, name = "", filters = {} }) {
+  const cleanedFilters = Object.fromEntries(
+    Object.entries(filters).filter(([_, v]) => v !== "" && v != null)
+  );
   return api.get("/staff", {
-    params: { pageSize, pageIndex, name },
+    params: { pageSize, pageIndex, name, unit_id: cleanedFilters.unit, tckgm_level_id: cleanedFilters.level_tckgm, skills: cleanedFilters.skill, certificates: cleanedFilters.certificate },
   });
 }
 
@@ -15,7 +18,7 @@ export async function getAllRoles({ pageSize = 10, pageIndex = 1 }) {
 
 // Tạo staff mới
 export async function createStaff(data: any) {
-    const {user_name,created_at,created_by,tckgm_level_name,rank_name,certificate,skill,position_name,organization,unit,...rest} = data;
+  const { user_name, created_at, created_by, tckgm_level_name, rank_name, certificate, skill, position_name, organization, unit, ...rest } = data;
 
   return api.post("/staff", {
     ...rest,
@@ -30,7 +33,7 @@ export async function createStaff(data: any) {
 
 // Cập nhật staff
 export async function updateStaff(id: string, data: any) {
-  const {user_name,created_at,created_by,tckgm_level_name,rank_name,certificate,skill,position_name,organization,unit,...rest} = data;
+  const { user_name, created_at, created_by, tckgm_level_name, rank_name, certificate, skill, position_name, organization, unit, ...rest } = data;
   return api.put(`/staff/${id}`, {
     ...rest,
     rank_id: data.rank_name,

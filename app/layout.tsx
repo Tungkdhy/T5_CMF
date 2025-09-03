@@ -3,7 +3,7 @@
 import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, Mail, Bell, Folder, Layers, X, LogOut, Menu, Clipboard, Cpu, ChevronDown, Paperclip, BookAIcon } from "lucide-react";
+import { Home, Users, User, Bell, Folder, Layers, X, LogOut, Menu, Clipboard, Cpu, ChevronDown, Paperclip, BookAIcon,FileText  } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -46,7 +46,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   if (pathname === "/login") {
     return (
       <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <body  className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           {children}
         </body>
       </html>
@@ -68,9 +68,10 @@ function Layout({ children }: { children: ReactNode }) {
   const { isRefreshMenu, setIsRefreshMenu } = useGlobalContext();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
     { id: "dashboard", title: "Bảng điều khiển", icon: <Home className="w-5 h-5" />, href: "/" },
-    { id: "profile", title: "Quản lý người dùng", icon: <Users className="w-5 h-5" />, href: "/user" },
+    { id: "profile", title: "Quản lý người dùng", icon: <User className="w-5 h-5" />, href: "/user" },
     { id: "staff", title: "Quản lý nhân viên", icon: <Users className="w-5 h-5" />, href: "/staff" },
     { id: "messages", title: "Quản lý công việc", icon: <Clipboard className="w-5 h-5" />, href: "/tasks" },
+    { id: "bccs", title: "Báo cáo chuyên sâu", icon: <FileText className="w-5 h-5" />, href: "/reports" },
     // { id: "notifications", title: "Quản lý danh mục", icon: <Folder className="w-5 h-5" />,  href: "/category" },
     { id: "device", title: "Quản lý thiết bị", icon: <Cpu className="w-5 h-5" />, href: "/devices" },
     { id: "category_type", title: "Loại danh mục", icon: <Layers className="w-5 h-5" />, href: "/category_type" },
@@ -115,7 +116,7 @@ function Layout({ children }: { children: ReactNode }) {
         {
           id: "profile",
           title: "Quản lý người dùng",
-          icon: <Users className="w-5 h-5" />,
+          icon: <User className="w-5 h-5" />,
           href: "/user",
         },
         { id: "staff", title: "Quản lý nhân viên", icon: <Users className="w-5 h-5" />, href: "/staff" },
@@ -124,6 +125,12 @@ function Layout({ children }: { children: ReactNode }) {
           title: "Quản lý công việc",
           icon: <Clipboard className="w-5 h-5" />,
           href: "/tasks",
+        },
+        {
+          id: "bccs",
+          title: "Báo cáo chuyên sâu",
+          icon: <FileText className="w-5 h-5" />,
+          href: "/reports",
         },
         {
           id: "device",
@@ -173,7 +180,7 @@ function Layout({ children }: { children: ReactNode }) {
   const handleLogout = () => {
     localStorage.removeItem("token");
     setHasToken(false);
-    console.log("Đăng xuất");
+    window.location.href = "/login"; // Redirect to login page
   };
 
   const activeItem = menuItems.find((item) => item.href === pathname)?.id || "dashboard";
@@ -282,7 +289,7 @@ function Layout({ children }: { children: ReactNode }) {
               </SidebarContent>
 
               {/* Footer */}
-              <div className="p-4 border-t">
+              <div className="p-2 border-t">
                 <button
                   onClick={handleLogout}
                   className={`flex items-center w-full p-3 rounded-lg text-gray-700 hover:bg-gray-100 ${isCollapsed ? "justify-center" : "justify-start"}`}
@@ -316,16 +323,16 @@ function Layout({ children }: { children: ReactNode }) {
               </button>
               <div className="flex items-center">
                 <div className="bg-gray-200 border-2 border-dashed rounded-xl w-8 h-8" />
-                <span className="ml-2 hidden md:inline text-gray-700">Nguyễn Văn A</span>
+                <span className="ml-2 hidden md:inline text-gray-700">Nobita</span>
               </div>
             </div>
           </header>
 
 
           {/* Page content */}
-          <main className="flex-1 overflow-y-auto p-3 bg-gray-50">{children}</main>
+          <main className=" overflow-y-auto p-3 bg-gray-50">{children}</main>
         </div>
-      </div> :
+      </div>
 
     </div>
   );

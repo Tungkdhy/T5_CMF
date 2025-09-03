@@ -7,7 +7,7 @@ export function mapTasksToBoard(data: any) {
   };
 
   const columns: any = {
-    open: { id: "open", title: "📌 Việc cần làm", taskIds: [] },
+    open: { id: "open", title: "📌 Cần làm", taskIds: [] },
     "in progress": { id: "in progress", title: "⚡ Đang làm", taskIds: [] },
     done: { id: "done", title: "✅ Hoàn thành", taskIds: [] },
     cancelled: { id: "cancelled", title: "❌ Đã hủy", taskIds: [] },
@@ -34,7 +34,7 @@ export function mapTasksToBoard(data: any) {
       assignee_name: t.assignee_name,
       priority_id: t.priority?.id,
       parent_task_id: t.parent_task_id,
-      subTasks: [], // luôn có mảng con
+      subTasks: [], 
     };
   });
 

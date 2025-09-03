@@ -77,6 +77,12 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [filters, setFilters] = useState<any>({
+    skill: "",
+    certificate: "",
+    unit: "",
+    level_tckgm: ""
+  });
   const [formData, setFormData] = useState<Omit<User, "id">>({
     user_name: "",
     display_name: "",
@@ -135,7 +141,7 @@ export default function UserManagement() {
 
   const handleDelete = async (id: string) => {
     await deleteStaff(id);
-    fetchUsers(pageIndex);
+    fetchUsers(pageIndex,filters);
     setIsRefreshMenu(!isRefreshMenu);
     showAlert("Xóa người dùng thành công", "success");
   };
@@ -153,7 +159,7 @@ export default function UserManagement() {
     }
     setIsModalOpen(false);
     setEditingUser(null);
-    fetchUsers(pageIndex);
+    fetchUsers(pageIndex, filters);
     setIsRefreshMenu(!isRefreshMenu);
   };
 
@@ -166,9 +172,9 @@ export default function UserManagement() {
     setEditingUser(null);
   };
 
-  const fetchUsers = async (page: number) => {
+  const fetchUsers = async (page: number, filters: any) => {
     try {
-      const res = await getStaff({ pageSize, pageIndex: page });
+      const res = await getStaff({ pageSize, pageIndex: page, filters });
       setUsers(res.data.data.rows);
       setTotalPages(Math.ceil(res.data.data.count / pageSize));
     } catch (err) {
@@ -203,8 +209,8 @@ export default function UserManagement() {
   };
 
   useEffect(() => {
-    fetchUsers(pageIndex);
-  }, [pageIndex]);
+    fetchUsers(pageIndex, filters);
+  }, [pageIndex, filters]);
   useEffect(() => {
     fetchSelect(1);
   }, []);
@@ -226,8 +232,9 @@ export default function UserManagement() {
       )}
 
       <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
-        <div className="flex items-center justify-between mb-1">
-          <div className="relative ">
+        <div className="flex items-center gap-3 mb-3">
+          {/* Search */}
+          <div className="relative w-[200px]">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               type="text"
@@ -237,25 +244,103 @@ export default function UserManagement() {
               onChange={(e: any) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button onClick={() => {
-            setIsModalOpen(true);
-            setFormData({
-              user_name: "",
-              display_name: "",
-              phone_number: "",
-              email: "",
-              rank_name: "",
-              position_name: "",
-              tckgm_level_name: "",
-              is_active: true,
-              organization_id: "",
-              unit_id: "",
-            });
-            setSelected({
-              skill: [],
-              certificate: [],
-            });
-          }} className="flex items-center gap-2">
+
+          {/* Filter chứng chỉ */}
+          <Select
+            value={filters.certificate}
+            onValueChange={(val) =>
+              setFilters((prev: any) => ({ ...prev, certificate: val }))
+            }
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Lọc theo chứng chỉ" />
+            </SelectTrigger>
+            <SelectContent>
+              {multiSelect.certificate?.map((c: any) => (
+                <SelectItem key={c.value} value={c.value}>
+                  {c.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Filter kỹ năng */}
+          <Select
+            value={filters.skill}
+            onValueChange={(val) =>
+              setFilters((prev: any) => ({ ...prev, skill: val }))
+            }
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Lọc theo kỹ năng" />
+            </SelectTrigger>
+            <SelectContent>
+              {multiSelect.skill?.map((s: any) => (
+                <SelectItem key={s.value} value={s.value}>
+                  {s.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Filter đơn vị */}
+          <Select
+            value={filters.unit}
+            onValueChange={(val) =>
+              setFilters((prev: any) => ({ ...prev, unit: val }))
+            }
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Lọc theo đơn vị" />
+            </SelectTrigger>
+            <SelectContent>
+              {multiSelect.unit?.map((u: any) => (
+                <SelectItem key={u.value} value={u.value}>
+                  {u.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Filter trình độ TCKGM */}
+          <Select
+            value={filters.level_tckgm}
+            onValueChange={(val) =>
+              setFilters((prev: any) => ({ ...prev, level_tckgm: val }))
+            }
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Lọc theo TCKGM" />
+            </SelectTrigger>
+            <SelectContent>
+              {multiSelect.level_tckgm?.map((l: any) => (
+                <SelectItem key={l.value} value={l.value}>
+                  {l.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Nút thêm nhân viên */}
+          <Button
+            onClick={() => {
+              setIsModalOpen(true);
+              setFormData({
+                user_name: "",
+                display_name: "",
+                phone_number: "",
+                email: "",
+                rank_name: "",
+                position_name: "",
+                tckgm_level_name: "",
+                is_active: true,
+                organization_id: "",
+                unit_id: "",
+              });
+              setSelected({ skill: [], certificate: [] });
+            }}
+            className="flex items-center gap-2"
+          >
             <Plus className="w-4 h-4" /> Thêm nhân viên
           </Button>
         </div>
