@@ -154,8 +154,16 @@ export default function TasksPage() {
     id: '1',
     display_name: "Todo"
   }]);
+  const [filter, setFilter] = useState({
+    priority_id: "",
+    status_id: "",
+    description: "",
+    unit_id: "",
+    searchTerm: "",
+  });
   const [type, setType] = useState<"success" | "error" | null>(null);
   const [isReload, setIsReload] = useState(false)
+  const [units, setUnits] = useState<any>([])
   // loading skeleton
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
@@ -168,10 +176,10 @@ export default function TasksPage() {
     title: "Task"
   }]);
   // const [newSubTask, setNewSubTask] = useState("");
-  const handleUpdateSubTask =  async (data: any,field:string,v="") => {
+  const handleUpdateSubTask = async (data: any, field: string, v = "") => {
     const payload: any = { [field]: v };
-      const res = await updateTask(data.id, payload);
-      setFormData({ ...formData, reload: !formData.reload });
+    const res = await updateTask(data.id, payload);
+    setFormData({ ...formData, reload: !formData.reload });
   }
   const handleAddSubTask = async () => {
     const res = await createSubTask(detail)
@@ -233,7 +241,7 @@ export default function TasksPage() {
     sender: "",
     receiver: "",
     priority_id: "",
-    
+
   });
 
   const onDragEnd = async (result: any) => {
@@ -386,15 +394,21 @@ export default function TasksPage() {
     };
     reader.readAsDataURL(file);
   };
-  const fetchTask = async (searchTerm: string) => {
+  const fetchTask = async () => {
     try {
-      const res = await getTasks({ pageSize: 1000, pageIndex: 1, searchTerm });
-      // console.log(mapTasksToBoard(res.data.rows));
+      const res = await getTasks({
+        pageSize: 1000,
+        pageIndex: 1,
+        searchTerm: filter.searchTerm,
+        priority_id: filter.priority_id,
+        status_id: filter.status_id,
+        description: filter.description,
+        unit_id: filter.unit_id,
+      });
       setColumns(mapTasksToBoard(res.data.rows).columns);
       setTasks(mapTasksToBoard(res.data.rows).tasks);
     } catch (err) {
       console.error(err);
-
     }
   };
   const fetchComment = async (id: any) => {
@@ -408,7 +422,7 @@ export default function TasksPage() {
     }
   };
 
-  
+
   useEffect(() => {
     setComments([])
     if (editingTask?.id) fetchComment(editingTask.id);
@@ -417,17 +431,18 @@ export default function TasksPage() {
   // },[])
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
-      fetchTask(searchTerm);
-    }, 500); // 500ms debounce
-
+      fetchTask();
+    }, 500);
     return () => clearTimeout(delayDebounce);
-  }, [formData.reload, searchTerm]);
+  }, [filter, formData.reload]);
   const fetchStatus = async () => {
     try {
       const res = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "STATUS" });
       const priority = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "PRIORITY" });
+      const unit = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "UNIT" });
       setStatus(res.data.rows);
       setPriority(priority.data.rows);
+      setUnits(unit.data.rows)
     } catch (err) {
       console.error(err);
 
@@ -465,17 +480,95 @@ export default function TasksPage() {
         </div>
       )}
       <div className="mb-4 flex justify-between items-center">
-
-        <div className="relative ">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <Input
-            type="text"
-            placeholder="Tìm kiếm danh mục..."
-            className="pl-10"
-            value={searchTerm}
-            onChange={(e: any) => setSearchTerm(e.target.value)}
-          />
+        <div className="mb-4 flex gap-3 items-center">
+          {/* Search */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              type="text"
+              placeholder="Tìm kiếm danh mục..."
+              className="pl-10 w-full min-w-[240px]"
+              value={filter.searchTerm}
+              onChange={(e) => setFilter({ ...filter, searchTerm: e.target.value })}
+            />
+          </div>
+           <div className="flex-1">
+            <Input
+              type="text"
+              placeholder="Mô tả"
+              className="w-full min-w-[240px]"
+              value={filter.description}
+              onChange={(e) => setFilter({ ...filter, description: e.target.value })}
+            />
+          </div>
+          {/* Priority */}
+          <div className="flex-1">
+            <Select
+              value={filter.priority_id}
+              onValueChange={(v) => setFilter({ ...filter, priority_id: v })}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Độ ưu tiên" />
+              </SelectTrigger>
+              <SelectContent>
+                {priority.map((item: any) => (
+                  <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {/* Status */}
+          <div className="flex-1">
+            <Select
+              value={filter.status_id}
+              onValueChange={(v) => setFilter({ ...filter, status_id: v })}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                {status.map((item: any) => (
+                  <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {/* Description */}
+         
+          {/* Unit ID */}
+          <div className="flex-1">
+            <Select
+              value={filter.unit_id}
+              onValueChange={(v) => setFilter({ ...filter, unit_id: v })}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Đơn vị" />
+              </SelectTrigger>
+              <SelectContent>
+                {units.map((item: any) => (
+                  <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {/* Reset Filter Button */}
+          <Button
+            variant="outline"
+            className="min-w-[120px]"
+            onClick={() =>
+              setFilter({
+                priority_id: "",
+                status_id: "",
+                description: "",
+                unit_id: "",
+                searchTerm: "",
+              })
+            }
+          >
+            Đặt lại bộ lọc
+          </Button>
         </div>
+
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -869,7 +962,7 @@ export default function TasksPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {editingTask?.subTasks && editingTask?.subTasks.map((st:any, idx:number) => (
+                            {editingTask?.subTasks && editingTask?.subTasks.map((st: any, idx: number) => (
                               <tr onClick={() => handleOpenModal(st)} key={idx} className="border-t hover:bg-gray-50" >
                                 {/* Tên task */}
                                 <td className="px-3 py-2 text-sm">{st.title}</td>
@@ -879,7 +972,7 @@ export default function TasksPage() {
                                   <Select
                                     value={st.receiver}
                                     onValueChange={(v) =>
-                                      handleUpdateSubTask(st,"assignee_id",v)
+                                      handleUpdateSubTask(st, "assignee_id", v)
                                     }
                                   >
                                     <SelectTrigger onClick={(e) => e.stopPropagation()} className="w-[150px]">
@@ -900,7 +993,7 @@ export default function TasksPage() {
                                   <Select
                                     value={st.priority_id}
                                     onValueChange={(v) =>
-                                      handleUpdateSubTask(st,"priority_id",v)
+                                      handleUpdateSubTask(st, "priority_id", v)
                                     }
                                   >
                                     <SelectTrigger onClick={(e) => e.stopPropagation()} className="w-[120px]">
@@ -921,7 +1014,7 @@ export default function TasksPage() {
                                   <Select
                                     value={st.status_id}
                                     onValueChange={(v) =>
-                                      handleUpdateSubTask(st,"status_id",v)
+                                      handleUpdateSubTask(st, "status_id", v)
                                     }
                                   >
                                     <SelectTrigger className="w-[130px]">

@@ -5,27 +5,31 @@ import api from "./base";
 export async function getTasks({
   pageSize = 100000,
   pageIndex = 1,
-  searchTerm
-  // name = "",
-  // // visible = true,
-  // scope = ""
+  searchTerm,
+  priority_id,
+  status_id,
+  description,
+  unit_id
 }: {
   pageSize?: number;
   pageIndex?: number;
-  searchTerm?:string
-  // name?: string;
-  // visible?: boolean;
-  // scope?: any;
+  searchTerm?: string;
+  priority_id?: string;
+  status_id?: string;
+  description?: string;
+  unit_id?: string;
 }) {
-  const nameSearch = searchTerm ? {name:searchTerm} : {};
-  const res = await api.get("/tasks", {
-    params: {
-      pageSize,
-      pageIndex,
-      ...nameSearch,
-      // scope,
-    },
-  });
+  const params: any = {
+    pageSize,
+    pageIndex,
+  };
+  if (searchTerm) params.name = searchTerm;
+  if (priority_id) params.priority_id = priority_id;
+  if (status_id) params.status_id = status_id;
+  if (description) params.description = description;
+  if (unit_id) params.unit_id = unit_id;
+
+  const res = await api.get("/tasks", { params });
   return res.data;
 }
 

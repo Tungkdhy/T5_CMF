@@ -453,7 +453,7 @@ export default function UserManagement() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="mb-1">Vai trò</Label>
+                  <Label className="mb-3">Vai trò</Label>
                   <Select
                     value={formData.role_id ?? ""}
                     onValueChange={(val) => {
@@ -528,7 +528,7 @@ export default function UserManagement() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className='mb-3' htmlFor="status">Chức vụ</Label>
+                  <Label className='mb-' htmlFor="status">Chức vụ</Label>
                   <Select value={formData.position_name ?? ""} onValueChange={(value) => setFormData((prev) => ({ ...prev, position_name: value }))}>
                     <SelectTrigger className="w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                       <SelectValue placeholder="Lọc theo loại">
