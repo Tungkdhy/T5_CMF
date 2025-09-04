@@ -1,7 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, X, XCircle, CheckCircle, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  X,
+  XCircle,
+  CheckCircle,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +29,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { set } from "react-hook-form";
+
 interface User {
   id?: string;
   user_name?: string;
@@ -26,7 +38,7 @@ interface User {
   is_online?: boolean | null;
   role?: string;
   password?: string;
-  reload?: boolean
+  reload?: boolean;
 }
 
 export default function UserManagement() {
@@ -43,11 +55,12 @@ export default function UserManagement() {
     is_active: true,
     is_online: false,
     role: "",
-    password: "test",
-    reload: true
+    password: "",
+    reload: true,
   });
   const [status, setStatus] = useState<"success" | "error" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const pageSize = 10;
 
@@ -63,7 +76,6 @@ export default function UserManagement() {
   const fetchUsers = async (page: number) => {
     try {
       const res = await getUsers({ pageSize, pageIndex: page, name: searchTerm });
-      console.log(res)
       setUsers(res.data.data.rows);
       setTotalPages(Math.ceil(res.data.data.count / pageSize));
     } catch (err) {
@@ -72,20 +84,18 @@ export default function UserManagement() {
     }
   };
 
- useEffect(() => {
-  const handler = setTimeout(() => {
-    fetchUsers(pageIndex);
-  }, 500); // 500ms debounce
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      fetchUsers(pageIndex);
+    }, 500); // debounce 500ms
 
-  return () => {
-    clearTimeout(handler);
-  };
-}, [pageIndex, formData.reload, searchTerm]);
+    return () => clearTimeout(handler);
+  }, [pageIndex, formData.reload, searchTerm]);
+
   useEffect(() => {
     const fetchRoles = async () => {
       try {
         const res = await getAllRoles({ pageSize, pageIndex });
-        console.log(res)
         setRoles(res.data.data.roles);
       } catch (err) {
         console.error(err);
@@ -93,19 +103,24 @@ export default function UserManagement() {
       }
     };
     fetchRoles();
-  }, [])
+  }, []);
+
   const handleSave = async () => {
     try {
       if (editingUser) {
         await updateUser(editingUser.id ?? "", formData);
         showAlert("Cập nhật user thành công", "success");
       } else {
-        await createUser({ user_name: formData.user_name, display_name: formData.display_name, role_id: formData.role, password: formData.password });
+        await createUser({
+          user_name: formData.user_name,
+          display_name: formData.display_name,
+          role_id: formData.role,
+          password: formData.password,
+        });
         showAlert("Thêm user thành công", "success");
       }
       setIsModalOpen(false);
       setEditingUser(null);
-      // fetchUsers(pageIndex);
       setFormData({ ...formData, reload: !formData.reload });
     } catch (err) {
       console.error(err);
@@ -126,7 +141,7 @@ export default function UserManagement() {
 
   const handleToggleActive = async (user: User) => {
     try {
-      await updateUser(user.id ?? "", {  is_active: !user.is_active });
+      await updateUser(user.id ?? "", { is_active: !user.is_active });
       setFormData({ ...formData, reload: !formData.reload });
       showAlert("Cập nhật trạng thái thành công", "success");
     } catch (err) {
@@ -144,12 +159,17 @@ export default function UserManagement() {
       {message && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
           <Alert
-            className={`rounded-xl shadow-lg ${status === "success"
-              ? "bg-green-100 border-green-500 text-green-800"
-              : "bg-red-100 border-red-500 text-red-800"
-              }`}
+            className={`rounded-xl shadow-lg ${
+              status === "success"
+                ? "bg-green-100 border-green-500 text-green-800"
+                : "bg-red-100 border-red-500 text-red-800"
+            }`}
           >
-            {status === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+            {status === "success" ? (
+              <CheckCircle className="h-5 w-5" />
+            ) : (
+              <XCircle className="h-5 w-5" />
+            )}
             <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
             <AlertDescription>{message}</AlertDescription>
           </Alert>
@@ -173,7 +193,14 @@ export default function UserManagement() {
             onClick={() => {
               setIsModalOpen(true);
               setEditingUser(null);
-              setFormData({ user_name: "", display_name: "", is_active: true, is_online: false, role: "", password: "test" });
+              setFormData({
+                user_name: "",
+                display_name: "",
+                is_active: true,
+                is_online: false,
+                role: "",
+                password: "test",
+              });
             }}
             className="flex items-center gap-2"
           >
@@ -201,7 +228,10 @@ export default function UserManagement() {
                 <TableCell>{u.display_name}</TableCell>
                 <TableCell>{u?.role?.display_name}</TableCell>
                 <TableCell>
-                  <Switch checked={u.is_active} onCheckedChange={() => handleToggleActive(u)} />
+                  <Switch
+                    checked={u.is_active}
+                    onCheckedChange={() => handleToggleActive(u)}
+                  />
                 </TableCell>
                 <TableCell className="flex gap-2 justify-end">
                   <Button
@@ -209,8 +239,11 @@ export default function UserManagement() {
                     variant="outline"
                     onClick={() => {
                       setEditingUser(u);
-                      console.log(u);
-                      setFormData({ is_active: u.is_active, display_name: u.display_name, role: u?.role?.id });
+                      setFormData({
+                        is_active: u.is_active,
+                        display_name: u.display_name,
+                        role: u?.role?.id,
+                      });
                       setIsModalOpen(true);
                     }}
                   >
@@ -228,7 +261,11 @@ export default function UserManagement() {
                         <Button size="sm" variant="outline">
                           Hủy
                         </Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDelete(u.id)}>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDelete(u.id)}
+                        >
                           Xóa
                         </Button>
                       </div>
@@ -242,11 +279,23 @@ export default function UserManagement() {
 
         {/* Phân trang */}
         <div className="flex items-center justify-end mt-4 space-x-2">
-          <Button size="sm" variant="outline" disabled={pageIndex === 1} onClick={() => setPageIndex(pageIndex - 1)}>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={pageIndex === 1}
+            onClick={() => setPageIndex(pageIndex - 1)}
+          >
             <ChevronLeft className="w-4 h-4" />
           </Button>
-          <span>Trang {pageIndex} / {totalPages}</span>
-          <Button size="sm" variant="outline" disabled={pageIndex === totalPages} onClick={() => setPageIndex(pageIndex + 1)}>
+          <span>
+            Trang {pageIndex} / {totalPages}
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={pageIndex === totalPages}
+            onClick={() => setPageIndex(pageIndex + 1)}
+          >
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
@@ -257,53 +306,76 @@ export default function UserManagement() {
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-lg">
             <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="text-lg font-semibold">{editingUser ? "Sửa user" : "Thêm user"}</h3>
-              <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>
+              <h3 className="text-lg font-semibold">
+                {editingUser ? "Sửa user" : "Thêm user"}
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsModalOpen(false)}
+              >
                 <X className="w-5 h-5" />
               </Button>
             </div>
             <div className="p-6 space-y-4">
-              {
-
-              }
-              {
-                !editingUser && (
-                  <div>
-                    <Label className="mb-3">Username</Label>
-                    <Input value={formData.user_name} onChange={(e) => handleChange("user_name", e.target.value)} />
+              {!editingUser && (
+                <div>
+                  <Label className="mb-3">Username</Label>
+                  <Input
+                    value={formData.user_name}
+                    onChange={(e) => handleChange("user_name", e.target.value)}
+                  />
+                </div>
+              )}
+              {!editingUser && (
+                <div>
+                  <Label className="mb-3">Password</Label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={formData.password}
+                      onChange={(e) =>
+                        handleChange("password", e.target.value)
+                      }
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
                   </div>
-                )
-              }
-              {
-                !editingUser && (
-                  <div>
-                    <Label className="mb-3">Password</Label>
-                    <Input type="password" value={formData.password} onChange={(e) => handleChange("password", e.target.value)} />
-                  </div>
-                )
-              }
+                </div>
+              )}
               <div>
                 <Label className="mb-3">Tên hiển thị</Label>
-                <Input value={formData.display_name} onChange={(e) => handleChange("display_name", e.target.value)} />
+                <Input
+                  value={formData.display_name}
+                  onChange={(e) =>
+                    handleChange("display_name", e.target.value)
+                  }
+                />
               </div>
               <div>
                 <Label className="mb-3">Vai trò</Label>
                 <Select
                   value={formData.role}
-                  onValueChange={(val) => {
-                    console.log(val);
-
-                    handleChange("role", val || null);
-                  }}
+                  onValueChange={(val) => handleChange("role", val || null)}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Lọc theo loại">
+                    <SelectValue placeholder="Chọn vai trò">
                       {roles.find((x: any) => x.value === formData.role)?.label}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent >
-                    {roles.map((r) => (
-                      <SelectItem key={r.value} value={r.value}>
+                  <SelectContent>
+                    {roles.map((r,index:any) => (
+                      <SelectItem key={index} value={r.value}>
                         {r.label}
                       </SelectItem>
                     ))}
@@ -312,14 +384,19 @@ export default function UserManagement() {
               </div>
               <div className="flex items-center gap-2">
                 <Label className="mb-3">Kích hoạt</Label>
-                <Switch checked={formData.is_active} onCheckedChange={(checked) => handleChange("is_active", checked)} />
+                <Switch
+                  checked={formData.is_active}
+                  onCheckedChange={(checked) => handleChange("is_active", checked)}
+                />
               </div>
             </div>
             <div className="flex justify-end gap-2 p-4 border-t">
               <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                 Hủy
               </Button>
-              <Button onClick={handleSave}>{editingUser ? "Cập nhật" : "Thêm mới"}</Button>
+              <Button onClick={handleSave}>
+                {editingUser ? "Cập nhật" : "Thêm mới"}
+              </Button>
             </div>
           </div>
         </div>
