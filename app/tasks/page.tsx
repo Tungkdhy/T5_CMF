@@ -131,6 +131,12 @@ export default function TasksPage() {
   // const [formData, setFormData] = useState({
 
   // })
+  const [replyVisible, setReplyVisible] = useState<{ [key: string]: boolean }>({});
+  const [replyInputs, setReplyInputs] = useState<{ [key: string]: string }>({});
+
+  // State để quản lý input edit comment cho từng comment
+  const [editVisible, setEditVisible] = useState<{ [key: string]: boolean }>({});
+  const [editInputs, setEditInputs] = useState<{ [key: string]: string }>({});
   const [showAddSubTask, setShowAddSubTask] = useState(false);
   const [detail, setDetail] = useState<any>({})
   const [priority, setPriority] = useState<any[]>([]);
@@ -189,7 +195,45 @@ export default function TasksPage() {
     // setSubTasks([...subTasks, { id: Date.now(), title: newSubTask }]);
     // setNewSubTask("");
   };
+  const toggleReplyInput = (commentId: string) => {
+    setReplyVisible((prev) => ({ ...prev, [commentId]: !prev[commentId] }));
+  };
 
+  // Hàm toggle hiển thị input edit
+  const toggleEditInput = (commentId: string) => {
+    setEditVisible((prev) => ({ ...prev, [commentId]: !prev[commentId] }));
+  };
+
+  // Hàm thêm reply
+  const handleAddReply = (commentId: string) => {
+    const content = replyInputs[commentId]?.trim();
+    if (!content) return;
+
+    setComments((prev) =>
+      prev.map((c) =>
+        c.id === commentId
+          ? { ...c, replies: [...(c.replies || []), { user_name: "test", user_id: "123", content }] }
+          : c
+      )
+    );
+
+    // reset input và ẩn input sau khi gửi
+    setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
+    setReplyVisible((prev) => ({ ...prev, [commentId]: false }));
+  };
+
+  // Hàm sửa comment
+  const handleEditComment = (commentId: string) => {
+    const newContent = editInputs[commentId]?.trim();
+    if (!newContent) return;
+
+    setComments((prev) =>
+      prev.map((c) => (c.id === commentId ? { ...c, content: newContent } : c))
+    );
+
+    // Ẩn input sau khi cập nhật
+    setEditVisible((prev) => ({ ...prev, [commentId]: false }));
+  };
   const handleDeleteSubTask = (id: number) => {
     setSubTasks(subTasks.filter((t) => t.id !== id));
   };
@@ -492,7 +536,7 @@ export default function TasksPage() {
               onChange={(e) => setFilter({ ...filter, searchTerm: e.target.value })}
             />
           </div>
-           <div className="flex-1">
+          <div className="flex-1">
             <Input
               type="text"
               placeholder="Mô tả"
@@ -534,7 +578,7 @@ export default function TasksPage() {
             </Select>
           </div>
           {/* Description */}
-         
+
           {/* Unit ID */}
           <div className="flex-1">
             <Select
@@ -1094,23 +1138,82 @@ export default function TasksPage() {
                 {/* Danh sách bình luận */}
                 <div className="space-y-4 max-h-[250px] overflow-y-auto pr-2">
                   {comments.map((c, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      {/* Avatar */}
-                      <div style={{
-                        backgroundColor: stringToColor(
-                          c?.user_name || c?.user_id
-                        ),
-                      }} className="h-9 w-9 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-700">
-                        {c?.user_name.slice(0, 2)}
+                    <div key={idx} className="flex flex-col gap-1">
+                      <div className="flex items-start gap-3">
+                        {/* Avatar */}
+                        <div
+                          style={{ backgroundColor: stringToColor(c?.user_name || c?.user_id) }}
+                          className="h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold text-gray-700"
+                        >
+                          {c?.user_name.slice(0, 2)}
+                        </div>
+
+                        {/* Nội dung */}
+                        <div className="flex flex-col bg-gray-100 rounded-2xl px-3 py-2 max-w-[80%]">
+                          <span className="text-sm font-semibold">{c?.user_name}</span>
+                          <span className="text-sm text-gray-800">{c?.content}</span>
+
+                          {/* Icon hành động: Reply & Edit */}
+                          <div className="flex gap-2 mt-1 text-gray-500 text-xs">
+                            <button onClick={() => { }}>💬 Reply</button>
+                            {true && (
+                              <button onClick={() => { }}>✏️ Sửa</button>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      {/* Nội dung */}
-                      <div className="flex flex-col bg-gray-100 rounded-2xl px-3 py-2 max-w-[80%]">
-                        <span className="text-sm font-semibold">{c?.user_name}</span>
-                        <span className="text-sm text-gray-800">{c?.content}</span>
-                      </div>
+
+                      {/* Danh sách reply */}
+                      {c.replies && c.replies.length > 0 && (
+                        <div className="ml-12 mt-1 space-y-1">
+                          {c.replies.map((r: any, ridx: number) => (
+                            <div key={ridx} className="flex items-start gap-3">
+                              <div
+                                style={{ backgroundColor: stringToColor(r.user_name || r.user_id) }}
+                                className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold text-gray-700"
+                              >
+                                {r.user_name.slice(0, 2)}
+                              </div>
+                              <div className="flex flex-col bg-gray-200 rounded-2xl px-2 py-1 max-w-[75%]">
+                                <span className="text-xs font-semibold">{r.user_name}</span>
+                                <span className="text-xs text-gray-800">{r.content}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Input reply */}
+                      {replyVisible[c.id] && (
+                        <div className="ml-12 flex gap-2 mt-1">
+                          <Input
+                            placeholder="Trả lời..."
+                            value={replyInputs[c.id] || ""}
+                            onChange={(e) =>
+                              setReplyInputs((prev) => ({ ...prev, [c.id]: e.target.value }))
+                            }
+                          />
+                          <Button onClick={() => handleAddReply(c.id)}>Gửi</Button>
+                        </div>
+                      )}
+
+                      {/* Input sửa comment */}
+                      {editVisible[c.id] && (
+                        <div className="ml-12 flex gap-2 mt-1">
+                          <Input
+                            value={editInputs[c.id] || c.content}
+                            onChange={(e) =>
+                              setEditInputs((prev) => ({ ...prev, [c.id]: e.target.value }))
+                            }
+                          />
+                          <Button onClick={() => handleEditComment(c.id)}>Cập nhật</Button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
+
+                {/* Input bình luận mới */}
                 <div className="mt-2 flex gap-2">
                   <Input
                     placeholder="Thêm bình luận..."

@@ -195,7 +195,13 @@ function Layout({ children }: { children: ReactNode }) {
     window.location.href = "/login"; // Redirect to login page
   };
 
-  const activeItem = menuItems.find((item) => item.href === pathname)?.id || "dashboard";
+  const activeItem =
+    menuItems.find((item) => item.href === pathname)?.id || // tìm menu chính
+    menuItems
+      .flatMap((item) => item.children || []) // lấy tất cả subMenu
+      .find((sub) => sub.href === pathname)?.id || // tìm subMenu
+    "dashboard";
+  console.log(activeItem);
 
   return (
 
@@ -263,6 +269,9 @@ function Layout({ children }: { children: ReactNode }) {
                                   }`}
                                 title={sub.title}
                                 style={{ fontSize: '16px' }}
+                                onClick={() => {
+
+                                }}
                               >
                                 {/* {sub.icon} */}
                                 <span className="ml-3 flex-1 truncate">{sub.title}</span>
@@ -325,7 +334,24 @@ function Layout({ children }: { children: ReactNode }) {
                 <Menu className="w-5 h-5" />
               </button>
               <h1 className="text-xl font-semibold text-gray-800">
-                {menuItems.find((item) => item.id === activeItem)?.title || "Trang chủ"}
+                {(() => {
+                  // Tìm menu chính
+                  const menu = menuItems.find((item) => item.id === activeItem);
+                  if (menu) return menu.title;
+
+
+                  // Nếu không tìm menu chính, tìm trong tất cả subMenu
+                  for (const item of menuItems) {
+
+                    const sub = item.children?.find((s) => s.id === activeItem);
+
+                    console.log(sub);
+
+                    if (sub) return sub.title;
+                  }
+
+                  return "Trang chủ"; // fallback
+                })()}
               </h1>
             </div>
             <div className="flex items-center space-x-4">
