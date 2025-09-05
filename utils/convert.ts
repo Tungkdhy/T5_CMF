@@ -36,7 +36,9 @@ export function mapTasksToBoard(data: any) {
       category_task: t.category_id,
       team_id: t.team_id,
       parent_task_id: t.parent_task_id,
-      subTasks: [], 
+      subTasks: [],
+      progress_percent:t.progress_percent,
+      
     };
   });
 

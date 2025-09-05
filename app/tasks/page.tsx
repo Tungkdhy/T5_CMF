@@ -76,7 +76,8 @@ interface Task {
   priority_id?: string,
   subTasks?: any,
   category_task?: any,
-  team_id?:string
+  team_id?: string,
+  progress_percent?: string
 }
 
 interface Column {
@@ -171,7 +172,7 @@ export default function TasksPage() {
     unit_id: "",
     searchTerm: "",
     category_id: "",
-    team_id:""
+    team_id: ""
   });
   const [type, setType] = useState<"success" | "error" | null>(null);
   const [isReload, setIsReload] = useState(false)
@@ -186,7 +187,7 @@ export default function TasksPage() {
     status_id: "",
     person_id: "",
     title: "Task",
-    
+
 
   }]);
   // const [newSubTask, setNewSubTask] = useState("");
@@ -294,7 +295,7 @@ export default function TasksPage() {
     receiver: "",
     priority_id: "",
     category_task: "",
-    team_id:""
+    team_id: ""
 
   });
 
@@ -424,7 +425,9 @@ export default function TasksPage() {
         priority_id: formData.priority_id,
         assignee_id: formData.receiver,
         category_id: formData.category_task,
-        team_id: formData.team_id
+        team_id: formData.team_id,
+        progress_percent:formData.progress_percent
+        
       });
     } else {
       const res = await createTasks({
@@ -436,7 +439,8 @@ export default function TasksPage() {
         due_date: formData.dueDate,
         priority_id: formData.priority_id,
         category_id: formData.category_task,
-         team_id: formData.team_id
+        team_id: formData.team_id,
+        progress_percent:formData.progress_percent
       });
       console.log(res);
 
@@ -465,7 +469,7 @@ export default function TasksPage() {
         description: filter.description,
         unit_id: filter.unit_id,
         category_id: filter.category_id,
-        team_id:filter.team_id
+        team_id: filter.team_id
       });
       setColumns(mapTasksToBoard(res.data.rows).columns);
       setTasks(mapTasksToBoard(res.data.rows).tasks);
@@ -659,7 +663,7 @@ export default function TasksPage() {
                 unit_id: "",
                 searchTerm: "",
                 category_id: "",
-                team_id:""
+                team_id: ""
               })
             }
           >
@@ -724,17 +728,35 @@ export default function TasksPage() {
                                 <p className="text-xs text-red-500 font-medium mt-1">
                                   ⚠️ {task.endDate}
                                 </p>
+
+                                {/* Progress công việc */}
+                                {typeof Number(task.progress_percent) === "number" && (
+                                  <div className="mt-2">
+                                    <div className="flex justify-between items-center text-xs text-gray-600 mb-1">
+                                      <span>Tiến độ</span>
+                                      <span>{Math.round(Number(task.progress_percent))}%</span>
+                                    </div>
+                                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                                      <div
+                                        className="h-full bg-green-500"
+                                        style={{ width: `${Math.round(Number(task.progress_percent))}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+
                                 <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
                                   <span className="text-blue-500 font-semibold">
                                     {/* {task.description} */}
                                   </span>
                                   <div className="flex items-center gap-1">
                                     <span className="text-yellow-500 text-2xl">=</span>
-                                    <span style={{
-                                      backgroundColor: stringToColor(
-                                        task?.assignee_name || task.id
-                                      ),
-                                    }} className="w-6 h-6 flex items-center justify-center rounded-full bg-green-600 text-white text-xs">
+                                    <span
+                                      style={{
+                                        backgroundColor: stringToColor(task?.assignee_name || task.id),
+                                      }}
+                                      className="w-6 h-6 flex items-center justify-center rounded-full text-white text-xs"
+                                    >
                                       {task?.assignee_name?.slice(0, 2)}
                                     </span>
                                   </div>
@@ -820,28 +842,38 @@ export default function TasksPage() {
                   />
                 </div>
               </div>
-              <div>
-                <Label className="mb-2">Đội nhóm</Label>
-                <Select
-                  value={formData.team_id}
-                  onValueChange={(v) => setFormData({ ...formData, team_id: v })}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Chọn đội nhóm" />
-                  </SelectTrigger>
-                  {/* <SelectContent>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="mb-2">Đội nhóm</Label>
+                  <Select
+                    value={formData.team_id}
+                    onValueChange={(v) => setFormData({ ...formData, team_id: v })}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Chọn đội nhóm" />
+                    </SelectTrigger>
+                    {/* <SelectContent>
                   <SelectItem value="todo">Todo</SelectItem>
                   <SelectItem value="in-progress">In Progress</SelectItem>
                   <SelectItem value="done">Done</SelectItem>
                 </SelectContent> */}
-                  <SelectContent>
-                    {
-                      listTeam.map((item: any) => (
-                        <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
-                      ))
-                    }
-                  </SelectContent>
-                </Select>
+                    <SelectContent>
+                      {
+                        listTeam.map((item: any) => (
+                          <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="mb-2">Tiến độ</Label>
+                  <Input
+                    placeholder="Nhập tiến độ..."
+                    value={formData.progress_percent}
+                    onChange={(e) => setFormData({ ...formData, progress_percent: e.target.value })}
+                  />
+                </div>
               </div>
               {/* Trạng thái */}
               <div className="grid grid-cols-2 gap-3">

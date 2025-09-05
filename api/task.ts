@@ -54,7 +54,8 @@ export async function createTasks({
   due_date,
   priority_id,
   category_id,
-  team_id
+  team_id,
+  progress_percent
 }: {
   title: string;
   description: string;
@@ -65,6 +66,7 @@ export async function createTasks({
   priority_id?: string;
   category_id?:string;
   team_id?:string;
+  progress_percent:string
 }) {
   const payload: any = {};
 
@@ -77,6 +79,7 @@ export async function createTasks({
   if (priority_id) payload.priority_id = priority_id;
   if (category_id) payload.category_id = category_id;
   if (team_id) payload.team_id = team_id;
+  if (progress_percent) payload.progress_percent = progress_percent;
   const res = await api.post("/tasks", payload);
   return res.data;
 }
@@ -92,7 +95,8 @@ export async function updateTask(
     priority_id,
     assignee_id,
      category_id,
-     team_id
+     team_id,
+      progress_percent
   }: {
     title?: string;
     description?: string;
@@ -104,6 +108,7 @@ export async function updateTask(
     assignee_id?: string;
     category_id?: string;
     team_id?: string;
+    progress_percent?:string
   }
 ) {
   // tạo payload chỉ chứa field có giá trị
@@ -119,6 +124,7 @@ export async function updateTask(
   if (assignee_id) payload.assignee_id = assignee_id;
   if (category_id) payload.category_id = category_id;
   if (team_id) payload.team_id = team_id;
+  if (progress_percent) payload.progress_percent = progress_percent;
 
   const res = await api.put(`/tasks/${id}`, payload);
   return res.data;
