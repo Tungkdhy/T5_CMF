@@ -3,7 +3,7 @@
 import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, User, Bell, Folder, Layers, X, LogOut, Menu, Clipboard, Cpu, ChevronDown, Paperclip, BookAIcon,FileText  } from "lucide-react";
+import { Home, Users, User, Bell, Folder, Layers, X, LogOut, Menu, Clipboard, Cpu, ChevronDown, Paperclip, BookAIcon, FileText, RefreshCcw } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -46,7 +46,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   if (pathname === "/login") {
     return (
       <html lang="en">
-        <body  className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           {children}
         </body>
       </html>
@@ -75,6 +75,12 @@ function Layout({ children }: { children: ReactNode }) {
     // { id: "notifications", title: "Quản lý danh mục", icon: <Folder className="w-5 h-5" />,  href: "/category" },
     { id: "device", title: "Quản lý thiết bị", icon: <Cpu className="w-5 h-5" />, href: "/devices" },
     { id: "category_type", title: "Loại danh mục", icon: <Layers className="w-5 h-5" />, href: "/category_type" },
+    {
+      id: "backup",
+      title: "Sao lưu dữ liệu",
+      icon: <RefreshCcw className="w-5 h-5" />,
+      href: "/backup",
+    },
   ])
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -155,6 +161,12 @@ function Layout({ children }: { children: ReactNode }) {
           title: "Quản lý liên kết",
           icon: <Paperclip className="w-5 h-5" />,
           href: "/link",
+        },
+        {
+          id: "backup",
+          title: "Sao lưu dữ liệu",
+          icon: <RefreshCcw className="w-5 h-5" />,
+          href: "/backup",
         },
         {
           id: "category",

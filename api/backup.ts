@@ -1,4 +1,4 @@
-// src/api/backup.ts
+// src/api/restore-backup.ts
 import api from "./base";
 
 // Lấy danh sách backup
@@ -12,7 +12,7 @@ export async function getBackups({
   name?: string;
 }) {
   const nameSearch = name ? { name } : {};
-  const res = await api.get("/backup", {
+  const res = await api.get("/restore-backup", {
     params: {
       pageSize,
       pageIndex,
@@ -24,26 +24,26 @@ export async function getBackups({
 
 // Xóa bản backup theo id
 export async function deleteBackup(id: string) {
-  const res = await api.delete(`/backup/${id}`);
+  const res = await api.delete(`/restore-backup/${id}`);
   return res.data;
 }
 
 // Phục hồi bản backup theo id
 export async function restoreBackup(id: string) {
-  const res = await api.post(`/restore-backup`, { id });
+  const res = await api.post(`/restore-backup/restore/${ id }`);
   return res.data;
 }
 
 // Tạo mới bản backup
 export async function createBackup({
-  name,
+  
   type = 0,
 }: {
-  name: string;
+
   type?: number;
 }) {
-  const res = await api.post("/backup", {
-    name,
+  const res = await api.post("/restore-backup", {
+
     type,
   });
   return res.data;
