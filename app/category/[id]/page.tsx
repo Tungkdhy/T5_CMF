@@ -64,6 +64,9 @@ export default function CategoryManagementPage() {
         description: "",
         value: "",
         category_type_id: "",
+        data: {
+            "do_khan": "Ưu tiên"
+        },
         id: "",
         reload: true // mặc định là active
     });
@@ -96,7 +99,8 @@ export default function CategoryManagementPage() {
             description: data.description,
             value: data.value,
             // category_type_id: getIdByScope(id as string, categoryTypes),
-            id: data.id
+            id: data.id,
+            data:data.data
         }))
         setIsModalOpen(true);
         // setEditingCategory(data);
@@ -142,6 +146,9 @@ export default function CategoryManagementPage() {
             display_name: "",
             description: "",
             value: "",
+            data: {
+                do_khan: ""
+            },
             id: ""
         }))
         setErrors({});
@@ -341,6 +348,11 @@ export default function CategoryManagementPage() {
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                         Mô tả
                                     </th>
+                                    {
+                                        id_scope === "MISSION" && <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                            Độ khẩn
+                                        </th>
+                                    }
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                         Người tạo
                                     </th>
@@ -361,6 +373,11 @@ export default function CategoryManagementPage() {
                                         <td className="px-6 py-4 text-sm text-gray-500">
                                             {item.description}
                                         </td>
+                                        {
+                                            id_scope === "MISSION" && <td className="px-6 py-4 text-sm text-gray-500">
+                                                {item?.data?.do_khan || ""}
+                                            </td>
+                                        }
                                         <td className="px-6 py-4 text-sm text-gray-500">
                                             {item.created_by_user?.display_name ?? "—"}
                                         </td>
@@ -454,6 +471,27 @@ export default function CategoryManagementPage() {
                                     <p className="text-red-500 text-sm mt-1">{errors.display_name}</p>
                                 )}
                             </div>
+                            {
+                                id_scope === "MISSION" && <div>
+                                    <Label className='mb-3' htmlFor="description">Độ khẩn</Label>
+                                    <Input
+                                        id="description"
+                                        value={formData.data.do_khan || ""}
+                                        onChange={(e) => {
+                                            setFormData({
+                                                ...formData, data: {
+                                                    ...formData.data,
+                                                    do_khan: e.target.value
+                                                }
+                                            })
+                                        }}
+                                        className={errors.description ? "border-red-500" : ""}
+                                    />
+                                    {errors.description && (
+                                        <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+                                    )}
+                                </div>
+                            }
 
                             {/* Mô tả */}
                             <div>

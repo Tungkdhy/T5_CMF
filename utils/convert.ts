@@ -33,6 +33,8 @@ export function mapTasksToBoard(data: any) {
       receiver: t.assignee_id,
       assignee_name: t.assignee_name,
       priority_id: t.priority?.id,
+      category_task: t.category_id,
+      team_id: t.team_id,
       parent_task_id: t.parent_task_id,
       subTasks: [], 
     };

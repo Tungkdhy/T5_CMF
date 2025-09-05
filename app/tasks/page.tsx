@@ -74,7 +74,9 @@ interface Task {
   receiver?: string,
   assignee_name?: string,
   priority_id?: string,
-  subTasks?: any
+  subTasks?: any,
+  category_task?: any,
+  team_id?:string
 }
 
 interface Column {
@@ -140,7 +142,9 @@ export default function TasksPage() {
   const [showAddSubTask, setShowAddSubTask] = useState(false);
   const [detail, setDetail] = useState<any>({})
   const [priority, setPriority] = useState<any[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [categoryTask, setCategoryTask] = useState<any>([])
+  const [listTeam, setListTeam] = useState<any>([]);
+
   function stringToColor(str: string) {
     let hash = 0
     for (let i = 0; i < str.length; i++) {
@@ -166,6 +170,8 @@ export default function TasksPage() {
     description: "",
     unit_id: "",
     searchTerm: "",
+    category_id: "",
+    team_id:""
   });
   const [type, setType] = useState<"success" | "error" | null>(null);
   const [isReload, setIsReload] = useState(false)
@@ -179,7 +185,9 @@ export default function TasksPage() {
     priority_id: "",
     status_id: "",
     person_id: "",
-    title: "Task"
+    title: "Task",
+    
+
   }]);
   // const [newSubTask, setNewSubTask] = useState("");
   const handleUpdateSubTask = async (data: any, field: string, v = "") => {
@@ -285,6 +293,8 @@ export default function TasksPage() {
     sender: "",
     receiver: "",
     priority_id: "",
+    category_task: "",
+    team_id:""
 
   });
 
@@ -342,7 +352,7 @@ export default function TasksPage() {
       setEditingTask(task);
       console.log(task);
 
-      setFormData({ ...task });
+      setFormData({ ...task, category_task: task.category_task });
       const res = await getTaskById(task.id);
       const {
         id,
@@ -361,6 +371,7 @@ export default function TasksPage() {
         estimated_hours,
         actual_hours,
         assignee_id,
+        category_id,
         ...rest
       } = res.data
       setDetail({
@@ -379,6 +390,7 @@ export default function TasksPage() {
         estimated_hours,
         actual_hours,
         assignee_id,
+        category_id
       })
     } else {
       setEditingTask(null);
@@ -411,6 +423,8 @@ export default function TasksPage() {
         due_date: formData.dueDate,
         priority_id: formData.priority_id,
         assignee_id: formData.receiver,
+        category_id: formData.category_task,
+        team_id: formData.team_id
       });
     } else {
       const res = await createTasks({
@@ -420,7 +434,9 @@ export default function TasksPage() {
         start_date: formData.startDate,
         end_date: formData.endDate,
         due_date: formData.dueDate,
-        priority_id: formData.priority_id
+        priority_id: formData.priority_id,
+        category_id: formData.category_task,
+         team_id: formData.team_id
       });
       console.log(res);
 
@@ -448,6 +464,8 @@ export default function TasksPage() {
         status_id: filter.status_id,
         description: filter.description,
         unit_id: filter.unit_id,
+        category_id: filter.category_id,
+        team_id:filter.team_id
       });
       setColumns(mapTasksToBoard(res.data.rows).columns);
       setTasks(mapTasksToBoard(res.data.rows).tasks);
@@ -484,9 +502,13 @@ export default function TasksPage() {
       const res = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "STATUS" });
       const priority = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "PRIORITY" });
       const unit = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "UNIT" });
+      const category_task = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "MISSION" });
+      const team = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "FORCE_TCCS" });
       setStatus(res.data.rows);
       setPriority(priority.data.rows);
       setUnits(unit.data.rows)
+      setCategoryTask(category_task.data.rows)
+      setListTeam(team.data.rows)
     } catch (err) {
       console.error(err);
 
@@ -530,13 +552,13 @@ export default function TasksPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               type="text"
-              placeholder="Tìm kiếm danh mục..."
+              placeholder="Tìm kiếm mhiệm vụ..."
               className="pl-10 w-full min-w-[240px]"
               value={filter.searchTerm}
               onChange={(e) => setFilter({ ...filter, searchTerm: e.target.value })}
             />
           </div>
-          <div className="flex-1">
+          {/* <div className="flex-1">
             <Input
               type="text"
               placeholder="Mô tả"
@@ -544,6 +566,36 @@ export default function TasksPage() {
               value={filter.description}
               onChange={(e) => setFilter({ ...filter, description: e.target.value })}
             />
+          </div> */}
+          <div className="flex-1">
+            <Select
+              value={filter.category_id}
+              onValueChange={(v) => setFilter({ ...filter, category_id: v })}
+            >
+              <SelectTrigger className="w-full w-[160px]">
+                <SelectValue placeholder="Danh mục nhiệm vụ" />
+              </SelectTrigger>
+              <SelectContent>
+                {categoryTask.map((item: any) => (
+                  <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1">
+            <Select
+              value={filter.team_id}
+              onValueChange={(v) => setFilter({ ...filter, team_id: v })}
+            >
+              <SelectTrigger className="w-full  w-[160px]">
+                <SelectValue placeholder="Đội nhóm" />
+              </SelectTrigger>
+              <SelectContent>
+                {listTeam.map((item: any) => (
+                  <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           {/* Priority */}
           <div className="flex-1">
@@ -551,7 +603,7 @@ export default function TasksPage() {
               value={filter.priority_id}
               onValueChange={(v) => setFilter({ ...filter, priority_id: v })}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full  w-[160px]">
                 <SelectValue placeholder="Độ ưu tiên" />
               </SelectTrigger>
               <SelectContent>
@@ -567,7 +619,7 @@ export default function TasksPage() {
               value={filter.status_id}
               onValueChange={(v) => setFilter({ ...filter, status_id: v })}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full  w-[160px]">
                 <SelectValue placeholder="Trạng thái" />
               </SelectTrigger>
               <SelectContent>
@@ -585,7 +637,7 @@ export default function TasksPage() {
               value={filter.unit_id}
               onValueChange={(v) => setFilter({ ...filter, unit_id: v })}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full  w-[160px]">
                 <SelectValue placeholder="Đơn vị" />
               </SelectTrigger>
               <SelectContent>
@@ -606,6 +658,8 @@ export default function TasksPage() {
                 description: "",
                 unit_id: "",
                 searchTerm: "",
+                category_id: "",
+                team_id:""
               })
             }
           >
@@ -766,7 +820,29 @@ export default function TasksPage() {
                   />
                 </div>
               </div>
-
+              <div>
+                <Label className="mb-2">Đội nhóm</Label>
+                <Select
+                  value={formData.team_id}
+                  onValueChange={(v) => setFormData({ ...formData, team_id: v })}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn đội nhóm" />
+                  </SelectTrigger>
+                  {/* <SelectContent>
+                  <SelectItem value="todo">Todo</SelectItem>
+                  <SelectItem value="in-progress">In Progress</SelectItem>
+                  <SelectItem value="done">Done</SelectItem>
+                </SelectContent> */}
+                  <SelectContent>
+                    {
+                      listTeam.map((item: any) => (
+                        <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
               {/* Trạng thái */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -820,12 +896,12 @@ export default function TasksPage() {
               <div className="grid grid-cols-2 gap-4">
                 {/* Người giao */}
                 <div>
-                  <Label className="mb-2 block">Người giao</Label>
+                  <Label className="mb-2 block">Danh mục nhiệm vụ</Label>
                   <Select open={openSender} onOpenChange={setOpenSender}>
                     <SelectTrigger className="w-full">
-                      {formData.sender
-                        ? staff.find((p) => p.id === formData.sender)?.display_name
-                        : "Chọn người giao"}
+                      {formData.category_task
+                        ? categoryTask.find((p: any) => p.id === formData.category_task)?.display_name
+                        : "Chọn danh mục nhiệm vụ"}
                     </SelectTrigger>
                     <SelectContent className="w-full">
                       <TooltipProvider>
@@ -834,44 +910,26 @@ export default function TasksPage() {
                           <CommandList>
                             <CommandEmpty>Không tìm thấy</CommandEmpty>
                             <CommandGroup>
-                              {staff.map((person) => (
+                              {categoryTask.map((person: any) => (
                                 <Tooltip key={person.id}>
                                   <TooltipTrigger asChild>
                                     <CommandItem
                                       value={person.display_name}
                                       onSelect={() => {
-                                        setFormData({ ...formData, sender: person.id })
+                                        setFormData({ ...formData, category_task: person.id })
                                         setOpenSender(false)
                                       }}
                                       className={cn(
                                         "truncate flex items-center justify-between gap-2",
-                                        formData.sender === person.id &&
+                                        formData.category_task === person.id &&
                                         "bg-blue-100 font-semibold"
                                       )}
                                     >
                                       <div className="flex items-center gap-2">
-                                        <Avatar className="h-7 w-7">
-                                          {person.avatar ? (
-                                            <AvatarImage
-                                              src={person.avatar}
-                                              alt={person.display_name}
-                                            />
-                                          ) : (
-                                            <AvatarFallback
-                                              className="text-white font-medium"
-                                              style={{
-                                                backgroundColor: stringToColor(
-                                                  person.display_name || person.id
-                                                ),
-                                              }}
-                                            >
-                                              {person.display_name.charAt(0).toUpperCase()}
-                                            </AvatarFallback>
-                                          )}
-                                        </Avatar>
+
                                         <span>{person.display_name}</span>
                                       </div>
-                                      {formData.sender === person.id && (
+                                      {formData.category_task === person.id && (
                                         <Check className="h-4 w-4 ml-2 text-blue-600" />
                                       )}
                                     </CommandItem>

@@ -9,7 +9,10 @@ export async function getTasks({
   priority_id,
   status_id,
   description,
-  unit_id
+  unit_id,
+  category_id,
+  team_id
+
 }: {
   pageSize?: number;
   pageIndex?: number;
@@ -18,15 +21,19 @@ export async function getTasks({
   status_id?: string;
   description?: string;
   unit_id?: string;
+  category_id?: string;
+  team_id?: string;
 }) {
   const params: any = {
     pageSize,
     pageIndex,
   };
-  if (searchTerm) params.name = searchTerm;
+  if (searchTerm) params.description = searchTerm;
   if (priority_id) params.priority_id = priority_id;
   if (status_id) params.status_id = status_id;
-  if (description) params.description = description;
+  if (team_id) params.team_id = team_id;
+  if (category_id) params.category_id = category_id;
+  // if (description) params.description = description;
   if (unit_id) params.unit_id = unit_id;
 
   const res = await api.get("/tasks", { params });
@@ -45,7 +52,9 @@ export async function createTasks({
   start_date,
   end_date,
   due_date,
-  priority_id
+  priority_id,
+  category_id,
+  team_id
 }: {
   title: string;
   description: string;
@@ -54,6 +63,8 @@ export async function createTasks({
   end_date?: string;
   due_date?: string;
   priority_id?: string;
+  category_id?:string;
+  team_id?:string;
 }) {
   const payload: any = {};
 
@@ -64,6 +75,8 @@ export async function createTasks({
   if (end_date) payload.end_date = end_date;
   if (due_date) payload.due_date = due_date;
   if (priority_id) payload.priority_id = priority_id;
+  if (category_id) payload.category_id = category_id;
+  if (team_id) payload.team_id = team_id;
   const res = await api.post("/tasks", payload);
   return res.data;
 }
@@ -77,7 +90,9 @@ export async function updateTask(
     end_date,
     due_date,
     priority_id,
-    assignee_id
+    assignee_id,
+     category_id,
+     team_id
   }: {
     title?: string;
     description?: string;
@@ -87,6 +102,8 @@ export async function updateTask(
     due_date?: string;
     priority_id?: string;
     assignee_id?: string;
+    category_id?: string;
+    team_id?: string;
   }
 ) {
   // tạo payload chỉ chứa field có giá trị
@@ -100,6 +117,8 @@ export async function updateTask(
   if (due_date) payload.due_date = due_date;
   if (priority_id) payload.priority_id = priority_id;
   if (assignee_id) payload.assignee_id = assignee_id;
+  if (category_id) payload.category_id = category_id;
+  if (team_id) payload.team_id = team_id;
 
   const res = await api.put(`/tasks/${id}`, payload);
   return res.data;

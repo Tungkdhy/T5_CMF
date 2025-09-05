@@ -3,7 +3,7 @@
 import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, User, Bell, Folder, Layers, X, LogOut, Menu, Clipboard, Cpu, ChevronDown, Paperclip, BookAIcon, FileText, RefreshCcw } from "lucide-react";
+import { Home, Users, User, Bell, Folder, Layers, X, LogOut, Menu, Clipboard, Cpu, ChevronDown, Paperclip, BookAIcon, FileText, RefreshCcw, ClipboardList } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -70,6 +70,12 @@ function Layout({ children }: { children: ReactNode }) {
     { id: "dashboard", title: "Bảng điều khiển", icon: <Home className="w-5 h-5" />, href: "/" },
     { id: "profile", title: "Quản lý người dùng", icon: <User className="w-5 h-5" />, href: "/user" },
     { id: "staff", title: "Quản lý nhân viên", icon: <Users className="w-5 h-5" />, href: "/staff" },
+    {
+      id: "category_task",
+      title: "Danh mục nhiệm vụ",
+      icon: <ClipboardList className="w-5 h-5" />,
+      href: "/category/MISSION",
+    },
     { id: "messages", title: "Quản lý công việc", icon: <Clipboard className="w-5 h-5" />, href: "/tasks" },
     { id: "bccs", title: "Báo cáo chuyên sâu", icon: <FileText className="w-5 h-5" />, href: "/reports" },
     // { id: "notifications", title: "Quản lý danh mục", icon: <Folder className="w-5 h-5" />,  href: "/category" },
@@ -126,6 +132,12 @@ function Layout({ children }: { children: ReactNode }) {
           href: "/user",
         },
         { id: "staff", title: "Quản lý nhân viên", icon: <Users className="w-5 h-5" />, href: "/staff" },
+        {
+          id: "category_task",
+          title: "Danh mục nhiệm vụ",
+          icon: <ClipboardList className="w-5 h-5" />,
+          href: "/category/MISSION",
+        },
         {
           id: "messages",
           title: "Quản lý công việc",
@@ -201,7 +213,6 @@ function Layout({ children }: { children: ReactNode }) {
       .flatMap((item) => item.children || []) // lấy tất cả subMenu
       .find((sub) => sub.href === pathname)?.id || // tìm subMenu
     "dashboard";
-  console.log(activeItem);
 
   return (
 

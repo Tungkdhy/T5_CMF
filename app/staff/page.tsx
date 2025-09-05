@@ -63,6 +63,7 @@ interface User {
   role_id?: string | null;
   unit_id?: string | null;
   organization_id?: string | null;
+  team_id?: string | null
 }
 
 export default function UserManagement() {
@@ -94,7 +95,8 @@ export default function UserManagement() {
     is_active: true,
     role_id: "",
     unit_id: "",
-    organization_id: ""
+    organization_id: "",
+    team_id: ""
   });
 
   const [status, setStatus] = useState<"success" | "error" | null>(null);
@@ -186,7 +188,7 @@ export default function UserManagement() {
     try {
       const res = await getOrganozations(unit_id);
       // console.log(res.data);
-      
+
       setMultiSelect({
         ...multiSelect,
         organization: Array.isArray(res.data.data.rows) && res.data.data.rows.length > 0
@@ -207,13 +209,16 @@ export default function UserManagement() {
       const res5 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "LEVEL_TCKGM" });
       const res7 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "UNIT" });
       const res8 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "ORGANIZATION" });
+      // FORCE_TCCS
       const res6 = await getAllRoles({ pageSize, pageIndex });
+      const res9 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "FORCE_TCCS" });
       setMultiSelect({
         skill: res.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         certificate: res2.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         position: res3.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         level: res4.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         level_tckgm: res5.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
+        // team_tccs: res9.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         roles: res6.data.data.roles,
         unit: res7.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         organization: res8.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
@@ -471,6 +476,34 @@ export default function UserManagement() {
                 <Label className="mb-1">Email</Label>
                 <Input value={formData.email ?? ""} onChange={(e) => handleChange("email", e.target.value)} />
               </div>
+
+{/* 
+              <div>
+                <Label className="mb-3">Đội nhóm</Label>
+                <Select
+                  value={formData.team_id ?? ""}
+                  onValueChange={(val) => {
+                    // console.log(val);
+
+                    handleChange("team_id", val || null);
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn đội nhóm">
+                      {multiSelect.team_tccs.find((x: any) => x.value === formData.team_id)?.label}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent >
+                    {multiSelect.team_tccs.map((r: any) => (
+                      <SelectItem key={r.value} value={r.value}>
+                        {r.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div> */}
+
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="mb-3">Vai trò</Label>
@@ -838,7 +871,8 @@ export default function UserManagement() {
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }

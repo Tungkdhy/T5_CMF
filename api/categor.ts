@@ -37,17 +37,20 @@ export async function createCategory({
   description,
   value,
   category_type_id,
+  data
 }: {
   display_name: string;
   description: string;
   value: string;
   category_type_id?: string;
+  data?:any
 }) {
   const res = await api.post("/category", {
     display_name,
     description,
     value,
     category_type_id,
+    data
   });
   return res.data;
 }
@@ -58,17 +61,20 @@ export async function updateCategory(
     description,
     value,
     category_type_id,
+    data
   }: {
     display_name: string;
     description: string;
     value: string;
     category_type_id?: string;
+    data?:any
   }
 ) {
   const categoryTypeId = category_type_id ? {category_type_id} : {};
   const res = await api.put(`/category/${id}`, {
     display_name,
     description,
+    data,
     value,
     ...categoryTypeId,
   });
