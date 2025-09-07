@@ -20,6 +20,7 @@ import { useGlobalContext } from "@/context/GlobalContext";
 
 import { createDocument, deleteDocument, getDocuments, updateDocument } from "@/api/document";
 import { getCategory } from "@/api/categor";
+import api from "@/api/base";
 
 interface Document {
   id: string;
@@ -122,7 +123,7 @@ export default function DocumentManagement() {
   }, [pageIndex, formData.reload, searchTerm]);
   useEffect(() => {
     const fetchCategoryOptions = async () => {
-      const res = await getCategory({pageIndex:1,pageSize:100,scope:"DOCUMENT_TYPE"});
+      const res = await getCategory({ pageIndex: 1, pageSize: 100, scope: "DOCUMENT_TYPE" });
       setCategoryOptions(res.data.rows);
     };
     fetchCategoryOptions();
@@ -132,11 +133,10 @@ export default function DocumentManagement() {
       {message && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
           <Alert
-            className={`rounded-xl shadow-lg ${
-              status === "success"
-                ? "bg-green-100 border-green-500 text-green-800"
-                : "bg-red-100 border-red-500 text-red-800"
-            }`}
+            className={`rounded-xl shadow-lg ${status === "success"
+              ? "bg-green-100 border-green-500 text-green-800"
+              : "bg-red-100 border-red-500 text-red-800"
+              }`}
           >
             {status === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
             <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
@@ -217,7 +217,7 @@ export default function DocumentManagement() {
                     <PopoverContent>
                       <p>Bạn có chắc muốn xóa?</p>
                       <div className="flex justify-end gap-2 mt-2">
-                        <Button size="sm" variant="outline" onClick={() => {}}>
+                        <Button size="sm" variant="outline" onClick={() => { }}>
                           Hủy
                         </Button>
                         <Button size="sm" variant="destructive" onClick={() => handleDelete(d.id)}>
@@ -265,47 +265,91 @@ export default function DocumentManagement() {
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-lg">
             <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="text-lg font-semibold">{editingDocument ? "Sửa tài liệu" : "Thêm tài liệu"}</h3>
+              <h3 className="text-lg font-semibold">
+                {editingDocument ? "Sửa tài liệu" : "Thêm tài liệu"}
+              </h3>
               <Button variant="ghost" size="sm" onClick={handleCancel}>
                 <X className="w-5 h-5" />
               </Button>
             </div>
 
             <div className="p-6 space-y-4">
+              {/* Upload file */}
+              <div>
+                <Label className="mb-3">Chọn file</Label>
+                <Input
+                  type="file"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // upload file lên server
+                      const formDataUpload = new FormData();
+                      formDataUpload.append("file", file);
+
+                      try {
+                        const res = await api.post("/documents/upload", formDataUpload, {
+                          headers: {
+                            "Content-Type": "multipart/form-data",
+                          },
+                        });
+                        console.log(res);
+                        const data = res.data.data;
+
+                        // giả sử API trả về { file_path: "...", file_name: "..." }
+                        setFormData((prev) => ({
+                          ...prev,
+                          file_name: data.file_name || file.name,
+                          file_path: data.file_path,
+                          file_size: data.file_size || file.size.toString(),
+                          description: data.description || "",
+                          // document_type: data.file_path.split(".")[1] || "",
+                        }));
+                      } catch (err) {
+                        console.error("Upload failed", err);
+                      }
+                    }
+                  }}
+                />
+              </div>
+
               <div>
                 <Label className="mb-3">Tên file</Label>
-                <Input value={formData.file_name} onChange={(e) => handleChange("file_name", e.target.value)} />
+                <Input
+                  value={formData.file_name}
+                  onChange={(e) => handleChange("file_name", e.target.value)}
+                />
               </div>
               <div>
                 <Label className="mb-3">Mô tả</Label>
-                <Input value={formData.description} onChange={(e) => handleChange("description", e.target.value)} />
+                <Input
+                  value={formData.description}
+                  onChange={(e) => handleChange("description", e.target.value)}
+                />
               </div>
               <div>
                 <Label className="mb-3">Loại tài liệu</Label>
-              <Select
-                value={formData.document_type}
-                onValueChange={(v) => setFormData({ ...formData, document_type: v })}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Chọn loại tài liệu" />
-                </SelectTrigger>
-                {/* <SelectContent>
-                  <SelectItem value="todo">Todo</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="done">Done</SelectItem>
-                </SelectContent> */}
-                <SelectContent>
-                  {
-                    categoryOptions.map((item: any) => (
-                      <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
-                    ))
-                  }
-                </SelectContent>
-              </Select>
+                <Select
+                  value={formData.document_type}
+                  onValueChange={(v) => setFormData({ ...formData, document_type: v })}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Chọn loại tài liệu" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categoryOptions.map((item: any) => (
+                      <SelectItem key={item.id} value={item.id}>
+                        {item.display_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label className="mb-3">Đường dẫn file</Label>
-                <Input value={formData.file_path} onChange={(e) => handleChange("file_path", e.target.value)} />
+                <Input
+                  value={formData.file_path}
+                  disabled // không cho nhập tay, chỉ fill sau khi upload
+                />
               </div>
             </div>
 
@@ -313,11 +357,14 @@ export default function DocumentManagement() {
               <Button variant="outline" onClick={handleCancel}>
                 Hủy
               </Button>
-              <Button onClick={handleSave}>{editingDocument ? "Cập nhật" : "Thêm mới"}</Button>
+              <Button onClick={handleSave}>
+                {editingDocument ? "Cập nhật" : "Thêm mới"}
+              </Button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }

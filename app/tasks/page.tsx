@@ -50,10 +50,10 @@ import { Skeleton } from "@/components/ui/skeleton"; // 👈 Skeleton từ shadc
 
 import { getCategory } from "@/api/categor";
 import { createTasks, deleteTask, getTaskById, getTasks, updateTask } from "@/api/task";
-import { mapTasksToBoard } from "@/utils/convert";
+import { buildCommentTree, mapTasksToBoard } from "@/utils/convert";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { createComment, getComments } from "@/api/comment";
+import { createComment, getComments, replyComment as replyComments } from "@/api/comment";
 import { createSubTask, getStaff } from "@/api/staff";
 import { set } from "react-hook-form";
 interface Task {
@@ -214,22 +214,55 @@ export default function TasksPage() {
   };
 
   // Hàm thêm reply
-  const handleAddReply = (commentId: string) => {
+  const handleAddReply = async (commentId: string) => {
     const content = replyInputs[commentId]?.trim();
     if (!content) return;
 
-    setComments((prev) =>
-      prev.map((c) =>
-        c.id === commentId
-          ? { ...c, replies: [...(c.replies || []), { user_name: "test", user_id: "123", content }] }
-          : c
-      )
-    );
+    try {
+      // gọi API
+      const params = {
+        task_id: editingTask?.id,          // biến taskId từ props/context
+        user_id: editingTask?.receiver,          // biến userId từ auth/context
+        content: content,
+        comment_id: commentId,    // id của comment cha
+      }
+      const res = await replyComments(params)
 
-    // reset input và ẩn input sau khi gửi
-    setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
-    setReplyVisible((prev) => ({ ...prev, [commentId]: false }));
+      // if (!res.ok) {
+      //   throw new Error("Failed to add reply");
+      // }
+
+      // const data = await res.json();
+
+      // Cập nhật state local (nếu API trả về reply mới, bạn có thể dùng data thay vì content)
+      // setComments((prev) =>
+      //   prev.map((c) =>
+      //     c.id === commentId
+      //       ? {
+      //           ...c,
+      //           replies: [
+      //             ...(c.replies || []),
+      //             {
+      //               user_name: data.user_name || "Bạn",
+      //               user_id: data.user_id || userId,
+      //               content: data.content || content,
+      //               id: data.id, // id reply do backend trả về
+      //             },
+      //           ],
+      //         }
+      //       : c
+      //   )
+      // );
+
+      // reset input & ẩn input
+      setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
+      setReplyVisible((prev) => ({ ...prev, [commentId]: false }));
+      setIsReload(!isReload)
+    } catch (err) {
+      console.error("Error adding reply:", err);
+    }
   };
+
 
   // Hàm sửa comment
   const handleEditComment = (commentId: string) => {
@@ -426,8 +459,8 @@ export default function TasksPage() {
         assignee_id: formData.receiver,
         category_id: formData.category_task,
         team_id: formData.team_id,
-        progress_percent:formData.progress_percent
-        
+        progress_percent: formData.progress_percent
+
       });
     } else {
       const res = await createTasks({
@@ -440,7 +473,7 @@ export default function TasksPage() {
         priority_id: formData.priority_id,
         category_id: formData.category_task,
         team_id: formData.team_id,
-        progress_percent:formData.progress_percent
+        progress_percent: formData.progress_percent
       });
       console.log(res);
 
@@ -480,7 +513,8 @@ export default function TasksPage() {
   const fetchComment = async (id: any) => {
     try {
       const res = await getComments({ pageSize: 1000, pageIndex: 1, taskId: id });
-      setComments(res.data.rows)
+      const convert = buildCommentTree(res.data.rows.reverse())
+      setComments(convert)
 
     } catch (err) {
       console.error(err);
@@ -1227,8 +1261,8 @@ export default function TasksPage() {
 
                 {/* Danh sách bình luận */}
                 <div className="space-y-4 max-h-[250px] overflow-y-auto pr-2">
-                  {comments.map((c, idx) => (
-                    <div key={idx} className="flex flex-col gap-1">
+                  {comments.map((c) => (
+                    <div key={c.id} className="flex flex-col gap-1">
                       <div className="flex items-start gap-3">
                         {/* Avatar */}
                         <div
@@ -1243,12 +1277,28 @@ export default function TasksPage() {
                           <span className="text-sm font-semibold">{c?.user_name}</span>
                           <span className="text-sm text-gray-800">{c?.content}</span>
 
-                          {/* Icon hành động: Reply & Edit */}
-                          <div className="flex gap-2 mt-1 text-gray-500 text-xs">
-                            <button onClick={() => { }}>💬 Reply</button>
-                            {true && (
-                              <button onClick={() => { }}>✏️ Sửa</button>
-                            )}
+                          {/* Icon hành động */}
+                          <div className="flex gap-3 mt-1 text-gray-500 text-xs">
+                            <button
+                              onClick={() =>
+                                setReplyVisible((prev) => ({
+                                  ...prev,
+                                  [c.id]: !prev[c.id],
+                                }))
+                              }
+                            >
+                              💬 Trả lời
+                            </button>
+                            <button
+                              onClick={() =>
+                                setEditVisible((prev) => ({
+                                  ...prev,
+                                  [c.id]: !prev[c.id],
+                                }))
+                              }
+                            >
+                              ✏️ Sửa
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -1267,6 +1317,19 @@ export default function TasksPage() {
                               <div className="flex flex-col bg-gray-200 rounded-2xl px-2 py-1 max-w-[75%]">
                                 <span className="text-xs font-semibold">{r.user_name}</span>
                                 <span className="text-xs text-gray-800">{r.content}</span>
+                                <div className="flex gap-3 mt-1 text-gray-500 text-xs">
+                                
+                                  <button
+                                    onClick={() =>
+                                      setEditVisible((prev) => ({
+                                        ...prev,
+                                        [c.id]: !prev[c.id],
+                                      }))
+                                    }
+                                  >
+                                    ✏️ Sửa
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           ))}

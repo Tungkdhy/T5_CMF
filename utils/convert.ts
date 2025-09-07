@@ -60,3 +60,37 @@ export function mapTasksToBoard(data: any) {
 
   return { tasks, columns, columnOrder: Object.keys(columns) };
 }
+interface Comment {
+  id: string;
+  task_id: string;
+  user_id: string;
+  content: string;
+  user_name: string;
+  comment_id: string | null; // id của comment cha (nếu là reply)
+  replies?: Comment[];
+}
+
+export function buildCommentTree(data: Comment[]): Comment[] {
+  const map: Record<string, Comment & { replies: Comment[] }> = {};
+
+  // Tạo map trước
+  data.forEach((c) => {
+    map[c.id] = { ...c, replies: [] };
+  });
+
+  const roots: Comment[] = [];
+
+  data.forEach((c) => {
+    if (c.comment_id) {
+      // Nếu là reply → push vào comment cha
+      if (map[c.comment_id]) {
+        map[c.comment_id].replies.push(map[c.id]);
+      }
+    } else {
+      // Nếu là comment cha → push vào root
+      roots.push(map[c.id]);
+    }
+  });
+
+  return roots;
+}

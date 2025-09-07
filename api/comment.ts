@@ -67,3 +67,23 @@ export async function deleteComment(id: string) {
   const res = await api.delete(`/task-comments/${id}`);
   return res.data;
 }
+
+export async function replyComment({
+  task_id,
+  user_id,
+  content,
+  comment_id
+}: {
+  task_id?: string;
+  user_id?: string;
+  content?: string;
+  comment_id?:string
+}) {
+  const res = await api.post("/task-comments", {
+    task_id,
+    user_id,
+    content,
+    comment_id
+  });
+  return res.data;
+}

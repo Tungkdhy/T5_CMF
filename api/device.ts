@@ -5,7 +5,6 @@ export async function getDevices({
   pageSize = 10,
   pageIndex = 1,
   name = "",
-
 }: {
   pageSize?: number;
   pageIndex?: number;
@@ -13,13 +12,11 @@ export async function getDevices({
 }) {
   const nameSearch = name ? { device_name: name } : {};
 
-
-  const res = await api.get("/unit-devices", {
+  const res = await api.get("/dashboard/overview", {
     params: {
       pageSize,
       pageIndex,
       ...nameSearch,
-
     },
   });
 
@@ -28,7 +25,7 @@ export async function getDevices({
 
 // Lấy chi tiết thiết bị theo id
 export async function getDeviceById(id: string) {
-  const res = await api.get(`/unit-devices/${id}`);
+  const res = await api.get(`/dashboard/overview/${id}`);
   return res.data;
 }
 
@@ -50,7 +47,7 @@ export async function createDevice({
   status: "active" | "inactive";
   description: string;
 }) {
-  const res = await api.post("/unit-devices", {
+  const res = await api.post("/dashboard/overview", {
     unit_id,
     device_type,
     device_name,
@@ -83,7 +80,7 @@ export async function updateDevice(
     description: string;
   }
 ) {
-  const res = await api.put(`/unit-devices/${id}`, {
+  const res = await api.put(`/dashboard/overview/${id}`, {
     unit_id,
     device_type,
     device_name,
@@ -97,6 +94,6 @@ export async function updateDevice(
 
 // Xóa thiết bị
 export async function deleteDevice(id: string) {
-  const res = await api.delete(`/unit-devices/${id}`);
+  const res = await api.delete(`/dashboard/overview/${id}`);
   return res.data;
 }

@@ -3,7 +3,26 @@
 import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, User, Bell, Folder, Layers, X, LogOut, Menu, Clipboard, Cpu, ChevronDown, Paperclip, BookAIcon, FileText, RefreshCcw, ClipboardList } from "lucide-react";
+import {
+  Home,
+  Users,
+  User,
+  Bell,
+  Folder,
+  Layers,
+  X,
+  LogOut,
+  Menu,
+  Clipboard,
+  Cpu,
+  ChevronDown,
+  Paperclip,
+  BookAIcon,
+  FileText,
+  RefreshCcw,
+  ClipboardList,
+  History
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -86,6 +105,12 @@ function Layout({ children }: { children: ReactNode }) {
       title: "Sao lưu dữ liệu",
       icon: <RefreshCcw className="w-5 h-5" />,
       href: "/backup",
+    },
+    {
+      id: "log",
+      title: "Nhật ký hoạt động",
+      icon: <History className="w-5 h-5" />,
+      href: "/log",
     },
   ])
   const router = useRouter();
@@ -179,6 +204,12 @@ function Layout({ children }: { children: ReactNode }) {
           title: "Sao lưu dữ liệu",
           icon: <RefreshCcw className="w-5 h-5" />,
           href: "/backup",
+        },
+        {
+          id: "log",
+          title: "Nhật ký hoạt động",
+          icon: <History className="w-5 h-5" />,
+          href: "/log",
         },
         {
           id: "category",

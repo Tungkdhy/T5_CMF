@@ -66,7 +66,7 @@ export async function createTasks({
   priority_id?: string;
   category_id?:string;
   team_id?:string;
-  progress_percent:string
+  progress_percent?:string
 }) {
   const payload: any = {};
 
