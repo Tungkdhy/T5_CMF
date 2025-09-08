@@ -222,7 +222,7 @@ export default function TasksPage() {
       // gọi API
       const params = {
         task_id: editingTask?.id,          // biến taskId từ props/context
-        user_id: editingTask?.receiver,          // biến userId từ auth/context
+        user_id: removeQuotes(localStorage.getItem("user") || "") || "",          // biến userId từ auth/context
         content: content,
         comment_id: commentId,    // id của comment cha
       }
@@ -279,14 +279,19 @@ export default function TasksPage() {
   const handleDeleteSubTask = (id: number) => {
     setSubTasks(subTasks.filter((t) => t.id !== id));
   };
+  function removeQuotes(uuid: string): string {
+    // Loại bỏ dấu " ở đầu và cuối chuỗi (nếu có)
+    return uuid.replace(/^"(.*)"$/, "$1");
+  }
   const handleAddComment = async () => {
     try {
       const res = await createComment({
-        user_id: editingTask?.receiver || "",
+        user_id: removeQuotes(localStorage.getItem("user") || "") || "",
         content: newComment,
         task_id: editingTask?.id || ""
       });
       showAlert("Thêm bình luận thành công", "success");
+      setNewComment("");
       setIsReload(!isReload)
     } catch (error) {
       showAlert("Thêm bình luận thất bại", "error");
@@ -456,10 +461,11 @@ export default function TasksPage() {
         end_date: formData.endDate,
         due_date: formData.dueDate,
         priority_id: formData.priority_id,
-        assignee_id: formData.receiver,
+        // assignee_id: formData.receiver,
         category_id: formData.category_task,
         team_id: formData.team_id,
-        progress_percent: formData.progress_percent
+        progress_percent: formData.progress_percent,
+         assignee_id: removeQuotes(localStorage.getItem("user") || "") || "",
 
       });
     } else {
@@ -473,7 +479,8 @@ export default function TasksPage() {
         priority_id: formData.priority_id,
         category_id: formData.category_task,
         team_id: formData.team_id,
-        progress_percent: formData.progress_percent
+        progress_percent: formData.progress_percent,
+        assignee_id: removeQuotes(localStorage.getItem("user") || "") || "",
       });
       console.log(res);
 
@@ -759,8 +766,11 @@ export default function TasksPage() {
                                 <p className="font-medium text-sm line-clamp-2">
                                   {task.title}
                                 </p>
-                                <p className="text-xs text-red-500 font-medium mt-1">
-                                  ⚠️ {task.endDate}
+                                <p
+                                  className={`text-xs font-medium mt-1 ${new Date(task.endDate) < new Date() ? 'text-red-500' : 'text-gray-700'
+                                    }`}
+                                >
+                                   {task.endDate ? (new Date(task.endDate) < new Date() ? `⚠️ ${task.endDate}` : `⏰ ${task.endDate}`) : "Chưa có hạn"}
                                 </p>
 
                                 {/* Progress công việc */}
@@ -903,7 +913,8 @@ export default function TasksPage() {
                 <div>
                   <Label className="mb-2">Tiến độ</Label>
                   <Input
-                    placeholder="Nhập tiến độ..."
+                    placeholder="Nhập tiến độ (số)"
+                    type="number"
                     value={formData.progress_percent}
                     onChange={(e) => setFormData({ ...formData, progress_percent: e.target.value })}
                   />
@@ -1318,7 +1329,7 @@ export default function TasksPage() {
                                 <span className="text-xs font-semibold">{r.user_name}</span>
                                 <span className="text-xs text-gray-800">{r.content}</span>
                                 <div className="flex gap-3 mt-1 text-gray-500 text-xs">
-                                
+
                                   <button
                                     onClick={() =>
                                       setEditVisible((prev) => ({

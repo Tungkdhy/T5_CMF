@@ -21,7 +21,8 @@ import {
   FileText,
   RefreshCcw,
   ClipboardList,
-  History
+  History,
+  Sliders
 } from "lucide-react";
 import {
   Sidebar,
@@ -109,9 +110,15 @@ function Layout({ children }: { children: ReactNode }) {
     },
     {
       id: "log",
-      title: "Nhật ký hoạt động",
+      title: "Nhật ký hệ thống",
       icon: <History className="w-5 h-5" />,
       href: "/log",
+    },
+    {
+      id: "params",
+      title: "Tham số hệ thống",
+      icon: <Sliders className="w-5 h-5" />,
+      href: "/params",
     },
   ])
   const router = useRouter();
@@ -208,9 +215,15 @@ function Layout({ children }: { children: ReactNode }) {
         },
         {
           id: "log",
-          title: "Nhật ký hoạt động",
+          title: "Nhật ký hệ thống",
           icon: <History className="w-5 h-5" />,
           href: "/log",
+        },
+        {
+          id: "params",
+          title: "Tham số hệ thống",
+          icon: <Sliders className="w-5 h-5" />,
+          href: "/params",
         },
         {
           id: "category",
