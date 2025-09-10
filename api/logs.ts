@@ -6,15 +6,18 @@ export async function getLogs({
   pageIndex = 1,
   searchTerm = "",
   logTypeId = "",
+  type
 }: {
   pageSize?: number;
   pageIndex?: number;
   searchTerm?: string;
   logTypeId?: string;
+  type?: string;
 }) {
   const filters: Record<string, string> = {};
   if (searchTerm) filters.name = searchTerm;
-  if (logTypeId) filters.type = logTypeId;
+  if (logTypeId) filters.log_type_id = logTypeId;
+  if (type) filters.type = type;
 
   const res = await api.get("/logs", {
     params: {

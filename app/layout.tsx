@@ -228,8 +228,14 @@ function Layout({ children }: { children: ReactNode }) {
         {
           id: "log",
           title: "Nhật ký hệ thống",
-          icon: <History className="w-5 h-5" />,
+          icon: <FileText className="w-5 h-5" />,
           href: "/log",
+        },
+        {
+          id: "access_history",
+          title: "Lịch sử truy cập",
+          icon: <History className="w-5 h-5" />,
+          href: "/access_history",
         },
         {
           id: "params",

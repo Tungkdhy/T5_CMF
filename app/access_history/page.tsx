@@ -54,7 +54,7 @@ export default function LogManagement() {
 
     const fetchLogs = async (page: number) => {
         try {
-            const res = await getLogs({ pageSize, pageIndex: page, searchTerm, logTypeId: selectedLogType || "" });
+            const res = await getLogs({ pageSize, pageIndex: page, searchTerm,type:"1" });
             let filtered = res.data.rows;
 
             // if (searchTerm) {
@@ -167,32 +167,7 @@ export default function LogManagement() {
                             onChange={(e: any) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <div className="w-[240px]">
-                        <Select onValueChange={(v) => setSelectedLogType(v || null)} value={selectedLogType || ""}>
-                            <SelectTrigger className="w-[240px]">
-                                <SelectValue placeholder="Lọc theo loại log" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {
-                                    typeLogs.map((type: any) => (
-                                        <SelectItem key={type.id} value={type.id}>
-                                            {type.display_name}
-                                        </SelectItem>
-                                    ))
-                                }
-                                {/* <SelectItem key={'0'} value={'0'}>
-                                    Hệ thống
-                                </SelectItem>
-                                <SelectItem key={'1'} value={'1'}>
-                                    Đăng nhập
-                                </SelectItem> */}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
-                        <FileSpreadsheet className="w-4 h-4 text-green-600" />
-                        Xuất Excel
-                    </Button>
+                   
                 </div>
 
                 <Table className="w-full table-auto">
