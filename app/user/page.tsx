@@ -1,5 +1,6 @@
 "use client";
-
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import { useState, useEffect } from "react";
 import {
   Plus,
@@ -13,6 +14,7 @@ import {
   ChevronRight,
   Eye,
   EyeOff,
+  FileSpreadsheet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +31,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { exportExcel } from "@/api/excel";
 
 interface User {
   id?: string;
@@ -153,17 +156,55 @@ export default function UserManagement() {
   const handleChange = (field: keyof typeof formData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+  const handleExportExcel = async () => {
+    try {
+      // const res = await api.get("/system-parameters/export", {
+      //   params: { pageSize, pageIndex },
+      // });
+      // const url = window.URL.createObjectURL(new Blob([res.data]));
+      // const link = document.createElement("a");
+      // link.href = url;
+      // link.setAttribute("download", "system_parameters.xlsx");
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
+      const res = await exportExcel("user");
+      const workbook = XLSX.read(res, { type: "string" });
 
+      // 2. Lấy sheet đầu tiên từ CSV
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+      // 3. Tạo workbook mới & append sheet với tên "Tham số"
+      const newWorkbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(newWorkbook, worksheet, "Người dùng");
+
+      // 4. Ghi workbook ra buffer Excel
+      const excelBuffer = XLSX.write(newWorkbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+
+      // 5. Tạo file blob và tải về
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      saveAs(blob, "nguoi_dung.xlsx");
+
+
+    } catch (err) {
+      console.error("Export failed:", err);
+      showAlert("Xuất Excel thất bại", "error");
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50 p-3">
       {message && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
           <Alert
-            className={`rounded-xl shadow-lg ${
-              status === "success"
-                ? "bg-green-100 border-green-500 text-green-800"
-                : "bg-red-100 border-red-500 text-red-800"
-            }`}
+            className={`rounded-xl shadow-lg ${status === "success"
+              ? "bg-green-100 border-green-500 text-green-800"
+              : "bg-red-100 border-red-500 text-red-800"
+              }`}
           >
             {status === "success" ? (
               <CheckCircle className="h-5 w-5" />
@@ -189,23 +230,29 @@ export default function UserManagement() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button
-            onClick={() => {
-              setIsModalOpen(true);
-              setEditingUser(null);
-              setFormData({
-                user_name: "",
-                display_name: "",
-                is_active: true,
-                is_online: false,
-                role: "",
-                password: "test",
-              });
-            }}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" /> Thêm người dùng
-          </Button>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+              <FileSpreadsheet className="w-4 h-4 text-green-600" />
+              Xuất Excel
+            </Button>
+            <Button
+              onClick={() => {
+                setIsModalOpen(true);
+                setEditingUser(null);
+                setFormData({
+                  user_name: "",
+                  display_name: "",
+                  is_active: true,
+                  is_online: false,
+                  role: "",
+                  password: "test",
+                });
+              }}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" /> Thêm người dùng
+            </Button>
+          </div>
         </div>
 
         {/* Bảng user */}
@@ -374,7 +421,7 @@ export default function UserManagement() {
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {roles.map((r,index:any) => (
+                    {roles.map((r, index: any) => (
                       <SelectItem key={index} value={r.value}>
                         {r.label}
                       </SelectItem>

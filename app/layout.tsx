@@ -103,6 +103,12 @@ function Layout({ children }: { children: ReactNode }) {
     { id: "device", title: "Quản lý thiết bị", icon: <Cpu className="w-5 h-5" />, href: "/devices" },
     { id: "category_type", title: "Loại danh mục", icon: <Layers className="w-5 h-5" />, href: "/category_type" },
     {
+      id: "target",
+      title: "Mục tiêu tác chiến",
+      icon: <RefreshCcw className="w-5 h-5" />,
+      href: "/target",
+    },
+    {
       id: "backup",
       title: "Sao lưu dữ liệu",
       icon: <RefreshCcw className="w-5 h-5" />,
@@ -206,6 +212,12 @@ function Layout({ children }: { children: ReactNode }) {
           title: "Quản lý liên kết",
           icon: <Paperclip className="w-5 h-5" />,
           href: "/link",
+        },
+        {
+          id: "target",
+          title: "Mục tiêu tác chiến",
+          icon: <RefreshCcw className="w-5 h-5" />,
+          href: "/target",
         },
         {
           id: "backup",

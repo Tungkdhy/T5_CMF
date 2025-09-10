@@ -1,6 +1,8 @@
 "use client";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import { useEffect, useState } from "react";
-import { Plus, Edit, Trash2, X, XCircle, CheckCircle } from "lucide-react";
+import { Plus, Edit, Trash2, X, XCircle, CheckCircle, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +17,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { createDevice, deleteDevice, getDevices, updateDevice } from "@/api/devices";
+import { exportExcel } from "@/api/excel";
 
 interface Device {
     id: string;
@@ -86,7 +89,46 @@ export default function DeviceManagementPage() {
         setIsModalOpen(false);
         setEditingDevice(null);
     };
-
+      const handleExportExcel = async () => {
+        try {
+          // const res = await api.get("/system-parameters/export", {
+          //   params: { pageSize, pageIndex },
+          // });
+          // const url = window.URL.createObjectURL(new Blob([res.data]));
+          // const link = document.createElement("a");
+          // link.href = url;
+          // link.setAttribute("download", "system_parameters.xlsx");
+          // document.body.appendChild(link);
+          // link.click();
+          // document.body.removeChild(link);
+          const res = await exportExcel("managed-devices");
+          const workbook = XLSX.read(res, { type: "string" });
+    
+          // 2. Lấy sheet đầu tiên từ CSV
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    
+          // 3. Tạo workbook mới & append sheet với tên "Tham số"
+          const newWorkbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(newWorkbook, worksheet, "Người dùng");
+    
+          // 4. Ghi workbook ra buffer Excel
+          const excelBuffer = XLSX.write(newWorkbook, {
+            bookType: "xlsx",
+            type: "array",
+          });
+    
+          // 5. Tạo file blob và tải về
+          const blob = new Blob([excelBuffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          saveAs(blob, "nguoi_dung.xlsx");
+    
+    
+        } catch (err) {
+          console.error("Export failed:", err);
+          showAlert("Xuất Excel thất bại", "error");
+        }
+      };
     useEffect(() => {
         const fetchDevices = async () => {
             try {
@@ -119,20 +161,26 @@ export default function DeviceManagementPage() {
             <div className="bg-white rounded-xl shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
                     <div></div>
-                    <Button onClick={() => {
-                        setIsModalOpen(true)
-                        setFormData({
-                            device_name: "",
-                            serial_number: "",
-                            ip_address: "",
-                            device_status: "active",
-                            description: "",
-                            reload: true,
-                        })
-                    }} className="flex items-center gap-2">
-                        <Plus className="w-4 h-4" />
-                        Thêm thiết bị
-                    </Button>
+                    <div className="flex gap-2">
+                        <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+                            <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                            Xuất Excel
+                        </Button>
+                        <Button onClick={() => {
+                            setIsModalOpen(true)
+                            setFormData({
+                                device_name: "",
+                                serial_number: "",
+                                ip_address: "",
+                                device_status: "active",
+                                description: "",
+                                reload: true,
+                            })
+                        }} className="flex items-center gap-2">
+                            <Plus className="w-4 h-4" />
+                            Thêm thiết bị
+                        </Button>
+                    </div>
                 </div>
 
                 <Table>

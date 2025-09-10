@@ -44,6 +44,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
+    "file-saver": "^2.0.5",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.541.0",
     "next": "15.5.0",
@@ -59,12 +60,14 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "vaul": "^1.1.2",
+    "xlsx": "^0.18.5",
     "zod": "^4.1.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@hello-pangea/dnd": "^18.0.1",
     "@tailwindcss/postcss": "^4",
+    "@types/file-saver": "^2.0.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-beautiful-dnd": "^13.1.8",

@@ -1,7 +1,8 @@
 "use client";
-
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import React, { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, X, XCircle, CheckCircle, Search } from "lucide-react";
+import { Plus, Edit, Trash2, X, XCircle, CheckCircle, Search, FileSpreadsheet } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 // import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 // import { Button } from "@/components/ui/button"
@@ -49,6 +50,7 @@ import { getStaff, createStaff, updateStaff, deleteStaff, getAllRoles, getOrgano
 import { Checkbox } from "@/components/ui/checkbox";
 import { getCategory } from "@/api/categor";
 import { Select } from "@/components/ui/select";
+import { exportExcel } from "@/api/excel";
 
 interface User {
   id: string;
@@ -239,6 +241,46 @@ export default function UserManagement() {
   useEffect(() => {
     fetchSelect(1);
   }, []);
+  const handleExportExcel = async () => {
+    try {
+      // const res = await api.get("/system-parameters/export", {
+      //   params: { pageSize, pageIndex },
+      // });
+      // const url = window.URL.createObjectURL(new Blob([res.data]));
+      // const link = document.createElement("a");
+      // link.href = url;
+      // link.setAttribute("download", "system_parameters.xlsx");
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
+      const res = await exportExcel("staff");
+      const workbook = XLSX.read(res, { type: "string" });
+
+      // 2. Lấy sheet đầu tiên từ CSV
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+      // 3. Tạo workbook mới & append sheet với tên "Tham số"
+      const newWorkbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(newWorkbook, worksheet, "Nhân viên");
+
+      // 4. Ghi workbook ra buffer Excel
+      const excelBuffer = XLSX.write(newWorkbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+
+      // 5. Tạo file blob và tải về
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      saveAs(blob, "tham_so_he_thong.xlsx");
+
+
+    } catch (err) {
+      console.error("Export failed:", err);
+      showAlert("Xuất Excel thất bại", "error");
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50 p-3">
       {message && (
@@ -346,6 +388,10 @@ export default function UserManagement() {
             </SelectContent>
           </Select>
 
+          <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+            <FileSpreadsheet className="w-4 h-4 text-green-600" />
+            Xuất Excel
+          </Button>
           {/* Nút thêm nhân viên */}
           <Button
             onClick={() => {
@@ -368,6 +414,7 @@ export default function UserManagement() {
           >
             <Plus className="w-4 h-4" /> Thêm nhân viên
           </Button>
+
         </div>
 
         <Table className="w-full table-auto">
@@ -477,7 +524,7 @@ export default function UserManagement() {
                 <Input value={formData.email ?? ""} onChange={(e) => handleChange("email", e.target.value)} />
               </div>
 
-{/* 
+              {/* 
               <div>
                 <Label className="mb-3">Đội nhóm</Label>
                 <Select

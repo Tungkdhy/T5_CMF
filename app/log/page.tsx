@@ -1,7 +1,8 @@
 "use client";
-
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import { useState, useEffect } from "react";
-import { Plus, Trash2, X, XCircle, CheckCircle, Search } from "lucide-react";
+import { Plus, Trash2, X, XCircle, CheckCircle, Search, FileSpreadsheet } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getLogs, deleteLog } from "@/api/logs"; // API giả lập
+import { exportExcel } from "@/api/excel";
 
 interface Log {
     id: string;
@@ -81,7 +83,46 @@ export default function LogManagement() {
     useEffect(() => {
         fetchLogs(pageIndex);
     }, [pageIndex, searchTerm, selectedLogType]);
+    const handleExportExcel = async () => {
+        try {
+            // const res = await api.get("/system-parameters/export", {
+            //   params: { pageSize, pageIndex },
+            // });
+            // const url = window.URL.createObjectURL(new Blob([res.data]));
+            // const link = document.createElement("a");
+            // link.href = url;
+            // link.setAttribute("download", "system_parameters.xlsx");
+            // document.body.appendChild(link);
+            // link.click();
+            // document.body.removeChild(link);
+            const res = await exportExcel("logs");
+            const workbook = XLSX.read(res, { type: "string" });
 
+            // 2. Lấy sheet đầu tiên từ CSV
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+            // 3. Tạo workbook mới & append sheet với tên "Tham số"
+            const newWorkbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(newWorkbook, worksheet, "Người dùng");
+
+            // 4. Ghi workbook ra buffer Excel
+            const excelBuffer = XLSX.write(newWorkbook, {
+                bookType: "xlsx",
+                type: "array",
+            });
+
+            // 5. Tạo file blob và tải về
+            const blob = new Blob([excelBuffer], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+            saveAs(blob, "nguoi_dung.xlsx");
+
+
+        } catch (err) {
+            console.error("Export failed:", err);
+            showAlert("Xuất Excel thất bại", "error");
+        }
+    };
     // Lấy danh sách loại log duy nhất để lọc
     const logTypes = Array.from(new Set(logs.map((l) => l.log_type?.display_name).filter(Boolean))) as string[];
 
@@ -103,7 +144,7 @@ export default function LogManagement() {
             )}
 
             <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
-                <div className="flex flex-wrap items-center  mb-3 gap-2">
+                <div className="flex flex-wrap items-center mb-3 gap-2">
                     <div className="relative  min-w-[200px]">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                         <Input
@@ -114,7 +155,6 @@ export default function LogManagement() {
                             onChange={(e: any) => setSearchTerm(e.target.value)}
                         />
                     </div>
-
                     <div className="w-[240px]">
                         <Select onValueChange={(v) => setSelectedLogType(v || null)} value={selectedLogType || ""}>
                             <SelectTrigger className="w-[240px]">
@@ -130,6 +170,10 @@ export default function LogManagement() {
                             </SelectContent>
                         </Select>
                     </div>
+                    <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+                        <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                        Xuất Excel
+                    </Button>
                 </div>
 
                 <Table className="w-full table-auto">

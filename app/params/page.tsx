@@ -1,7 +1,8 @@
 "use client";
-
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import { useState, useEffect } from "react";
-import { Edit, Trash2, X, XCircle, CheckCircle, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { Edit, Trash2, X, XCircle, CheckCircle, Search, ChevronLeft, ChevronRight, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import api from "@/api/base";
 import { getCategory } from "@/api/categor";
+import { exportExcel } from "@/api/excel";
 
 // ---- Types ----
 interface Config {
@@ -169,6 +171,46 @@ export default function ConfigManagement() {
     setIsAddModalOpen(false);
     setNewConfig({ data: {} });
   };
+  const handleExportExcel = async () => {
+    try {
+      // const res = await api.get("/system-parameters/export", {
+      //   params: { pageSize, pageIndex },
+      // });
+      // const url = window.URL.createObjectURL(new Blob([res.data]));
+      // const link = document.createElement("a");
+      // link.href = url;
+      // link.setAttribute("download", "system_parameters.xlsx");
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
+      const res = await exportExcel("system-parameters");
+      const workbook = XLSX.read(res, { type: "string" });
+
+    // 2. Lấy sheet đầu tiên từ CSV
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+    // 3. Tạo workbook mới & append sheet với tên "Tham số"
+    const newWorkbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(newWorkbook, worksheet, "Tham số");
+
+    // 4. Ghi workbook ra buffer Excel
+    const excelBuffer = XLSX.write(newWorkbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    // 5. Tạo file blob và tải về
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(blob, "tham_so_he_thong.xlsx");
+      
+
+    } catch (err) {
+      console.error("Export failed:", err);
+      showAlert("Xuất Excel thất bại", "error");
+    }
+  };
 
   // ---- Render ----
   return (
@@ -183,7 +225,11 @@ export default function ConfigManagement() {
         </div>
       )}
 
-      <div className="flex justify-end mb-3">
+      <div className="flex justify-end gap-2 mb-3">
+        <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+          <FileSpreadsheet className="w-4 h-4 text-green-600" />
+          Xuất Excel
+        </Button>
         <Button onClick={handleAddNew}>+ Thêm mới</Button>
       </div>
 
@@ -237,7 +283,7 @@ export default function ConfigManagement() {
                     <PopoverContent>
                       <p>Bạn có chắc muốn xóa?</p>
                       <div className="flex justify-end gap-2 mt-2">
-                        <Button size="sm" variant="outline" onClick={() => {}}>Hủy</Button>
+                        <Button size="sm" variant="outline" onClick={() => { }}>Hủy</Button>
                         <Button size="sm" variant="destructive" onClick={() => handleDelete(c.id)}>Xóa</Button>
                       </div>
                     </PopoverContent>

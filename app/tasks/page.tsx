@@ -56,6 +56,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createComment, getComments, replyComment as replyComments } from "@/api/comment";
 import { createSubTask, getStaff } from "@/api/staff";
 import { set } from "react-hook-form";
+import TaskAttachments from "@/components/file/File";
 interface Task {
   id: string;
   title: string;
@@ -77,7 +78,8 @@ interface Task {
   subTasks?: any,
   category_task?: any,
   team_id?: string,
-  progress_percent?: string
+  progress_percent?: string,
+  attachments?: any[],
 }
 
 interface Column {
@@ -131,9 +133,6 @@ const initialColumns: Record<string, Column> = {
 const columnOrder = ["open", "in progress", "done", "cancelled"];
 
 export default function TasksPage() {
-  // const [formData, setFormData] = useState({
-
-  // })
   const [replyVisible, setReplyVisible] = useState<{ [key: string]: boolean }>({});
   const [replyInputs, setReplyInputs] = useState<{ [key: string]: string }>({});
 
@@ -333,7 +332,8 @@ export default function TasksPage() {
     receiver: "",
     priority_id: "",
     category_task: "",
-    team_id: ""
+    team_id: "",
+    attachments: [],
 
   });
 
@@ -465,7 +465,7 @@ export default function TasksPage() {
         category_id: formData.category_task,
         team_id: formData.team_id,
         progress_percent: formData.progress_percent,
-         assignee_id: removeQuotes(localStorage.getItem("user") || "") || "",
+        assignee_id: removeQuotes(localStorage.getItem("user") || "") || "",
 
       });
     } else {
@@ -770,7 +770,7 @@ export default function TasksPage() {
                                   className={`text-xs font-medium mt-1 ${new Date(task.endDate) < new Date() ? 'text-red-500' : 'text-gray-700'
                                     }`}
                                 >
-                                   {task.endDate ? (new Date(task.endDate) < new Date() ? `⚠️ ${task.endDate}` : `⏰ ${task.endDate}`) : "Chưa có hạn"}
+                                  {task.endDate ? (new Date(task.endDate) < new Date() ? `⚠️ ${task.endDate}` : `⏰ ${task.endDate}`) : "Chưa có hạn"}
                                 </p>
 
                                 {/* Progress công việc */}
@@ -1267,6 +1267,7 @@ export default function TasksPage() {
               )}
                 
             </div> */}
+              <TaskAttachments taskId={editingTask?.id ?? null} />
               <div className="mt-2">
                 <Label className="mb-3 block font-semibold">Bình luận</Label>
 
