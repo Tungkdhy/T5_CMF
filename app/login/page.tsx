@@ -21,6 +21,7 @@ export default function LoginPage() {
         localStorage.setItem("accessToken", user.data.tokens.accessToken);
         localStorage.setItem("refreshToken", user.data.tokens.refreshToken);
         localStorage.setItem("user", JSON.stringify(user.data.user.id));
+        localStorage.setItem("displayName", JSON.stringify(user.data.user.display_name));
         // alert(`Đăng nhập thành công với user: ${user.data.user.display_name}`);
 
         // chuyển trang

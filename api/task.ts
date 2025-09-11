@@ -137,4 +137,17 @@ export async function deleteTask(id: string) {
   const res = await api.delete(`/tasks/${id}`);
   return res.data;
 }
+
+export async function sendNotification(data: any) {
+  const res = await api.post(`/notifications/send-task-assignment`, data);
+  return res.data;
+}
+export async function sendNotificationDue(data: any) {
+  const res = await api.post(`/notifications/send-due-reminder`, data);
+  return res.data;
+}
+export async function sendNotificationProcess(data: any) {
+  const res = await api.post(`/notifications/send-progress-update`, data);
+  return res.data;
+}
 // Thêm user mới

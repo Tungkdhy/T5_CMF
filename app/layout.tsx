@@ -22,7 +22,10 @@ import {
   RefreshCcw,
   ClipboardList,
   History,
-  Sliders
+  Sliders,
+  Zap,
+  Target,
+  Database
 } from "lucide-react";
 import {
   Sidebar,
@@ -208,6 +211,12 @@ function Layout({ children }: { children: ReactNode }) {
           href: "/document",
         },
         {
+          id: "collected_data",
+          title: "Duyệt dữ liệu thu thập",
+          icon: <Database className="w-5 h-5" />,
+          href: "/collected_data",
+        },
+        {
           id: "link",
           title: "Quản lý liên kết",
           icon: <Paperclip className="w-5 h-5" />,
@@ -216,7 +225,7 @@ function Layout({ children }: { children: ReactNode }) {
         {
           id: "target",
           title: "Mục tiêu tác chiến",
-          icon: <RefreshCcw className="w-5 h-5" />,
+          icon: <Target className="w-5 h-5" />,
           href: "/target",
         },
         {
@@ -242,6 +251,12 @@ function Layout({ children }: { children: ReactNode }) {
           title: "Tham số hệ thống",
           icon: <Sliders className="w-5 h-5" />,
           href: "/params",
+        },
+        {
+          id: "performance",
+          title: "Hiệu suất thực hiện TCCS",
+          icon: <Zap className="w-5 h-5" />,
+           href: "/work_performance", // 👈 cho hết vào đây làm submenu
         },
         {
           id: "category",
@@ -432,7 +447,7 @@ function Layout({ children }: { children: ReactNode }) {
               {/* Notifications */}<NotificationBell />
               <div className="flex items-center">
                 <div className="bg-gray-200 border-2 border-dashed rounded-xl w-8 h-8" />
-                <span className="ml-2 hidden md:inline text-gray-700">Nobita</span>
+                <span className="ml-2 hidden md:inline text-gray-700">{localStorage.getItem("displayName")?.replace(/^"|"$/g, "")}</span>
               </div>
             </div>
           </header>

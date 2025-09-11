@@ -38,6 +38,7 @@ export function mapTasksToBoard(data: any) {
       parent_task_id: t.parent_task_id,
       subTasks: [],
       progress_percent:t.progress_percent,
+      sender: t.sender_id,
       
     };
   });
