@@ -24,18 +24,36 @@ export async function getTaskStatistics({
 export async function getDeviceStatistics({
   start_date,
   end_date,
-//   group_by,
+  //   group_by,
 }: {
   start_date?: string | null;
   end_date?: string | null;
-//   group_by?: string | null;
+  //   group_by?: string | null;
 }) {
   const params: Record<string, string> = {};
 
   if (start_date) params.start_date = start_date;
   if (end_date) params.end_date = end_date;
-//   if (group_by) params.group_by = group_by;
+  //   if (group_by) params.group_by = group_by;
 
   const res = await api.get("/dashboard/devices/statistics", { params });
+  return res.data;
+}
+export async function getPersonalStatistics({
+
+  unit_id,
+  group_by,
+}: {
+
+  unit_id?: string | null;
+  group_by?: string | null;
+}) {
+  const params: Record<string, string> = {};
+
+
+  if (unit_id) params.unit_id = unit_id;
+  if (group_by) params.group_by = group_by;
+
+  const res = await api.get("/dashboard/personnel/statistics", { params });
   return res.data;
 }

@@ -138,7 +138,7 @@ export default function DeviceManagementPage() {
 
             // 4. Ghi workbook ra buffer Excel
             const excelBuffer = XLSX.write(newWorkbook, {
-                bookType: "xlsx",
+                bookType: "csv",
                 type: "array",
             });
 
@@ -146,7 +146,7 @@ export default function DeviceManagementPage() {
             const blob = new Blob([excelBuffer], {
                 type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             });
-            saveAs(blob, "thiet_bi.xlsx");
+            saveAs(blob, "thiet_bi.csv");
 
 
         } catch (err) {

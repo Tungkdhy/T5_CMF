@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Users, UserCheck, UserX, Wifi } from "lucide-react";
+import { getPersonalStatistics } from "@/api/dashboard";
 
 // Mock danh sách trung tâm
 const units = [
@@ -51,8 +52,11 @@ export default function PersonnelOverview() {
 
   // Hàm fetch API (mock)
   const fetchData = async () => {
-    console.log("Call API với params:", filters);
-    setData(apiData); // mock
+    const res = await getPersonalStatistics({
+      unit_id: filters.unit_id,
+      group_by: filters.group_by,
+    })
+    setData(res.data);
   };
 
   useEffect(() => {
@@ -90,20 +94,7 @@ export default function PersonnelOverview() {
         </select>
 
         {/* Ngày bắt đầu */}
-        <input
-          type="date"
-          className="border p-2 rounded text-sm"
-          value={filters.start_date}
-          onChange={(e) => setFilters({ ...filters, start_date: e.target.value })}
-        />
 
-        {/* Ngày kết thúc */}
-        <input
-          type="date"
-          className="border p-2 rounded text-sm"
-          value={filters.end_date}
-          onChange={(e) => setFilters({ ...filters, end_date: e.target.value })}
-        />
 
         {/* Group by */}
         <select

@@ -120,24 +120,15 @@ export default function TargetManagement() {
             )}
 
             <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
-                {/* <div className="flex items-center justify-between mb-3">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                        <Input
-                            type="text"
-                            placeholder="Tìm kiếm target..."
-                            className="pl-10"
-                            value={searchTerm}
-                            onChange={(e: any) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
+                <div className="flex items-center justify-between mb-3">
+                    <div></div>
                     <Button onClick={() => {
                         setIsModalOpen(true);
                         setFormData({ target_name: "", target_url: "", combat_status: "active", description: "" });
                     }} className="flex items-center gap-2">
                         <Plus className="w-4 h-4" /> Thêm target
                     </Button>
-                </div> */}
+                </div>
 
                 <Table className="w-full table-auto">
                     <TableHeader>

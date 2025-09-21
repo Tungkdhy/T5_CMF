@@ -24,13 +24,13 @@ export async function getBackups({
 
 // Xóa bản backup theo id
 export async function deleteBackup(id: string) {
-  const res = await api.delete(`/restore-backup/${id}`);
+  const res = await api.delete(`/restore-backup/restore/${id}`);
   return res.data;
 }
 
 // Phục hồi bản backup theo id
 export async function restoreBackup(id: string) {
-  const res = await api.post(`/restore-backup/restore/${ id }`);
+  const res = await api.post(`/restore-backup/restore/${id}`);
   return res.data;
 }
 
@@ -42,7 +42,7 @@ export async function createBackup({
 
   type?: number;
 }) {
-  const res = await api.post("/restore-backup", {
+  const res = await api.post("/restore-backup/backup", {
 
     type,
   });

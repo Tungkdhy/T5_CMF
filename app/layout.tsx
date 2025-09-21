@@ -447,7 +447,7 @@ function Layout({ children }: { children: ReactNode }) {
               {/* Notifications */}<NotificationBell />
               <div className="flex items-center">
                 <div className="bg-gray-200 border-2 border-dashed rounded-xl w-8 h-8" />
-                <span className="ml-2 hidden md:inline text-gray-700">{localStorage.getItem("displayName")?.replace(/^"|"$/g, "")}</span>
+                {/* <span className="ml-2 hidden md:inline text-gray-700">{localStorage.getItem("displayName")?.replace(/^"|"$/g, "") ?? ""}</span> */}
               </div>
             </div>
           </header>
