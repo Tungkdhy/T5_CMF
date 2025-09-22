@@ -36,19 +36,23 @@ export async function createDevice({
   ip_address,
   device_status,
   description,
+  unit_id,
 }: {
   device_name: string;
   serial_number: string;
   ip_address: string;
   device_status: "active" | "maintenance" | "inactive";
   description: string;
+  unit_id ?: string;
 }) {
+  const data = unit_id ? { unit_id } : {};
   const res = await api.post("/managed-devices", {
     device_name,
     serial_number,
     ip_address,
     device_status,
     description,
+    ...data,
   });
   return res.data;
 }
@@ -62,20 +66,24 @@ export async function updateDevice(
     ip_address,
     device_status,
     description,
+    unit_id,
   }: {
     device_name: string;
     serial_number: string;
     ip_address: string;
     device_status: "active" | "maintenance" | "inactive";
     description: string;
+    unit_id ?: string;
   }
 ) {
+  const data = unit_id ? { unit_id } : {};
   const res = await api.put(`/managed-devices/${id}`, {
     device_name,
     serial_number,
     ip_address,
     device_status,
     description,
+    ...data,
   });
   return res.data;
 }

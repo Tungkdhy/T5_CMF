@@ -232,7 +232,7 @@ export default function NotificationBell() {
                     </div>
                   </div>
                   <button
-                    onClick={() => deleteNotification(n.id)}
+                    onClick={() => deleteNotification(n.notification_id)}
                     className="ml-2 text-red-500 hover:text-red-700"
                   >
                     <Trash2 className="w-4 h-4" />

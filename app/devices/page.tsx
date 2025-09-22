@@ -18,6 +18,9 @@ import {
 } from "@/components/ui/table";
 import { createDevice, deleteDevice, getDevices, updateDevice } from "@/api/device";
 import { exportExcel } from "@/api/excel";
+import { getCategory } from "@/api/categor";
+import { set } from "react-hook-form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Device {
     id: string;
@@ -28,6 +31,7 @@ interface Device {
     mac_address: string;
     status: "active" | "inactive";
     description: string;
+    unit_name?: string;
     reload?: boolean;
 }
 
@@ -35,7 +39,8 @@ export default function DeviceManagementPage() {
     const [devices, setDevices] = useState<Device[]>([
 
     ]);
-
+    const [deviceTypes, setDeviceTypes] = useState<any[]>([]);
+    const [units, setUnits] = useState<any[]>([]); // Danh sách đơn vị
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDevice, setEditingDevice] = useState<Device | null>(null);
     const [formData, setFormData] = useState<Omit<Device, "id">>({
@@ -47,6 +52,7 @@ export default function DeviceManagementPage() {
         status: "active",
         description: "",
         reload: true,
+        unit_name: "",
     });
 
     const [message, setMessage] = useState<string | null>(null);
@@ -102,7 +108,7 @@ export default function DeviceManagementPage() {
         const fetchDevices = async () => {
             try {
                 const res = await getDevices({
-                    pageSize: 1,
+                    pageSize: 10,
                     pageIndex: 1,
                 });
                 setDevices(res.data.rows); // dữ liệu array
@@ -154,6 +160,21 @@ export default function DeviceManagementPage() {
             showAlert("Xuất Excel thất bại", "error");
         }
     };
+    const fetchSelect = async (page: number) => {
+        try {
+            const res = await getCategory({ pageSize: 1000, pageIndex: page, scope: "UNIT" });
+            const res2 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "DEVICE_TYPE" });
+            setDeviceTypes(res2.data.rows);
+            setUnits(res.data.rows);
+
+        } catch (err) {
+            console.error(err);
+            showAlert("Lấy danh sách thất bại", "error");
+        }
+    };
+    useEffect(() => {
+        fetchSelect(1);
+    }, []);
     return (
         <div className="min-h-screen bg-gray-50 p-3">
             {message && (
@@ -175,10 +196,10 @@ export default function DeviceManagementPage() {
                 <div className="flex items-center justify-between mb-6">
                     <div></div>
                     <div className="flex gap-2">
-                        <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+                        {/* <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
                             <FileSpreadsheet className="w-4 h-4 text-green-600" />
                             Xuất Excel
-                        </Button>
+                        </Button> */}
                         <Button onClick={() => {
                             setIsModalOpen(true)
                             setFormData({
@@ -191,6 +212,7 @@ export default function DeviceManagementPage() {
                                 description: "",
                                 reload: true,
                             })
+                            setEditingDevice(null);
                         }} className="flex items-center gap-2">
                             <Plus className="w-4 h-4" />
                             Thêm thiết bị
@@ -205,7 +227,7 @@ export default function DeviceManagementPage() {
                             <TableHead>Tên thiết bị</TableHead>
                             <TableHead>IP</TableHead>
                             <TableHead>MAC</TableHead>
-                            <TableHead>Loại</TableHead>
+                            {/* <TableHead>Loại</TableHead> */}
                             <TableHead>Đơn vị</TableHead>
                             <TableHead>Mô tả</TableHead>
                             <TableHead>Trạng thái</TableHead>
@@ -219,8 +241,8 @@ export default function DeviceManagementPage() {
                                 <TableCell>{d.device_name}</TableCell>
                                 <TableCell>{d.ip_address}</TableCell>
                                 <TableCell>{d.mac_address}</TableCell>
-                                <TableCell>{d.device_type}</TableCell>
-                                <TableCell>{d.unit_id}</TableCell>
+                                {/* <TableCell>{d.device_type}</TableCell> */}
+                                <TableCell>{d.unit_name}</TableCell>
                                 <TableCell>{d.description}</TableCell>
                                 <TableCell>{d.status === "active" ? "Hoạt động" : "Ngừng"}</TableCell>
                                 <TableCell className="flex gap-2 justify-end">
@@ -274,11 +296,41 @@ export default function DeviceManagementPage() {
                             </div>
                             <div>
                                 <Label className="mb-3">Loại thiết bị</Label>
-                                <Input value={formData.device_type} onChange={(e) => handleChange("device_type", e.target.value)} />
+                                <Select
+                                    value={formData.device_type}
+                                    onValueChange={(value) => handleChange("device_type", value)}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Chọn loại thiết bị" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {deviceTypes.map((type) => (
+                                            <SelectItem key={type.id} value={type.id}>
+                                                {type.display_name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
+
+                            {/* Đơn vị */}
                             <div>
                                 <Label className="mb-3">Đơn vị</Label>
-                                <Input value={formData.unit_id} onChange={(e) => handleChange("unit_id", e.target.value)} />
+                                <Select
+                                    value={formData.unit_id}
+                                    onValueChange={(value) => handleChange("unit_id", value)}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Chọn đơn vị" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {units.map((unit) => (
+                                            <SelectItem key={unit.id} value={unit.id}>
+                                                {unit.display_name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div>
                                 <Label className="mb-3">Mô tả</Label>

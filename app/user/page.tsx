@@ -125,9 +125,10 @@ export default function UserManagement() {
       setIsModalOpen(false);
       setEditingUser(null);
       setFormData({ ...formData, reload: !formData.reload });
-    } catch (err) {
-      console.error(err);
-      showAlert("Lưu user thất bại", "error");
+    } catch (err: any) {
+      showAlert(err?.response?.data.message, "error");
+      // console.log(err);
+
     }
   };
 

@@ -39,7 +39,6 @@ export default function TargetManagement() {
         description: "",
         reload: false,
     });
-
     const [status, setStatus] = useState<"success" | "error" | null>(null);
     const [message, setMessage] = useState<string | null>(null);
     const pageSize = 10;
@@ -66,32 +65,35 @@ export default function TargetManagement() {
         setIsRefreshMenu(!isRefreshMenu);
         showAlert("Xóa target thành công", "success");
     };
-
     const handleSave = async () => {
-        if (editingTarget) {
-            const { reload, ...rest } = formData;
-            await updateTarget(editingTarget.id, rest);
-            showAlert("Cập nhật target thành công", "success");
-        } else {
-            const { reload, ...rest } = formData;
-            await createTarget(rest);
-            showAlert("Thêm target thành công", "success");
+        try {
+            if (editingTarget) {
+                const { reload, ...rest } = formData;
+                await updateTarget(editingTarget.id, rest);
+                showAlert("Cập nhật target thành công", "success");
+            } else {
+                const { reload, ...rest } = formData;
+                await createTarget(rest);
+                showAlert("Thêm target thành công", "success");
+            }
+            setIsModalOpen(false);
+            setEditingTarget(null);
+            fetchTargets(pageIndex);
+            setIsRefreshMenu(!isRefreshMenu);
         }
-        setIsModalOpen(false);
-        setEditingTarget(null);
-        fetchTargets(pageIndex);
-        setIsRefreshMenu(!isRefreshMenu);
+        catch (err:any) { 
+             showAlert( err?.response?.data.message, "error");
+            // console.log(err);
+            
+        }
     };
-
     const handleChange = (field: keyof typeof formData, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
-
     const handleCancel = () => {
         setIsModalOpen(false);
         setEditingTarget(null);
     };
-
     const fetchTargets = async (page: number) => {
         try {
             const res = await getTargets({ pageIndex: page, pageSize });
@@ -101,12 +103,10 @@ export default function TargetManagement() {
             console.error(err);
             showAlert("Lấy danh sách thất bại", "error");
         }
-    };
-
+    }; 
     useEffect(() => {
         fetchTargets(pageIndex);
     }, [pageIndex, formData.reload]);
-
     return (
         <div className="min-h-screen bg-gray-50 p-3">
             {message && (

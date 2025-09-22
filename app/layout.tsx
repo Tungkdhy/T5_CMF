@@ -196,7 +196,7 @@ function Layout({ children }: { children: ReactNode }) {
           id: "device",
           title: "Quản lý thiết bị",
           icon: <Cpu className="w-5 h-5" />,
-          href: "/manager_device",
+          href: "/devices",
         },
         {
           id: "category_type",

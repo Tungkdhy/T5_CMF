@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/table";
 import { createDevice, deleteDevice, getDevices, updateDevice } from "@/api/devices";
 import { exportExcel } from "@/api/excel";
+import { getCategory } from "@/api/categor";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Device {
     id: string;
@@ -26,11 +28,13 @@ interface Device {
     ip_address: string;
     device_status: "active" | "maintenance" | "inactive";
     description: string;
+    unit_id?: string;
     reload?: boolean;
 }
 
 export default function DeviceManagementPage() {
     const [devices, setDevices] = useState<Device[]>([]);
+    const [units, setUnits] = useState<any[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDevice, setEditingDevice] = useState<Device | null>(null);
     const [formData, setFormData] = useState<Omit<Device, "id">>({
@@ -40,6 +44,7 @@ export default function DeviceManagementPage() {
         device_status: "active",
         description: "",
         reload: true,
+        unit_id: "",
     });
 
     const [message, setMessage] = useState<string | null>(null);
@@ -89,46 +94,46 @@ export default function DeviceManagementPage() {
         setIsModalOpen(false);
         setEditingDevice(null);
     };
-      const handleExportExcel = async () => {
+    const handleExportExcel = async () => {
         try {
-          // const res = await api.get("/system-parameters/export", {
-          //   params: { pageSize, pageIndex },
-          // });
-          // const url = window.URL.createObjectURL(new Blob([res.data]));
-          // const link = document.createElement("a");
-          // link.href = url;
-          // link.setAttribute("download", "system_parameters.xlsx");
-          // document.body.appendChild(link);
-          // link.click();
-          // document.body.removeChild(link);
-          const res = await exportExcel("managed-devices");
-          const workbook = XLSX.read(res, { type: "string" });
-    
-          // 2. Lấy sheet đầu tiên từ CSV
-          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    
-          // 3. Tạo workbook mới & append sheet với tên "Tham số"
-          const newWorkbook = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(newWorkbook, worksheet, "Người dùng");
-    
-          // 4. Ghi workbook ra buffer Excel
-          const excelBuffer = XLSX.write(newWorkbook, {
-            bookType: "xlsx",
-            type: "array",
-          });
-    
-          // 5. Tạo file blob và tải về
-          const blob = new Blob([excelBuffer], {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          });
-          saveAs(blob, "nguoi_dung.xlsx");
-    
-    
+            // const res = await api.get("/system-parameters/export", {
+            //   params: { pageSize, pageIndex },
+            // });
+            // const url = window.URL.createObjectURL(new Blob([res.data]));
+            // const link = document.createElement("a");
+            // link.href = url;
+            // link.setAttribute("download", "system_parameters.xlsx");
+            // document.body.appendChild(link);
+            // link.click();
+            // document.body.removeChild(link);
+            const res = await exportExcel("managed-devices");
+            const workbook = XLSX.read(res, { type: "string" });
+
+            // 2. Lấy sheet đầu tiên từ CSV
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+            // 3. Tạo workbook mới & append sheet với tên "Tham số"
+            const newWorkbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(newWorkbook, worksheet, "Người dùng");
+
+            // 4. Ghi workbook ra buffer Excel
+            const excelBuffer = XLSX.write(newWorkbook, {
+                bookType: "xlsx",
+                type: "array",
+            });
+
+            // 5. Tạo file blob và tải về
+            const blob = new Blob([excelBuffer], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+            saveAs(blob, "nguoi_dung.xlsx");
+
+
         } catch (err) {
-          console.error("Export failed:", err);
-          showAlert("Xuất Excel thất bại", "error");
+            console.error("Export failed:", err);
+            showAlert("Xuất Excel thất bại", "error");
         }
-      };
+    };
     useEffect(() => {
         const fetchDevices = async () => {
             try {
@@ -140,7 +145,21 @@ export default function DeviceManagementPage() {
         };
         fetchDevices();
     }, [formData.reload]);
+    const fetchSelect = async (page: number) => {
+        try {
+            const res = await getCategory({ pageSize: 1000, pageIndex: page, scope: "UNIT" });
+            // const res2 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "DEVICE_TYPE" });
+            // setDeviceTypes(res2.data.rows);
+            setUnits(res.data.rows);
 
+        } catch (err) {
+            console.error(err);
+            showAlert("Lấy danh sách thất bại", "error");
+        }
+    };
+    useEffect(() => {
+        fetchSelect(1);
+    }, []);
     return (
         <div className="min-h-screen bg-gray-50 p-3">
             {message && (
@@ -253,6 +272,24 @@ export default function DeviceManagementPage() {
                                 <Label className="mb-3">Địa chỉ IP</Label>
                                 <Input value={formData.ip_address} onChange={(e) => handleChange("ip_address", e.target.value)} />
                             </div>
+                            {/* <div>
+                                <Label className="mb-3">Đơn vị</Label>
+                                <Select
+                                    value={formData.unit_id}
+                                    onValueChange={(value) => handleChange("unit_id", value)}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Chọn đơn vị" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {units.map((unit) => (
+                                            <SelectItem key={unit.id} value={unit.id}>
+                                                {unit.display_name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div> */}
                             <div>
                                 <Label className="mb-3">Trạng thái</Label>
                                 <Input value={formData.device_status} onChange={(e) => handleChange("device_status", e.target.value)} />

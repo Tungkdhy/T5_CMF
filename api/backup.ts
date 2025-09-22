@@ -12,7 +12,7 @@ export async function getBackups({
   name?: string;
 }) {
   const nameSearch = name ? { name } : {};
-  const res = await api.get("/restore-backup", {
+  const res = await api.get("/restore-backup/backup", {
     params: {
       pageSize,
       pageIndex,

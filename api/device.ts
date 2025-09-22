@@ -12,7 +12,7 @@ export async function getDevices({
 }) {
   const nameSearch = name ? { device_name: name } : {};
 
-  const res = await api.get("/dashboard/overview", {
+  const res = await api.get("/unit-devices", {
     params: {
       pageSize,
       pageIndex,
@@ -47,8 +47,9 @@ export async function createDevice({
   status: "active" | "inactive";
   description: string;
 }) {
-  const res = await api.post("/dashboard/overview", {
-    unit_id,
+  const data = unit_id ? { unit_id } : {};
+  const res = await api.post("/unit-devices", {
+    ...data,
     device_type,
     device_name,
     ip_address,
@@ -80,8 +81,9 @@ export async function updateDevice(
     description: string;
   }
 ) {
-  const res = await api.put(`/dashboard/overview/${id}`, {
-    unit_id,
+  const data = unit_id ? { unit_id } : {};
+  const res = await api.put(`/unit-devices/${id}`, {
+    ...data,
     device_type,
     device_name,
     ip_address,
@@ -94,6 +96,6 @@ export async function updateDevice(
 
 // Xóa thiết bị
 export async function deleteDevice(id: string) {
-  const res = await api.delete(`/dashboard/overview/${id}`);
+  const res = await api.delete(`/unit-devices/${id}`);
   return res.data;
 }
