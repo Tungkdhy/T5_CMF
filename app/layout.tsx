@@ -25,7 +25,8 @@ import {
   Sliders,
   Zap,
   Target,
-  Database
+  Database,
+  AlertCircle
 } from "lucide-react";
 import {
   Sidebar,
@@ -233,6 +234,12 @@ function Layout({ children }: { children: ReactNode }) {
           title: "Sao lưu dữ liệu",
           icon: <RefreshCcw className="w-5 h-5" />,
           href: "/backup",
+        },
+        {
+          id: "warning",
+          title: "Cảnh báo hệ thống",
+          icon: <AlertCircle className="w-5 h-5" />,
+          href: "/warning",
         },
         {
           id: "log",

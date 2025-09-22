@@ -21,7 +21,15 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDeviceStatistics } from "@/api/dashboard"; // API call
-
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
 const COLORS = [
   "#ef4444", // đỏ
   "#3b82f6", // xanh dương
@@ -74,26 +82,38 @@ export default function DeviceStatistics() {
   return (
     <>
       {/* Bộ lọc */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="border rounded px-2 py-1 text-sm"
-        />
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          className="border rounded px-2 py-1 text-sm"
-        />
-        <button
-          onClick={fetchData}
-          className="px-3 py-1 rounded bg-blue-500 text-white text-sm"
-        >
-          Lọc
-        </button>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Bộ lọc</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-4 items-end">
+          {/* Ngày bắt đầu */}
+          <div>
+            <label className="block text-sm font-medium">Từ ngày</label>
+            <Input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              // className="w-[180px]"
+            />
+          </div>
+
+          {/* Ngày kết thúc */}
+          <div>
+            <label className="block text-sm font-medium">Đến ngày</label>
+            <Input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              // className="w-[180px]"
+            />
+          </div>
+
+          {/* Button */}
+          <Button onClick={fetchData}>Lọc</Button>
+        </CardContent>
+      </Card>
+
 
       {/* Tổng quan */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

@@ -36,17 +36,20 @@ export async function createReport({
   description,
   level_id,
   report_status,
+   url,
 }: {
   report_name: string;
   description: string;
   level_id: string;
   report_status: "draft" | "published";
+  url?: string;
 }) {
   const res = await api.post("/deep-reports", {
     report_name,
     description,
     level_id,
     report_status,
+    url,
   });
   return res.data;
 }
@@ -59,10 +62,12 @@ export async function updateReport(
     description,
     level_id,
     report_status,
+    url,
   }: {
     report_name: string;
     description: string;
     level_id: string;
+    url?: string;
     report_status: "draft" | "published";
   }
 ) {
@@ -71,6 +76,7 @@ export async function updateReport(
     description,
     level_id,
     report_status,
+    url,
   });
   return res.data;
 }

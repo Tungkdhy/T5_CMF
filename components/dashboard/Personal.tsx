@@ -12,7 +12,15 @@ import {
 } from "recharts";
 import { Users, UserCheck, UserX, Wifi } from "lucide-react";
 import { getPersonalStatistics } from "@/api/dashboard";
-
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select"
 // Mock danh sách trung tâm
 const units = [
   { id: "b11b0a3b-3ca3-4721-80b9-4598dfcbe7ff", name: "TT586" },
@@ -81,53 +89,82 @@ export default function PersonnelOverview() {
   return (
     <div className="min-h-screen bg-gray-50  space-y-6">
       {/* Bộ lọc gọn */}
-      <div className="flex flex-wrap gap-2 items-center bg-white p-3 rounded-lg shadow-sm">
-        {/* Trung tâm */}
-        <select
-          className="border p-2 rounded text-sm"
-          value={filters.unit_id}
-          onChange={(e) => setFilters({ ...filters, unit_id: e.target.value })}
-        >
-          {units.map((u) => (
-            <option key={u.id} value={u.id}>{u.name}</option>
-          ))}
-        </select>
-
-        {/* Ngày bắt đầu */}
-
-
-        {/* Group by */}
-        <select
-          className="border p-2 rounded text-sm"
-          value={filters.group_by}
-          onChange={(e) => setFilters({ ...filters, group_by: e.target.value })}
-        >
-          <option value="day">Ngày</option>
-          <option value="week">Tuần</option>
-          <option value="month">Tháng</option>
-        </select>
-
-        {/* Button */}
-        <button
-          onClick={fetchData}
-          className="bg-blue-500 text-white px-3 py-2 rounded text-sm hover:bg-blue-600"
-        >
-          Áp dụng
-        </button>
-      </div>
-
-      {/* Thông tin đơn vị */}
       <Card>
         <CardHeader>
-          <CardTitle>{data.unit_info?.display_name}</CardTitle>
+          <CardTitle>Bộ lọc</CardTitle>
         </CardHeader>
-        <CardContent>
-          <p>{data.unit_info?.description}</p>
-          <p className="text-sm text-gray-500">
-            {filters.start_date} → {filters.end_date} ({filters.group_by})
-          </p>
+        <CardContent className="flex flex-wrap gap-4 items-end">
+          {/* Trung tâm */}
+          <div>
+            <label className="block text-sm font-medium">Trung tâm</label>
+            <Select
+              value={filters.unit_id}
+              onValueChange={(v) => setFilters({ ...filters, unit_id: v })}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Chọn trung tâm" />
+              </SelectTrigger>
+              <SelectContent>
+                {units.map((u) => (
+                  <SelectItem key={u.id} value={u.id}>
+                    {u.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Ngày bắt đầu */}
+          <div>
+            <label className="block text-sm font-medium">Từ ngày</label>
+            <Input
+              type="date"
+              value={filters.start_date}
+              onChange={(e) =>
+                setFilters({ ...filters, start_date: e.target.value })
+              }
+              className="w-[180px]"
+            />
+          </div>
+
+          {/* Ngày kết thúc */}
+          <div>
+            <label className="block text-sm font-medium">Đến ngày</label>
+            <Input
+              type="date"
+              value={filters.end_date}
+              onChange={(e) =>
+                setFilters({ ...filters, end_date: e.target.value })
+              }
+              className="w-[180px]"
+            />
+          </div>
+
+          {/* Group by */}
+          <div>
+            <label className="block text-sm font-medium">Nhóm theo</label>
+            <Select
+              value={filters.group_by}
+              onValueChange={(v) => setFilters({ ...filters, group_by: v })}
+            >
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Chọn group" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="day">Ngày</SelectItem>
+                <SelectItem value="week">Tuần</SelectItem>
+                <SelectItem value="month">Tháng</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Button */}
+          <Button onClick={fetchData}>Lọc</Button>
         </CardContent>
       </Card>
+
+      {/* Thông tin đơn vị */}
+
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

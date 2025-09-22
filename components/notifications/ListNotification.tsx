@@ -224,7 +224,7 @@ export default function NotificationBell() {
                   className={`p-3 border-b cursor-pointer flex justify-between items-start transition-colors 
                     ${n.is_read ? "bg-gray-50 hover:bg-gray-100" : "bg-blue-50 hover:bg-blue-100"}`}
                 >
-                  <div onClick={() => markAsRead(n.id)}>
+                  <div onClick={() => markAsRead(n.notification_id)}>
                     <div className="font-medium text-gray-800">{n.notification.title}</div>
                     <div className="text-sm text-gray-600 mt-1">{n.notification.content}</div>
                     <div className="text-xs text-gray-400 mt-1">

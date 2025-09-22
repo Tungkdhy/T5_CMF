@@ -31,6 +31,7 @@ import Overview from "@/components/dashboard/Overview";
 import TaskTimeline from "@/components/dashboard/TaskTimeline";
 import DeviceStatistics from "@/components/dashboard/Device";
 import PersonnelOverview from "@/components/dashboard/Personal";
+import StatisticsDashboard from "@/components/dashboard/System";
 
 // Mock API data
 const apiData = {
@@ -202,6 +203,7 @@ export default function Dashboard() {
         <TaskTimeline />
         <DeviceStatistics/>
         <PersonnelOverview/>
+        <StatisticsDashboard/>
       </main>
     </div>
   );

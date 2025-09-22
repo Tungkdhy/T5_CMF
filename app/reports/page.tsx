@@ -24,6 +24,8 @@ import {
     deleteReport
 } from "@/api/reports";
 import { getCategory } from "@/api/categor";
+import api from "@/api/base";
+import axios from "axios";
 // Report Data Interface
 interface Report {
     id: string;
@@ -32,6 +34,7 @@ interface Report {
     report_status: "draft" | "published";
     description: string;
     level_name?: string;
+    url?: string;
 }
 
 export default function ReportManagementPage() {
@@ -40,13 +43,15 @@ export default function ReportManagementPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingReport, setEditingReport] = useState<Report | null>(null);
     const [level, setLevel] = useState<any>([])
-    const [reload,setReload] = useState(false)
+    const [reload, setReload] = useState(false)
     const [formData, setFormData] = useState<Report>({
         id: "",
         report_name: "",
         level_id: "",
         report_status: "draft",
         description: "",
+        url: "",
+
     });
 
     const [message, setMessage] = useState<string | null>(null);
@@ -140,7 +145,33 @@ export default function ReportManagementPage() {
             });
         }
     };
+    const downloadFile = async (fileUrl: string, filename: string) => {
+        try {
+            console.log(fileUrl);
+            
+            const token = localStorage.getItem("accessToken");
+            if (!token) return;
 
+            const response = await axios.get(fileUrl, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: "application/octet-stream", // thường cần cho API download
+                },
+                responseType: "blob", // quan trọng để nhận file nhị phân
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Download error:", error);
+        }
+    };
     // Fetch reports
     useEffect(() => {
         const fetchReports = async () => {
@@ -152,13 +183,13 @@ export default function ReportManagementPage() {
             setReports(data.data.rows);
         };
         fetchReports();
-    }, [searchTerm,reload]);
+    }, [searchTerm, reload]);
     useEffect(() => {
         const fetchLevel = async () => {
             const data = await getCategory({
                 pageSize: 10,
                 pageIndex: 1,
-                scope:"LEVEL_REPORT",
+                scope: "LEVEL_REPORT",
             });
             setLevel(data.data.rows);
         };
@@ -226,6 +257,9 @@ export default function ReportManagementPage() {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                         Cấp
                                     </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                        File
+                                    </th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
                                         Hành động
                                     </th>
@@ -248,6 +282,14 @@ export default function ReportManagementPage() {
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500">
                                             {item.level_name}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                            <button
+                                                onClick={() => downloadFile(`http://10.10.53.58:3002/${item.url}`, `${item.report_name}.pdf`)}
+                                                className="text-blue-500 hover:underline"
+                                            >
+                                                Tải file
+                                            </button>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex justify-end space-x-2">
@@ -331,6 +373,42 @@ export default function ReportManagementPage() {
                         {/* Body */}
                         <div className="p-6 space-y-4">
                             <div>
+                                <Label className="mb-3">Chọn file</Label>
+                                <Input
+                                    type="file"
+                                    onChange={async (e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            // upload file lên server
+                                            const formDataUpload = new FormData();
+                                            formDataUpload.append("file", file);
+
+                                            try {
+                                                const res = await api.post("/documents/upload", formDataUpload, {
+                                                    headers: {
+                                                        "Content-Type": "multipart/form-data",
+                                                    },
+                                                });
+                                                console.log(res);
+                                                const data = res.data.data;
+
+                                                // giả sử API trả về { file_path: "...", file_name: "..." }
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    // file_name: data.file_name || file.name,
+                                                    url: data.file_path,
+                                                    // file_size: data.file_size || file.size.toString(),
+                                                    // description: data.description || "",
+                                                    // document_type: data.file_path.split(".")[1] || "",
+                                                }));
+                                            } catch (err) {
+                                                console.error("Upload failed", err);
+                                            }
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div>
                                 <Label className="mb-3" htmlFor="report_name">
                                     Tên báo cáo
                                 </Label>
@@ -390,11 +468,11 @@ export default function ReportManagementPage() {
                                         <SelectValue placeholder="Chọn cấp báo cáo" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                       
+
                                         {
-                                            level.map((item:any)=> <SelectItem value={item.id}>{item.display_name}</SelectItem>)
+                                            level.map((item: any) => <SelectItem value={item.id}>{item.display_name}</SelectItem>)
                                         }
-                                        
+
 
                                     </SelectContent>
                                 </Select>
