@@ -265,11 +265,11 @@ export default function ConfigManagement() {
               <TableRow key={c.id}>
                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
                 <TableCell>{c.display_name}</TableCell>
-                <TableCell>{c.data.display_value}</TableCell>
-                <TableCell>{c.data.min ?? "-"}</TableCell>
-                <TableCell>{c.data.max ?? "-"}</TableCell>
-                <TableCell>{c.data.default_value ?? "-"}</TableCell>
-                <TableCell>{c.data.unit ?? "-"}</TableCell>
+                <TableCell>{c.data?.display_value}</TableCell>
+                <TableCell>{c.data?.min ?? "-"}</TableCell>
+                <TableCell>{c.data?.max ?? "-"}</TableCell>
+                <TableCell>{c.data?.default_value ?? "-"}</TableCell>
+                <TableCell>{c.data?.unit ?? "-"}</TableCell>
                 <TableCell className="flex gap-2 justify-end">
                   <Button size="sm" variant="outline" onClick={() => handleEdit(c)}>
                     <Edit className="w-4 h-4" /> Sửa

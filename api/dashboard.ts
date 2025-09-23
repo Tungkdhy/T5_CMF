@@ -57,3 +57,21 @@ export async function getPersonalStatistics({
   const res = await api.get("/dashboard/personnel/statistics", { params });
   return res.data;
 }
+export async function getTSCS({
+  start_date,
+  end_date,
+  category_id,
+}: {
+  start_date?: string | null;
+  end_date?: string | null;
+  category_id?: string | null;
+}) {
+  const params: Record<string, string> = {};
+
+  if (start_date) params.start_date = start_date;
+  if (end_date) params.end_date = end_date;
+  if (category_id) params.category_id = category_id;
+
+  const res = await api.get("/dashboard/reconnaissance/statistics", { params });
+  return res.data;
+}

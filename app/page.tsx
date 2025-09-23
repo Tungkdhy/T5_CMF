@@ -32,6 +32,7 @@ import TaskTimeline from "@/components/dashboard/TaskTimeline";
 import DeviceStatistics from "@/components/dashboard/Device";
 import PersonnelOverview from "@/components/dashboard/Personal";
 import StatisticsDashboard from "@/components/dashboard/System";
+import TaskOverview from "@/components/dashboard/TCCS";
 
 // Mock API data
 const apiData = {
@@ -200,6 +201,7 @@ export default function Dashboard() {
 
         <Overview />
         {/* Biểu đồ đường */}
+        <TaskOverview />
         <TaskTimeline />
         <DeviceStatistics/>
         <PersonnelOverview/>
