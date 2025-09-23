@@ -26,7 +26,8 @@ import {
   Zap,
   Target,
   Database,
-  AlertCircle
+  AlertCircle,
+  RollerCoaster
 } from "lucide-react";
 import {
   Sidebar,
@@ -176,6 +177,24 @@ function Layout({ children }: { children: ReactNode }) {
         },
         { id: "staff", title: "Quản lý nhân viên", icon: <Users className="w-5 h-5" />, href: "/staff" },
         {
+          id: "role",
+          title: "Quản lý phân quyền",
+          icon: <RollerCoaster className="w-5 h-5" />,
+          children: [
+            {
+              id: "roles",
+              title: "Danh sách quyền",
+              // icon: <Folder className="w-5 h-5" />,
+              href: "/role", // 👈 cho hết vào đây làm submenu
+            }, {
+              id: "action",
+              title: "Danh sách hành động",
+              // icon: <Folder className="w-5 h-5" />,
+              href: "/role/action", // 👈 cho hết vào đây làm submenu
+            },
+          ], // 👈 cho hết vào đây làm submenu
+        },
+        {
           id: "category_task",
           title: "Danh mục nhiệm vụ",
           icon: <ClipboardList className="w-5 h-5" />,
@@ -263,7 +282,7 @@ function Layout({ children }: { children: ReactNode }) {
           id: "performance",
           title: "Hiệu suất thực hiện TCCS",
           icon: <Zap className="w-5 h-5" />,
-           href: "/work_performance", // 👈 cho hết vào đây làm submenu
+          href: "/work_performance", // 👈 cho hết vào đây làm submenu
         },
         {
           id: "category",

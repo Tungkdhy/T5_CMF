@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // API giả lập
-import { getBackups, deleteBackup, restoreBackup, createBackup } from "@/api/backup";
+import { getBackups, deleteBackup, restoreBackup, createBackup, deleteBackupAll } from "@/api/backup";
 
 interface Backup {
   id: string;
@@ -42,9 +42,9 @@ export default function BackupManagement() {
       const res = await getBackups({ pageIndex: page, pageSize });
       setBackups(res.data.rows);
       setTotalPages(Math.ceil(res.data.count / pageSize));
-    } catch (err) {
+    } catch (err:any) {
       console.error(err);
-      showAlert("Lấy danh sách backup thất bại", "error");
+      showAlert(err.response?.data.message, "error");
     }
   };
 
@@ -61,12 +61,22 @@ export default function BackupManagement() {
 
   const handleCreateBackup = async () => {
     try {
-      await createBackup({type:0}); // Gọi API tạo backup
+      await createBackup({ type: 0 }); // Gọi API tạo backup
       showAlert("Backup thành công", "success");
       fetchBackups(pageIndex);
     } catch (err) {
       console.error(err);
       showAlert("Tạo backup thất bại", "error");
+    }
+  };
+  const handleDeleteBackup = async () => {
+    try {
+      await deleteBackupAll(); // Gọi API xóa backup
+      showAlert("Xóa backup thành công", "success");
+      fetchBackups(pageIndex);
+    } catch (err) {
+      console.error(err);
+      showAlert("Xóa backup thất bại", "error");
     }
   };
 
@@ -79,11 +89,10 @@ export default function BackupManagement() {
       {message && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
           <Alert
-            className={`rounded-xl shadow-lg ${
-              status === "success"
-                ? "bg-green-100 border-green-500 text-green-800"
-                : "bg-red-100 border-red-500 text-red-800"
-            }`}
+            className={`rounded-xl shadow-lg ${status === "success"
+              ? "bg-green-100 border-green-500 text-green-800"
+              : "bg-red-100 border-red-500 text-red-800"
+              }`}
           >
             {status === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
             <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
@@ -94,9 +103,12 @@ export default function BackupManagement() {
 
       <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
         {/* Nút backup dữ liệu */}
-        <div className="flex justify-end mb-3">
+        <div className="flex justify-end gap-2 mb-3">
           <Button size="sm" variant="default" onClick={handleCreateBackup} className="flex items-center gap-2">
             <Plus className="w-4 h-4" /> Backup dữ liệu
+          </Button>
+          <Button size="sm" variant="destructive" onClick={handleDeleteBackup} className="flex items-center gap-2">
+            <Trash2 className="w-4 h-4" /> Xóa dữ liệu
           </Button>
         </div>
 

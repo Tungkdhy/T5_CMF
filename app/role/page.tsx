@@ -1,0 +1,285 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Plus, Edit, Trash2, X, CheckCircle, XCircle, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+// Giả lập API
+import { getRoles, createRole, updateRole, deleteRole, getRolesAction } from "@/api/role";
+
+// 👉 giả lập danh sách quyền (sau bạn gọi API getActions)
+// const actions = [
+//     { id: "view_users", name: "Xem người dùng" },
+//     { id: "edit_users", name: "Sửa người dùng" },
+//     { id: "delete_users", name: "Xóa người dùng" },
+//     { id: "view_roles", name: "Xem role" },
+//     { id: "manage_roles", name: "Quản lý role" },
+// ];
+
+interface Role {
+    roleId: string;
+    roleName: string;
+    actionIds: string[];
+    display_name?: string;
+}
+
+export default function RoleManagement() {
+    const [roles, setRoles] = useState<Role[]>([]);
+    const [actions, setActions] = useState<any[]>([]);
+    const [pageIndex, setPageIndex] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingRole, setEditingRole] = useState<Role | null>(null);
+    const [formData, setFormData] = useState<Omit<Role, "roleId">>({
+        roleName: "",
+        actionIds: [],
+        display_name:""
+    });
+
+    const [status, setStatus] = useState<"success" | "error" | null>(null);
+    const [message, setMessage] = useState<string | null>(null);
+
+    const pageSize = 10;
+
+    const showAlert = (msg: string, type: "success" | "error") => {
+        setMessage(msg);
+        setStatus(type);
+        setTimeout(() => {
+            setMessage(null);
+            setStatus(null);
+        }, 3000);
+    };
+
+    const fetchRoles = async (page: number) => {
+        try {
+            const res = await getRoles({ pageSize, pageIndex: page });
+            setRoles(res.data.rows);
+            setTotalPages(Math.ceil(res.data.count / pageSize));
+        } catch (err) {
+            console.error(err);
+            showAlert("Lấy danh sách role thất bại", "error");
+        }
+    };
+    const fetchActions = async () => {
+        try {
+            const res = await getRolesAction({ pageSize, pageIndex });
+            setActions(res.data.rows);
+            setTotalPages(Math.ceil(res.data.count / pageSize));
+        } catch (err) {
+            console.error(err);
+            showAlert("Lấy danh sách hành động thất bại", "error");
+        }
+    };
+    const handleSave = async () => {
+        if (editingRole) {
+            await updateRole(editingRole.roleId, formData);
+            showAlert("Cập nhật role thành công", "success");
+        } else {
+            const res = await createRole(formData);
+
+            console.log(res);
+            showAlert("Thêm role thành công", "success");
+        }
+        setIsModalOpen(false);
+        setEditingRole(null);
+        fetchRoles(pageIndex);
+    };
+
+    const handleDelete = async (id: string) => {
+        await deleteRole(id);
+        showAlert("Xóa role thành công", "success");
+        fetchRoles(pageIndex);
+    };
+
+    useEffect(() => {
+        fetchRoles(pageIndex);
+    }, [pageIndex]);
+    useEffect(() => {
+        fetchActions();
+    }, []);
+    // 👉 hàm toggle quyền
+    const toggleAction = (actionId: string) => {
+        setFormData((prev) => {
+            const exists = prev.actionIds.includes(actionId);
+            return {
+                ...prev,
+                actionIds: exists
+                    ? prev.actionIds.filter((id) => id !== actionId)
+                    : [...prev.actionIds, actionId],
+            };
+        });
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-50 p-3">
+            {/* Alert */}
+            {message && (
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+                    <Alert
+                        className={`rounded-xl shadow-lg ${status === "success"
+                                ? "bg-green-100 border-green-500 text-green-800"
+                                : "bg-red-100 border-red-500 text-red-800"
+                            }`}
+                    >
+                        {status === "success" ? (
+                            <CheckCircle className="h-5 w-5" />
+                        ) : (
+                            <XCircle className="h-5 w-5" />
+                        )}
+                        <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
+                        <AlertDescription>{message}</AlertDescription>
+                    </Alert>
+                </div>
+            )}
+
+            <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
+                {/* Thanh tìm kiếm + thêm */}
+                <div className="flex items-center justify-between mb-3">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                            type="text"
+                            placeholder="Tìm kiếm role..."
+                            className="pl-10"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <Button
+                        onClick={() => {
+                            setIsModalOpen(true);
+                            setFormData({ roleName: "", actionIds: [] });
+                        }}
+                        className="flex items-center gap-2"
+                    >
+                        <Plus className="w-4 h-4" /> Thêm quyền
+                    </Button>
+                </div>
+
+                {/* Table */}
+                <Table className="w-full table-auto">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>STT</TableHead>
+                            <TableHead>Tên quyền</TableHead>
+                            <TableHead>Số lượng quyền</TableHead>
+                            <TableHead className="w-[150px]">Hành động</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {roles.map((r, i) => (
+                            <TableRow key={r.roleId}>
+                                <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
+                                <TableCell>{r.roleName}</TableCell>
+                                <TableCell>{r.actionIds.length}</TableCell>
+                                <TableCell className="flex gap-2 justify-end">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => {
+                                            setEditingRole(r);
+                                            setFormData({ roleName: r.roleName, actionIds: r.actionIds });
+                                            setIsModalOpen(true);
+                                        }}
+                                    >
+                                        <Edit className="w-4 h-4" /> Sửa
+                                    </Button>
+                                    <Button size="sm" variant="destructive" onClick={() => handleDelete(r.roleId)}>
+                                        <Trash2 className="w-4 h-4" /> Xóa
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+
+                {/* Phân trang */}
+                <div className="flex items-center justify-end mt-4 space-x-2">
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={pageIndex === 1}
+                        onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
+                        className="p-1"
+                    >
+                        <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <span className="flex items-center px-2">
+                        Trang {pageIndex} / {totalPages}
+                    </span>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={pageIndex === totalPages}
+                        onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
+                        className="p-1"
+                    >
+                        <ChevronRight className="w-4 h-4" />
+                    </Button>
+                </div>
+            </div>
+
+            {/* Modal thêm/sửa */}
+            {isModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl">
+                        <div className="flex justify-between items-center p-4 border-b">
+                            <h3 className="text-lg font-semibold">
+                                {editingRole ? "Sửa role" : "Thêm role"}
+                            </h3>
+                            <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>
+                                <X className="w-5 h-5" />
+                            </Button>
+                        </div>
+
+                        <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                            <div>
+                                <Label>Tên role</Label>
+                                <Input
+                                    value={formData.roleName}
+                                    onChange={(e) => setFormData((p) => ({ ...p, roleName: e.target.value }))}
+                                />
+                            </div>
+                             <div>
+                                <Label>Tên hiển thị</Label>
+                                <Input
+                                    value={formData.display_name}
+                                    onChange={(e) => setFormData((p) => ({ ...p, display_name: e.target.value }))}
+                                />
+                            </div>
+                            {/* ✅ Danh sách quyền bằng checkbox */}
+                            <div>
+                                <Label>Danh sách quyền</Label>
+                                <div className="grid grid-cols-2 gap-2 mt-2">
+                                    {actions.map((a) => (
+                                        <label key={a.id} className="flex items-center gap-2 text-sm">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.actionIds.includes(a.id)}
+                                                onChange={() => toggleAction(a.id)}
+                                            />
+                                            {a.url} ({a.method_category.display_name})
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-2 p-4 border-t">
+                            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                                Hủy
+                            </Button>
+                            <Button onClick={handleSave}>{editingRole ? "Cập nhật" : "Thêm mới"}</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

@@ -84,7 +84,8 @@ export default function UserManagement() {
     skill: "",
     certificate: "",
     unit: "",
-    level_tckgm: ""
+    level_tckgm: "",
+    team_id: ""
   });
   const [formData, setFormData] = useState<Omit<User, "id">>({
     user_name: "",
@@ -220,7 +221,7 @@ export default function UserManagement() {
         position: res3.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         level: res4.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         level_tckgm: res5.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
-        // team_tccs: res9.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
+        team_tccs: res9.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         roles: res6.data.data.roles,
         unit: res7.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         organization: res8.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
@@ -301,7 +302,7 @@ export default function UserManagement() {
       <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
         <div className="flex items-center gap-3 mb-3">
           {/* Search */}
-          <div className="relative w-[200px]">
+          <div className="relative w-[180px]">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               type="text"
@@ -319,7 +320,7 @@ export default function UserManagement() {
               setFilters((prev: any) => ({ ...prev, certificate: val }))
             }
           >
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Lọc theo chứng chỉ" />
             </SelectTrigger>
             <SelectContent>
@@ -338,7 +339,7 @@ export default function UserManagement() {
               setFilters((prev: any) => ({ ...prev, skill: val }))
             }
           >
-            <SelectTrigger className="w-[200px]">
+            <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Lọc theo kỹ năng" />
             </SelectTrigger>
             <SelectContent>
@@ -387,7 +388,21 @@ export default function UserManagement() {
               ))}
             </SelectContent>
           </Select>
-
+          <div className="flex-1">
+            <Select
+              value={filters.team_id}
+              onValueChange={(v) => setFilters({ ...filters, team_id: v })}
+            >
+              <SelectTrigger className="w-full  w-[180px]">
+                <SelectValue placeholder="Đội nhóm" />
+              </SelectTrigger>
+              <SelectContent>
+                {multiSelect.team_tccs?.map((item: any) => (
+                  <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
             <FileSpreadsheet className="w-4 h-4 text-green-600" />
             Xuất Excel

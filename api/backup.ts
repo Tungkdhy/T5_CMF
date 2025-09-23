@@ -27,6 +27,10 @@ export async function deleteBackup(id: string) {
   const res = await api.delete(`/restore-backup/restore/${id}`);
   return res.data;
 }
+export async function deleteBackupAll() {
+  const res = await api.delete(`/restore-backup/clear-system`);
+  return res.data;
+}
 
 // Phục hồi bản backup theo id
 export async function restoreBackup(id: string) {

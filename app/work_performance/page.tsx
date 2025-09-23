@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import api from "@/api/base";
+import { set } from "react-hook-form";
 
 interface Performance {
   assignee_name: string;
@@ -28,10 +29,11 @@ interface Performance {
 
 export default function PerformanceTable() {
   const [data, setData] = useState<Performance[]>([]);
-  const [startDate, setStartDate] = useState<string>("2024-12-01");
-  const [endDate, setEndDate] = useState<string>("2024-12-31");
+  const [data2, setData2] = useState<any[]>([]);
+  const [startDate, setStartDate] = useState<string>("2025-01-01");
+  const [endDate, setEndDate] = useState<string>("2025-12-31");
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [levelPerformance, setLevelPerformance] = useState<any>(null);
   // state cho Dialog chi tiết
   const [selectedUser, setSelectedUser] = useState<Performance | null>(null);
 
@@ -41,9 +43,13 @@ export default function PerformanceTable() {
       const result = await api.get(
         `/tasks/performance/completion-time?start_date=${startDate}&end_date=${endDate}`
       );
+      const result2 = await api.get(
+        `/tasks/performance/completion-volume?start_date=${startDate}&end_date=${endDate}`
+      );
 
       if (result.data.statusCode === "10000") {
         setData(result.data.data);
+        setData2(result2.data.data);
       }
     } catch (error) {
       console.error(error);
@@ -51,7 +57,16 @@ export default function PerformanceTable() {
       setLoading(false);
     }
   };
-
+  const handleSelectedUser = async (user: Performance) => {
+    setSelectedUser(user);
+    try {
+      const res = await api.get(`/tasks/performance/completion-level?start_date=${startDate}&end_date=${endDate}&user_id=${user.assignee_id}`);
+      setLevelPerformance(res.data.data);
+    }
+    catch (err) {
+      console.log(err);
+    }
+  }
   useEffect(() => {
     fetchPerformance();
   }, []);
@@ -106,7 +121,7 @@ export default function PerformanceTable() {
                 <TableRow
                   key={item.assignee_id}
                   className="cursor-pointer hover:bg-gray-100"
-                  onClick={() => setSelectedUser(item)}
+                  onClick={() => handleSelectedUser(item)}
                 >
                   <TableCell>{i + 1}</TableCell>
                   <TableCell>{item.assignee_name}</TableCell>
@@ -138,7 +153,7 @@ export default function PerformanceTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((item, i) => (
+              {data2.map((item, i) => (
                 <TableRow key={item.assignee_id}>
                   <TableCell>{i + 1}</TableCell>
                   <TableCell>{item.assignee_name}</TableCell>
@@ -159,24 +174,18 @@ export default function PerformanceTable() {
               Chi tiết người dùng: {selectedUser?.assignee_name}
             </DialogTitle>
           </DialogHeader>
-          {selectedUser && (
-            <div className="space-y-2 text-sm">
-              <p><b>Số task hoàn thành:</b> {selectedUser.completed_tasks}</p>
-              <p><b>Thời gian TB:</b> {parseFloat(selectedUser.avg_completion_days).toFixed(2)} ngày</p>
-              <p><b>Thời gian Min:</b> {parseFloat(selectedUser.min_completion_days).toFixed(2)} ngày</p>
-              <p><b>Thời gian Max:</b> {parseFloat(selectedUser.max_completion_days).toFixed(2)} ngày</p>
-              <p><b>Tổng giờ thực tế:</b>
-                {selectedUser.total_actual_hours
-                  ? parseFloat(selectedUser.total_actual_hours).toFixed(2)
-                  : "-"}
-              </p>
-              <p><b>Giờ TB:</b>
-                {selectedUser.avg_actual_hours
-                  ? parseFloat(selectedUser.avg_actual_hours).toFixed(2)
-                  : "-"}
-              </p>
-            </div>
-          )}
+          {levelPerformance && (
+            levelPerformance.map((level: any, index: number) => {
+              return <div key={index} className="space-y-2 text-sm">
+                <p><b>Tổng số task:</b> {level.total_tasks}</p>
+                <p><b>Số task hoàn thành:</b> {level.completed_tasks}</p>
+                <p><b>Task tiến độ cao:</b> {level.high_progress_tasks}</p>
+                <p><b>Task tiến độ trung bình:</b> {level.medium_progress_tasks}</p>
+                <p><b>Task tiến độ thấp:</b> {level.low_progress_tasks}</p>
+                <p><b>Hoàn thành TB:</b> {parseFloat(level.avg_progress_percent).toFixed(2)}%</p>
+              </div>
+            }
+            ))}
         </DialogContent>
       </Dialog>
 

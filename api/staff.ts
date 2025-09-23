@@ -6,7 +6,7 @@ export async function getStaff({ pageSize = 10, pageIndex = 1, name = "", filter
     Object.entries(filters).filter(([_, v]) => v !== "" && v != null)
   );
   return api.get("/staff", {
-    params: { pageSize, pageIndex, name, unit_id: cleanedFilters.unit, tckgm_level_id: cleanedFilters.level_tckgm, skills: cleanedFilters.skill, certificates: cleanedFilters.certificate },
+    params: { pageSize, pageIndex, name, unit_id: cleanedFilters.unit, tckgm_level_id: cleanedFilters.level_tckgm, skills: cleanedFilters.skill, certificates: cleanedFilters.certificate, team_id: cleanedFilters.team_id },
   });
 }
 
