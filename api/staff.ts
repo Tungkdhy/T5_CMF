@@ -18,18 +18,53 @@ export async function getAllRoles({ pageSize = 10, pageIndex = 1 }) {
 
 // Tạo staff mới
 export async function createStaff(data: any) {
-  const { user_name, created_at, created_by, tckgm_level_name, rank_name, certificate, skill, position_name, organization, unit, ...rest } = data;
+  const {
+    user_name,
+    created_at,
+    created_by,
+    tckgm_level_name,
+    rank_name,
+    certificate,
+    skill,
+    position_name,
+    organization,
+    organization_id,
+    unit,
+    ...rest
+  } = data;
 
-  return api.post("/staff", {
-    ...rest,
-    rank_id: data.rank_name,
-    position_id: data.position_name,
-    tckgm_level_id: data.tckgm_level_name,
-    certificates: data.certificate || [],
-    skills: data.skill || [],
-    user_name:data.email
-    // user_name: data.rank_name,
-  });
+  // Hàm kiểm tra xem giá trị có "hợp lệ" để gửi hay không
+  const isPresent = (v: any) => {
+    if (v === undefined || v === null) return false;
+    if (typeof v === "string" && v.trim() === "") return false;
+    if (Array.isArray(v) && v.length === 0) return false;
+    return true;
+  };
+
+  // Xây payload bắt đầu từ phần rest
+  const payload: Record<string, any> = { ...rest };
+
+  // Thêm các trường mapping chỉ khi có giá trị hợp lệ
+  if (isPresent(rank_name)) payload.rank_id = rank_name;
+  if (isPresent(position_name)) payload.position_id = position_name;
+  if (isPresent(tckgm_level_name)) payload.tckgm_level_id = tckgm_level_name;
+  if (isPresent(certificate)) payload.certificates = certificate;
+  if (isPresent(skill)) payload.skills = skill;
+
+  // user_name dùng email nếu có, nếu không có email thì bỏ qua
+  if (isPresent(data.email)) {
+    payload.user_name = data.email;
+  } else if (isPresent(user_name)) {
+    // fallback nếu vẫn muốn dùng user_name khi email không tồn tại
+    payload.user_name = user_name;
+  }
+
+  // Nếu vẫn muốn loại bỏ mọi key rỗng (phòng trường hợp rest có trường rỗng), có thể làm sạch thêm:
+  const cleanedPayload = Object.fromEntries(
+    Object.entries(payload).filter(([_, v]) => isPresent(v))
+  );
+
+  return api.post("/staff", cleanedPayload);
 }
 
 // Cập nhật staff
@@ -47,7 +82,7 @@ export async function updateStaff(id: string, data: any) {
 }
 export async function getOrganozations(id: string) {
   return api.get(`/category/organizations/by-unit/${id}`, {
-    params: { pageSize:1000, pageIndex:1 },
+    params: { pageSize: 1000, pageIndex: 1 },
 
   });
 }
