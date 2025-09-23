@@ -193,8 +193,8 @@ useEffect(() => {
                         {documents.map((doc, i) => (
                             <TableRow key={doc.id}>
                                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
-                                <TableCell>{doc.document.file_name}</TableCell>
-                                <TableCell>{(Number(doc.document.file_size) / 1024).toFixed(2)}</TableCell>
+                                <TableCell>{doc.document?.file_name}</TableCell>
+                                <TableCell>{(Number(doc.document?.file_size) / 1024).toFixed(2)}</TableCell>
                                 <TableCell>{doc.description}</TableCell>
                                 <TableCell>{doc.target ? doc.target.name : "-"}</TableCell>
                                 <TableCell className="flex gap-2 justify-end">
