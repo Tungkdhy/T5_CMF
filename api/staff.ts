@@ -27,6 +27,7 @@ export async function createStaff(data: any) {
     tckgm_level_id: data.tckgm_level_name,
     certificates: data.certificate || [],
     skills: data.skill || [],
+    user_name:data.email
     // user_name: data.rank_name,
   });
 }

@@ -145,27 +145,37 @@ export default function UserManagement() {
   };
 
   const handleDelete = async (id: string) => {
-    await deleteStaff(id);
-    fetchUsers(pageIndex, filters);
-    setIsRefreshMenu(!isRefreshMenu);
-    showAlert("Xóa người dùng thành công", "success");
+    try {
+      await deleteStaff(id);
+      fetchUsers(pageIndex, filters);
+      setIsRefreshMenu(!isRefreshMenu);
+      showAlert("Xóa người dùng thành công", "success");
+    }
+    catch (err: any) {
+      showAlert(err?.response?.data?.message || "Lưu người dùng thất bại", "error");
+    }
   };
 
   const handleSave = async () => {
-    if (editingUser) {
-      await updateStaff(editingUser.id, {
-        ...formData,
-        ...selected
-      });
-      showAlert("Cập nhật người dùng thành công", "success");
-    } else {
-      await createStaff({ ...formData, ...selected });
-      showAlert("Thêm người dùng thành công", "success");
+    try {
+      if (editingUser) {
+        await updateStaff(editingUser.id, {
+          ...formData,
+          ...selected
+        });
+        showAlert("Cập nhật người dùng thành công", "success");
+      } else {
+        await createStaff({ ...formData, ...selected });
+        showAlert("Thêm người dùng thành công", "success");
+      }
+      setIsModalOpen(false);
+      setEditingUser(null);
+      fetchUsers(pageIndex, filters);
+      setIsRefreshMenu(!isRefreshMenu);
     }
-    setIsModalOpen(false);
-    setEditingUser(null);
-    fetchUsers(pageIndex, filters);
-    setIsRefreshMenu(!isRefreshMenu);
+    catch (err: any) {
+      showAlert(err?.response?.data?.message || "Lưu người dùng thất bại", "error");
+    }
   };
 
   const handleChange = (field: keyof typeof formData, value: any) => {

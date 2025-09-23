@@ -32,14 +32,14 @@ interface Device {
     status: "active" | "inactive";
     description: string;
     unit_name?: string;
+    device_group?: string;
     reload?: boolean;
 }
 
 export default function DeviceManagementPage() {
-    const [devices, setDevices] = useState<Device[]>([
-
-    ]);
+    const [devices, setDevices] = useState<Device[]>([]);
     const [deviceTypes, setDeviceTypes] = useState<any[]>([]);
+    const [groups, setGroups] = useState<any[]>([]);
     const [units, setUnits] = useState<any[]>([]); // Danh sách đơn vị
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDevice, setEditingDevice] = useState<Device | null>(null);
@@ -53,6 +53,7 @@ export default function DeviceManagementPage() {
         description: "",
         reload: true,
         unit_name: "",
+        // device_group: ""
     });
 
     const [message, setMessage] = useState<string | null>(null);
@@ -164,8 +165,10 @@ export default function DeviceManagementPage() {
         try {
             const res = await getCategory({ pageSize: 1000, pageIndex: page, scope: "UNIT" });
             const res2 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "DEVICE_TYPE" });
+            const res3 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "EQUIPMENT_GROUP" });
             setDeviceTypes(res2.data.rows);
             setUnits(res.data.rows);
+            // setGroups(res3.data.rows);
 
         } catch (err) {
             console.error(err);
@@ -227,7 +230,7 @@ export default function DeviceManagementPage() {
                             <TableHead>Tên thiết bị</TableHead>
                             <TableHead>IP</TableHead>
                             <TableHead>MAC</TableHead>
-                            {/* <TableHead>Loại</TableHead> */}
+                            <TableHead>Loại</TableHead>
                             <TableHead>Đơn vị</TableHead>
                             <TableHead>Mô tả</TableHead>
                             <TableHead>Trạng thái</TableHead>
@@ -241,7 +244,7 @@ export default function DeviceManagementPage() {
                                 <TableCell>{d.device_name}</TableCell>
                                 <TableCell>{d.ip_address}</TableCell>
                                 <TableCell>{d.mac_address}</TableCell>
-                                {/* <TableCell>{d.device_type}</TableCell> */}
+                                <TableCell>{d.device_type}</TableCell>
                                 <TableCell>{d.unit_name}</TableCell>
                                 <TableCell>{d.description}</TableCell>
                                 <TableCell>{d.status === "active" ? "Hoạt động" : "Ngừng"}</TableCell>
@@ -293,6 +296,24 @@ export default function DeviceManagementPage() {
                             <div>
                                 <Label className="mb-3">Địa chỉ MAC</Label>
                                 <Input value={formData.mac_address} onChange={(e) => handleChange("mac_address", e.target.value)} />
+                            </div>
+                            <div>
+                                <Label className="mb-3">Nhóm thiết bị</Label>
+                                <Select
+                                    value={formData.device_group}
+                                    onValueChange={(value) => handleChange("device_group", value)}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Chọn nhóm thiết bị" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {groups.map((group) => (
+                                            <SelectItem key={group.id} value={group.id}>
+                                                {group.display_name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div>
                                 <Label className="mb-3">Loại thiết bị</Label>
