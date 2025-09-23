@@ -168,7 +168,7 @@ export default function DeviceManagementPage() {
             const res3 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "EQUIPMENT_GROUP" });
             setDeviceTypes(res2.data.rows);
             setUnits(res.data.rows);
-            // setGroups(res3.data.rows);
+            setGroups(res3.data.rows);
 
         } catch (err) {
             console.error(err);
@@ -297,7 +297,7 @@ export default function DeviceManagementPage() {
                                 <Label className="mb-3">Địa chỉ MAC</Label>
                                 <Input value={formData.mac_address} onChange={(e) => handleChange("mac_address", e.target.value)} />
                             </div>
-                            <div>
+                            {/* <div>
                                 <Label className="mb-3">Nhóm thiết bị</Label>
                                 <Select
                                     value={formData.device_group}
@@ -314,7 +314,7 @@ export default function DeviceManagementPage() {
                                         ))}
                                     </SelectContent>
                                 </Select>
-                            </div>
+                            </div> */}
                             <div>
                                 <Label className="mb-3">Loại thiết bị</Label>
                                 <Select
@@ -325,7 +325,7 @@ export default function DeviceManagementPage() {
                                         <SelectValue placeholder="Chọn loại thiết bị" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {deviceTypes.map((type) => (
+                                        {groups.map((type) => (
                                             <SelectItem key={type.id} value={type.id}>
                                                 {type.display_name}
                                             </SelectItem>
