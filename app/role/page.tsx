@@ -39,7 +39,7 @@ export default function RoleManagement() {
     const [formData, setFormData] = useState<Omit<Role, "roleId">>({
         roleName: "",
         actionIds: [],
-        display_name:""
+        display_name: ""
     });
 
     const [status, setStatus] = useState<"success" | "error" | null>(null);
@@ -61,9 +61,9 @@ export default function RoleManagement() {
             const res = await getRoles({ pageSize, pageIndex: page });
             setRoles(res.data.rows);
             setTotalPages(Math.ceil(res.data.count / pageSize));
-        } catch (err) {
-            console.error(err);
-            showAlert("Lấy danh sách role thất bại", "error");
+        } catch (err: any) {
+            // console.error(err);
+            showAlert(err.response.data.message, "error");
         }
     };
     const fetchActions = async () => {
@@ -71,30 +71,43 @@ export default function RoleManagement() {
             const res = await getRolesAction({ pageSize, pageIndex });
             setActions(res.data.rows);
             setTotalPages(Math.ceil(res.data.count / pageSize));
-        } catch (err) {
-            console.error(err);
-            showAlert("Lấy danh sách hành động thất bại", "error");
+        } catch (err: any) {
+            // console.error(err);
+            showAlert(err.response.data.message, "error");
         }
     };
     const handleSave = async () => {
-        if (editingRole) {
-            await updateRole(editingRole.roleId, formData);
-            showAlert("Cập nhật role thành công", "success");
-        } else {
-            const res = await createRole(formData);
+        try {
+            if (editingRole) {
+                await updateRole(editingRole.roleId, formData);
+                showAlert("Cập nhật role thành công", "success");
+            } else {
+                const res = await createRole(formData);
 
-            console.log(res);
-            showAlert("Thêm role thành công", "success");
+                console.log(res);
+                // const newRoleId = res.data.roleId; // Giả sử API trả về ID của role mới tạo
+                showAlert("Thêm role thành công", "success");
+            }
+            setIsModalOpen(false);
+            setEditingRole(null);
+            fetchRoles(pageIndex);
         }
-        setIsModalOpen(false);
-        setEditingRole(null);
-        fetchRoles(pageIndex);
+        catch (err: any) {
+            // console.error(err);
+            showAlert(err.response.data.message, "error");
+        }
     };
 
     const handleDelete = async (id: string) => {
-        await deleteRole(id);
-        showAlert("Xóa role thành công", "success");
-        fetchRoles(pageIndex);
+        try {
+            await deleteRole(id);
+            showAlert("Xóa role thành công", "success");
+            fetchRoles(pageIndex);
+        }
+        catch (err: any) {
+            // console.error(err);
+            showAlert(err.response.data.message, "error");
+        }
     };
 
     useEffect(() => {
@@ -123,8 +136,8 @@ export default function RoleManagement() {
                 <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
                     <Alert
                         className={`rounded-xl shadow-lg ${status === "success"
-                                ? "bg-green-100 border-green-500 text-green-800"
-                                : "bg-red-100 border-red-500 text-red-800"
+                            ? "bg-green-100 border-green-500 text-green-800"
+                            : "bg-red-100 border-red-500 text-red-800"
                             }`}
                     >
                         {status === "success" ? (
@@ -246,7 +259,7 @@ export default function RoleManagement() {
                                     onChange={(e) => setFormData((p) => ({ ...p, roleName: e.target.value }))}
                                 />
                             </div>
-                             <div>
+                            <div>
                                 <Label>Tên hiển thị</Label>
                                 <Input
                                     value={formData.display_name}

@@ -21,6 +21,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { getTSCS } from "@/api/dashboard";
+import { getCategory } from "@/api/categor";
 
 // Mock danh sách category
 const categories = [
@@ -118,7 +119,7 @@ const apiData = {
 
 export default function TaskOverview() {
   const [data, setData] = useState<any>(apiData);
-
+  const [categoryTask, setCategoryTask] = useState<any>([])
   // Bộ lọc
   const [filters, setFilters] = useState({
     category_id: categories[0].id,
@@ -156,7 +157,21 @@ export default function TaskOverview() {
     "Đã giao": t.assigned_tasks,
     "Hoàn thành": t.completed_tasks,
   }));
+  const fetchStatus = async () => {
+    try {
 
+      const category_task = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "MISSION" });
+  
+      setCategoryTask(category_task.data.rows)
+    
+    } catch (err) {
+      console.error(err);
+
+    }
+  }
+  useEffect(() => {
+    fetchStatus();
+  }, [])
   return (
     <div className="min-h-screen bg-gray-50 space-y-6">
       {/* Bộ lọc */}
@@ -176,9 +191,9 @@ export default function TaskOverview() {
                 <SelectValue placeholder="Chọn category" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((c) => (
+                {categoryTask.map((c:any) => (
                   <SelectItem key={c.id} value={c.id}>
-                    {c.name}
+                    {c.display_name}
                   </SelectItem>
                 ))}
               </SelectContent>

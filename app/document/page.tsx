@@ -21,6 +21,7 @@ import { useGlobalContext } from "@/context/GlobalContext";
 import { createDocument, deleteDocument, getDocuments, updateDocument } from "@/api/document";
 import { getCategory } from "@/api/categor";
 import api from "@/api/base";
+import axios from "axios";
 
 interface Document {
   id: string;
@@ -128,6 +129,33 @@ export default function DocumentManagement() {
     };
     fetchCategoryOptions();
   }, []);
+      const downloadFile = async (fileUrl: string, filename: string) => {
+        try {
+            console.log(fileUrl);
+            
+            const token = localStorage.getItem("accessToken");
+            if (!token) return;
+
+            const response = await axios.get('http://10.10.53.58:3002/' + fileUrl, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    // Accept: "application/octet-stream", // thường cần cho API download
+                },
+                responseType: "blob", // quan trọng để nhận file nhị phân
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Download error:", error);
+        }
+    };
   return (
     <div className="min-h-screen bg-gray-50 p-3">
       {message && (
@@ -196,8 +224,8 @@ export default function DocumentManagement() {
                 <TableCell>{d.document_type_category?.display_name || "-"}</TableCell>
                 <TableCell>
                   {d.file_path ? (
-                    <a href={d.file_path} target="_blank" className="text-blue-500 underline">
-                      Xem file
+                    <a  onClick={() => downloadFile(d.file_path, d.file_name)} style={{cursor: "pointer"}} className="text-blue-500 underline">
+                      Tải file
                     </a>
                   ) : (
                     "-"

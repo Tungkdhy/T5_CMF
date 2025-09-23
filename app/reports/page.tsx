@@ -155,7 +155,7 @@ export default function ReportManagementPage() {
             const response = await axios.get(fileUrl, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    Accept: "application/octet-stream", // thường cần cho API download
+                    // Accept: "application/octet-stream", // thường cần cho API download
                 },
                 responseType: "blob", // quan trọng để nhận file nhị phân
             });

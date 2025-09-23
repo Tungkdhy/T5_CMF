@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { createTaskAttachment, getTaskAttachments } from "@/api/task_attachment";
 import api from "@/api/base";
 import { set } from "react-hook-form";
+import axios from "axios";
 
 type Attachment = {
     id: string | number;
@@ -53,7 +54,35 @@ export default function TaskAttachments({ taskId }: TaskAttachmentsProps) {
             console.error("Xoá file thất bại:", err);
         }
     };
+          const downloadFile = async (fileUrl: string, filename: string) => {
+        try {
+            console.log(fileUrl);
+            
+            const token = localStorage.getItem("accessToken");
+            if (!token) return;
 
+            const response = await axios.get('http://10.10.53.58:3002/' + fileUrl, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    // Accept: "application/octet-stream", // thường cần cho API download
+                },
+                responseType: "blob", // quan trọng để nhận file nhị phân
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Download error:", error);
+            alert("Tải file thất bại");
+            
+        }
+    };
     return (
         <div className="mt-1 space-y-4">
             {/* Upload input */}
@@ -129,9 +158,8 @@ export default function TaskAttachments({ taskId }: TaskAttachmentsProps) {
                                 className="flex items-center justify-between bg-gray-100 px-2 py-1 rounded"
                             >
                                 <a
-                                    href={file.file_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                    onClick={() => downloadFile(file.file_url, file.file_name)}
+                                    style={{ cursor: "pointer" }}
                                     className="truncate max-w-[80%] text-blue-600 hover:underline"
                                 >
                                     {file.file_name}
