@@ -267,7 +267,7 @@ export default function NotificationBell() {
                     <input
                       type="checkbox"
                       className="form-checkbox"
-                      checked={value ?? false}
+                      checked={!!value}
                       onChange={() => handleToggle(key as keyof NotificationSettings)}
                     />
                     {settingLabels[key] || key.replace(/_/g, " ")}

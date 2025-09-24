@@ -164,13 +164,13 @@ export default function TaskAttachments({ taskId }: TaskAttachmentsProps) {
                                 >
                                     {file.file_name}
                                 </a>
-                                {/* <Button
+                                <Button
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => handleDelete(file.id)}
                                 >
                                     ✖
-                                </Button> */}
+                                </Button>
                             </li>
                         ))}
                     </ul>

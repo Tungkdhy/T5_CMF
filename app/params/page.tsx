@@ -84,7 +84,7 @@ export default function ConfigManagement() {
 
   const fetchConfigs = async (page = 1) => {
     try {
-      const res = await getCategory({ pageSize, pageIndex: page, scope: "system_params", name: searchTerm });
+      const res = await getCategory({ pageSize, pageIndex: page, scope: "SYSTEM_PARAMS", name: searchTerm });
       setConfigs(res.data.rows || []);
       setTotalPages(Math.ceil((res.data.count || 0) / pageSize) || 1);
     } catch (err) {
