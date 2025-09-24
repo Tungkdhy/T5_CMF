@@ -418,12 +418,12 @@ export default function UserManagement() {
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Chọn vai trò">
-                      {roles.find((x: any) => x.display_name === formData.role)?.label}
+                      {roles.find((x: any) => x.id === formData.role)?.display_name}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {roles.map((r, index: any) => (
-                      <SelectItem key={index} value={r.display_name}>
+                      <SelectItem key={index} value={r.id}>
                         {r.display_name}
                       </SelectItem>
                     ))}
