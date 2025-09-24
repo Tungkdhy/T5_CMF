@@ -48,7 +48,7 @@ export function mapTasksToBoard(data: any) {
     if (t.parent_task_id && tasks[t.parent_task_id]) {
       tasks[t.parent_task_id].subTasks.push(tasks[t.id]);
     } else {
-      const colKey = statusMap[t.status.display_name] || "open";
+      const colKey = statusMap[t.status?.display_name] || "open";
       columns[colKey].taskIds.push(t.id);
     }
   });
