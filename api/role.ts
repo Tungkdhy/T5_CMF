@@ -59,9 +59,15 @@ export async function updateRole(
 
 ) {
     console.log(data);
-    const { id, ...rest } = data
-    const res = await api.put(`/roles-actions/${idEdit}`, {
+    const { id,roleName,display_name, ...rest } = data
+    console.log("test",{
         ...rest,
+        actionIds: data.id
+    });
+    
+    const res = await api.put(`/roles-actions/${idEdit}/actions`, {
+        ...rest,
+        roleId:idEdit,
         actionIds: data.id
     });
     return res.data;
@@ -71,11 +77,12 @@ export async function updateRoleAction(
     data: any
 
 ) {
-    console.log(data);
+    console.log("test 2",data);
     const { id, ...rest } = data
     const res = await api.put(`/role/${idEdit}`, {
-        ...data,
-        code:data.display_name
+        display_name:data.display_name,
+        code:data.display_name,
+        description:data.description
     });
     return res.data;
 }
@@ -129,6 +136,8 @@ export async function updateAction(
     id: string,
     data: any
 ) {
+    console.log(data);
+    
     const res = await api.put(`/action/${id}`, data);
     return res.data;
 }

@@ -85,7 +85,8 @@ export default function RoleManagement() {
                 const {actionIds,description,...rest} = formData
                 await updateRoleAction(editingRole.roleId ?? "",{
                     display_name:formData.display_name,
-                    description:formData.description
+                    description:formData.description,
+                    // code:formData.display_name
                 })
                 await updateRole(editingRole.roleId ?? "", rest);
                 showAlert("Cập nhật role thành công", "success");
@@ -110,12 +111,17 @@ export default function RoleManagement() {
             showAlert(err.response.data.message, "error");
         }
     };
-    const handleGetDetailRole = async (id: any,name:any) => {
+    const handleGetDetailRole = async (id: any,name:any,data:any) => {
         try {
             const res = await getDetail(id)
             setEditingRole({roleId:id});
             setFormData({ roleName:name, id: res.data.actions.map((data:any)=>data.id) });
             setIsModalOpen(true);
+            setFormData(prev=>({
+                ...prev,
+                description:data.description,
+                display_name:data.display_name,
+            }))
         }
 
         catch (e) {
@@ -221,7 +227,7 @@ export default function RoleManagement() {
                                     <Button
                                         size="sm"
                                         variant="outline"
-                                        onClick={() => handleGetDetailRole(r.id,r.display_name)}
+                                        onClick={() => handleGetDetailRole(r.id,r.display_name,r)}
                                     >
                                         <Edit className="w-4 h-4" /> Sửa
                                     </Button>
@@ -277,17 +283,17 @@ export default function RoleManagement() {
                             <div>
                                 <Label className="mb-3">Tên role</Label>
                                 <Input
-                                    value={formData.roleName}
-                                    onChange={(e) => setFormData((p) => ({ ...p, roleName: e.target.value }))}
+                                    value={formData.display_name}
+                                    onChange={(e) => setFormData((p) => ({ ...p, display_name: e.target.value }))}
                                 />
                             </div>
-                            <div>
+                            {/* <div>
                                 <Label className="mb-3">Tên hiển thị</Label>
                                 <Input
                                     value={formData.display_name}
                                     onChange={(e) => setFormData((p) => ({ ...p, display_name: e.target.value }))}
                                 />
-                            </div>
+                            </div> */}
                             <div>
                                 <Label className="mb-3">Mô tả</Label>
                                 <Input

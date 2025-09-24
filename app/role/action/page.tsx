@@ -235,7 +235,7 @@ export default function ActionManagement() {
                         {actions.map((a, i) => (
                             <TableRow key={a.id}>
                                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
-                                <TableCell>{a.url}</TableCell>
+                                <TableCell>{a.display_name}</TableCell>
                                 <TableCell>{a.method_category?.display_name}</TableCell>
                                 <TableCell>{a.description || "-"}</TableCell>
                                 <TableCell>
