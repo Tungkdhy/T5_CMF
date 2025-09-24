@@ -81,9 +81,8 @@ export default function UserManagement() {
       const res = await getUsers({ pageSize, pageIndex: page, name: searchTerm });
       setUsers(res.data.data.rows);
       setTotalPages(Math.ceil(res.data.data.count / pageSize));
-    } catch (err) {
-      console.error(err);
-      showAlert("Lấy danh sách user thất bại", "error");
+    } catch (err:any) {
+       showAlert(err.response.data.message, "error");
     }
   };
 
@@ -100,9 +99,8 @@ export default function UserManagement() {
       try {
         const res = await getAllRoles({ pageSize, pageIndex });
         setRoles(res.data.data.roles);
-      } catch (err) {
-        console.error(err);
-        showAlert("Lấy danh sách vai trò thất bại", "error");
+      } catch (err:any) {
+        showAlert(err.response.data.message, "error");
       }
     };
     fetchRoles();
@@ -137,9 +135,8 @@ export default function UserManagement() {
       await deleteUser(id);
       showAlert("Xóa user thành công", "success");
       setFormData({ ...formData, reload: !formData.reload });
-    } catch (err) {
-      console.error(err);
-      showAlert("Xóa user thất bại", "error");
+    } catch (err:any) {
+       showAlert(err.response.data.message, "error");
     }
   };
 
@@ -148,9 +145,8 @@ export default function UserManagement() {
       await updateUser(user.id ?? "", { is_active: !user.is_active });
       setFormData({ ...formData, reload: !formData.reload });
       showAlert("Cập nhật trạng thái thành công", "success");
-    } catch (err) {
-      console.error(err);
-      showAlert("Cập nhật thất bại", "error");
+    } catch (err:any) {
+      showAlert(err.response.data.message, "error");
     }
   };
 
@@ -192,9 +188,8 @@ export default function UserManagement() {
       saveAs(blob, "nguoi_dung.csv");
 
 
-    } catch (err) {
-      console.error("Export failed:", err);
-      showAlert("Xuất Excel thất bại", "error");
+    } catch (err:any) {
+      showAlert(err.response.data.message, "error");
     }
   };
   return (

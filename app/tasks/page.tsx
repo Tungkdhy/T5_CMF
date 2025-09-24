@@ -197,15 +197,15 @@ export default function TasksPage() {
     setFormData({ ...formData, reload: !formData.reload });
   }
   const handleAddSubTask = async () => {
-    try{
-         const res = await createSubTask(detail)
-    // console.log(editingTask);
+    try {
+      const res = await createSubTask(detail)
+      // console.log(editingTask);
 
-    // if (!newSubTask.trim()) return;
-    // setSubTasks([...subTasks, { id: Date.now(), title: newSubTask }]);
-    // setNewSubTask("");
+      // if (!newSubTask.trim()) return;
+      // setSubTasks([...subTasks, { id: Date.now(), title: newSubTask }]);
+      // setNewSubTask("");
     }
-    catch(e:any){
+    catch (e: any) {
       showAlert(e.response.data.message, "error");
     }
   };
@@ -263,8 +263,8 @@ export default function TasksPage() {
       setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
       setReplyVisible((prev) => ({ ...prev, [commentId]: false }));
       setIsReload(!isReload)
-    } catch (err) {
-      console.error("Error adding reply:", err);
+    } catch (err: any) {
+      showAlert(err.response.data.message, "error");
     }
   };
 
@@ -298,8 +298,8 @@ export default function TasksPage() {
       showAlert("Thêm bình luận thành công", "success");
       setNewComment("");
       setIsReload(!isReload)
-    } catch (error) {
-      showAlert("Thêm bình luận thất bại", "error");
+    } catch (error: any) {
+      showAlert(error.response.data.message, "error");
     }
   }
   const showAlert = (msg: string, type: "success" | "error") => {
@@ -385,144 +385,159 @@ export default function TasksPage() {
 
     const id = status.find((s: any) => s.display_name.toUpperCase() === result.destination?.droppableId.toUpperCase())?.id;
     // console.log(id);
-    await updateTask(result.draggableId, { status_id: id });
-    setFormData((prev) => ({ ...prev, reload: !prev.reload }))
-
+    try {
+      await updateTask(result.draggableId, { status_id: id });
+      setFormData((prev) => ({ ...prev, reload: !prev.reload }))
+    }
+    catch (e: any) {
+      showAlert(e.response.data.message, "error");
+    }
   };
 
   const handleOpenModal = async (task?: Task) => {
 
 
-    if (task) {
-      setEditingTask(task);
-      console.log(task);
+    try {
+      if (task) {
+        setEditingTask(task);
+        console.log(task);
 
-      setFormData({ ...task, category_task: task.category_task });
-      const res = await getTaskById(task.id);
-      const {
-        id,
-        code,
-        title,
-        description,
-        status_id,
-        priority_id,
-        type_id,
-        relation_domain_id,
-        start_date,
-        due_date,
-        end_date,
-        progress_percent,
-        // parent_task_id,
-        estimated_hours,
-        actual_hours,
-        assignee_id,
-        category_id,
-        ...rest
-      } = res.data
-      setDetail({
-        code,
-        title,
-        description,
-        status_id,
-        priority_id,
-        type_id,
-        relation_domain_id,
-        start_date,
-        due_date,
-        end_date,
-        progress_percent,
-        parent_task_id: id,
-        estimated_hours,
-        actual_hours,
-        assignee_id,
-        category_id
-      })
-    } else {
-      setEditingTask(null);
-      setFormData({
-        title: "",
-        startDate: "",
-        endDate: "",
-        status: "todo",
-        assignee: "",
-        reporter: "",
-        description: "",
-        image: "",
-        sender: "",
-        receiver: "",
-        priority_id: ""
-      });
+        setFormData({ ...task, category_task: task.category_task });
+        const res = await getTaskById(task.id);
+        const {
+          id,
+          code,
+          title,
+          description,
+          status_id,
+          priority_id,
+          type_id,
+          relation_domain_id,
+          start_date,
+          due_date,
+          end_date,
+          progress_percent,
+          // parent_task_id,
+          estimated_hours,
+          actual_hours,
+          assignee_id,
+          category_id,
+          ...rest
+        } = res.data
+        setDetail({
+          code,
+          title,
+          description,
+          status_id,
+          priority_id,
+          type_id,
+          relation_domain_id,
+          start_date,
+          due_date,
+          end_date,
+          progress_percent,
+          parent_task_id: id,
+          estimated_hours,
+          actual_hours,
+          assignee_id,
+          category_id
+        })
+      } else {
+        setEditingTask(null);
+        setFormData({
+          title: "",
+          startDate: "",
+          endDate: "",
+          status: "todo",
+          assignee: "",
+          reporter: "",
+          description: "",
+          image: "",
+          sender: "",
+          receiver: "",
+          priority_id: ""
+        });
+      }
+      setOpen(true);
     }
-    setOpen(true);
+    catch (e: any) {
+      showAlert(e.response.data.message, "error");
+    }
 
   };
 
   const handleSave = async () => {
-    if (editingTask) {
-      const res = await updateTask(editingTask.id, {
-        title: formData.title,
-        description: formData.description,
-        status_id: formData.status_id,
-        start_date: formData.startDate,
-        end_date: formData.endDate,
-        due_date: formData.dueDate,
-        priority_id: formData.priority_id,
-        // assignee_id: formData.receiver,
-        category_id: formData.category_task,
-        team_id: formData.team_id,
-        progress_percent: formData.progress_percent,
-        assignee_id: formData.receiver,
-
-      });
-      setOpen(false);
-      setFormData((prev) => ({ ...prev, reload: !prev.reload }))
-      if (formData.receiver && formData.receiver !== editingTask.receiver) {
-        await sendNotification({
-          task_id: editingTask.id,
-          assignee_id: formData.receiver,
-          task_title: formData.title
-        });
-      }
-      else if (formData.dueDate !== editingTask.dueDate) {
-        await sendNotificationDue({
-          task_id: editingTask.id,
+    try {
+      if (editingTask) {
+        const res = await updateTask(editingTask.id, {
+          title: formData.title,
+          description: formData.description,
+          status_id: formData.status_id,
+          start_date: formData.startDate,
+          end_date: formData.endDate,
           due_date: formData.dueDate,
-          task_title: formData.title,
-          assignee_id: formData.receiver,
-        });
-      }
-      else if (formData.progress_percent !== editingTask.progress_percent) {
-        await sendNotificationProcess({
-          task_id: editingTask.id,
+          priority_id: formData.priority_id,
+          // assignee_id: formData.receiver,
+          category_id: formData.category_task,
+          team_id: formData.team_id,
           progress_percent: formData.progress_percent,
-          task_title: formData.title,
-          task_creator_id: editingTask.sender,
-        });
-      }
-    } else {
-      const res = await createTasks({
-        title: formData.title,
-        description: formData.description,
-        status_id: formData.status_id,
-        start_date: formData.startDate,
-        end_date: formData.endDate,
-        due_date: formData.dueDate,
-        priority_id: formData.priority_id,
-        category_id: formData.category_task,
-        team_id: formData.team_id,
-        progress_percent: formData.progress_percent,
-        assignee_id: formData.receiver,
-      });
-      if (formData.receiver) {
-        await sendNotification({
-          task_id: res.data.id,
           assignee_id: formData.receiver,
-          task_title: formData.title
+
         });
+        setOpen(false);
+        setFormData((prev) => ({ ...prev, reload: !prev.reload }))
+        if (formData.receiver && formData.receiver !== editingTask.receiver) {
+          await sendNotification({
+            task_id: editingTask.id,
+            assignee_id: formData.receiver,
+            task_title: formData.title
+          });
+        }
+        else if (formData.dueDate !== editingTask.dueDate) {
+          await sendNotificationDue({
+            task_id: editingTask.id,
+            due_date: formData.dueDate,
+            task_title: formData.title,
+            assignee_id: formData.receiver,
+          });
+        }
+        else if (formData.progress_percent !== editingTask.progress_percent) {
+          await sendNotificationProcess({
+            task_id: editingTask.id,
+            progress_percent: formData.progress_percent,
+            task_title: formData.title,
+            task_creator_id: editingTask.sender,
+          });
+        }
+      } else {
+        const res = await createTasks({
+          title: formData.title,
+          description: formData.description,
+          status_id: formData.status_id,
+          start_date: formData.startDate,
+          end_date: formData.endDate,
+          due_date: formData.dueDate,
+          priority_id: formData.priority_id,
+          category_id: formData.category_task,
+          team_id: formData.team_id,
+          progress_percent: formData.progress_percent,
+          assignee_id: formData.receiver,
+        });
+        if (formData.receiver) {
+          await sendNotification({
+            task_id: res.data.id,
+            assignee_id: formData.receiver,
+            task_title: formData.title
+          });
+        }
+        setOpen(false);
+        setFormData((prev) => ({ ...prev, reload: !prev.reload }))
+        showAlert("Thêm mới nhiệm vụ thành công", "success")
       }
-      setOpen(false);
-      setFormData((prev) => ({ ...prev, reload: !prev.reload }))
-      showAlert("Thêm mới nhiệm vụ thành công","success")
+    }
+    catch (err: any) {
+      // console.error(err);
+      showAlert(err.response.data.message, "error");
     }
 
   };
@@ -551,8 +566,8 @@ export default function TasksPage() {
       });
       setColumns(mapTasksToBoard(res.data.rows).columns);
       setTasks(mapTasksToBoard(res.data.rows).tasks);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      showAlert(err.response.data.message, "error");
     }
   };
   const fetchComment = async (id: any) => {
@@ -561,8 +576,8 @@ export default function TasksPage() {
       const convert = buildCommentTree(res.data.rows.reverse())
       setComments(convert)
 
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      showAlert(err.response.data.message, "error");
 
     }
   };
@@ -604,8 +619,8 @@ export default function TasksPage() {
     try {
       const res = await getStaff({ pageSize: 1000, pageIndex: 1 });
       setStaff(res.data.data.rows);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      showAlert(err.response.data.message, "error");
 
     }
   }
@@ -1422,7 +1437,7 @@ export default function TasksPage() {
                 <input
                   type="file"
                   multiple
-                  // onChange={(e) => setNewFiles(Array.from(e.target.files || []))}
+                // onChange={(e) => setNewFiles(Array.from(e.target.files || []))}
                 />
               </div>
 
@@ -1433,11 +1448,16 @@ export default function TasksPage() {
               <Button
                 variant="destructive"
                 onClick={async () => {
-                  if (confirm("Bạn có chắc muốn xoá nhiệm vụ này?")) {
-                    await deleteTask(editingTask.id);
-                    setOpen(false);
-                    setFormData((prev) => ({ ...prev, reload: !prev.reload }));
-                    showAlert("Xóa nhiệm vụ thành công", "success");
+                  try {
+                    if (confirm("Bạn có chắc muốn xoá nhiệm vụ này?")) {
+                      await deleteTask(editingTask.id);
+                      setOpen(false);
+                      setFormData((prev) => ({ ...prev, reload: !prev.reload }));
+                      showAlert("Xóa nhiệm vụ thành công", "success");
+                    }
+                  } catch (err: any) {
+                    // console.error(err);
+                    showAlert(err.response.data.message, "error");
                   }
                 }}
               >

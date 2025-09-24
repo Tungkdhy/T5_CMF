@@ -192,9 +192,8 @@ export default function UserManagement() {
       const res = await getStaff({ pageSize, pageIndex: page, filters });
       setUsers(res.data.data.rows);
       setTotalPages(Math.ceil(res.data.data.count / pageSize));
-    } catch (err) {
-      console.error(err);
-      showAlert("Lấy danh sách thất bại", "error");
+    } catch (err:any) {
+       showAlert(err.response.data.message, "error");
     }
   };
   const fetchOrganization = async (unit_id: any) => {
@@ -287,9 +286,8 @@ export default function UserManagement() {
       saveAs(blob, "tham_so_he_thong.xlsx");
 
 
-    } catch (err) {
-      console.error("Export failed:", err);
-      showAlert("Xuất Excel thất bại", "error");
+    } catch (err:any) {
+      showAlert(err.response.data.message, "error");
     }
   };
   return (
