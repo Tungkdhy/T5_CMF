@@ -587,13 +587,13 @@ export default function UserManagement() {
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Lọc theo loại">
-                        {multiSelect.roles?.find((x: any) => x.value === formData.role_id)?.label}
+                        {multiSelect.roles?.find((x: any) => x.id === formData.role_id)?.label}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent >
                       {multiSelect.roles?.map((r: any) => (
-                        <SelectItem key={r.value} value={r.value}>
-                          {r.label}
+                        <SelectItem key={r.id} value={r.id}>
+                          {r.display_name}
                         </SelectItem>
                       ))}
                     </SelectContent>

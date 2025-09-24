@@ -199,10 +199,12 @@ export default function TasksPage() {
   const handleAddSubTask = async () => {
     try {
       const res = await createSubTask(detail)
+         showAlert("Thêm mới nhiệm vụ phụ thành công", "success");
       // console.log(editingTask);
 
       // if (!newSubTask.trim()) return;
-      // setSubTasks([...subTasks, { id: Date.now(), title: newSubTask }]);
+      setSubTasks([...subTasks, detail]);
+      setIsReload((prev)=>!prev)
       // setNewSubTask("");
     }
     catch (e: any) {
