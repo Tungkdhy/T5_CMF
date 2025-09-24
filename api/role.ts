@@ -33,6 +33,8 @@ export async function getRoleById(id: string) {
 
 // Tạo mới role
 export async function createRoleAction(data: any) {
+    console.log(data);
+    
     const res = await api.post("/roles-actions", {
         roleId: data.roleId,
         actionIds: data.actionIds,

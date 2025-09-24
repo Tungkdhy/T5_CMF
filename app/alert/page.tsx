@@ -139,7 +139,7 @@ export default function AlertManagement() {
         try {
             const rows = await getAlerts({ limit: 10, page: pageIndex });
             setAlerts(rows.data.alerts);
-            setTotalPages(Math.ceil(rows.length / pageSize));
+            setTotalPages(Math.ceil(rows.data.pagination.total / pageSize));
         } catch (err) {
             console.error(err);
             showAlert("Lấy danh sách thất bại", "error");
@@ -316,7 +316,7 @@ export default function AlertManagement() {
 
                         <div className="p-6 space-y-4">
                             {/* <div>
-                <Label>Mã Alert</Label>
+                <Label className="mb-3">Mã Alert</Label>
                 <Input
                   value={formData.alert_code}
                   onChange={(e) =>
@@ -325,14 +325,14 @@ export default function AlertManagement() {
                 />
               </div> */}
                             <div>
-                                <Label>Tiêu đề</Label>
+                                <Label className="mb-3">Tiêu đề</Label>
                                 <Input
                                     value={formData.title}
                                     onChange={(e) => handleChange("title", e.target.value)}
                                 />
                             </div>
                             <div>
-                                <Label>Mô tả</Label>
+                                <Label className="mb-3">Mô tả</Label>
                                 <Input
                                     value={formData.description}
                                     onChange={(e) =>
@@ -341,7 +341,7 @@ export default function AlertManagement() {
                                 />
                             </div>
                             <div>
-                                <Label>Severity</Label>
+                                <Label className="mb-3">Severity</Label>
                                 <Input
                                     value={formData.severity}
                                     onChange={(e) =>
@@ -350,14 +350,14 @@ export default function AlertManagement() {
                                 />
                             </div>
                             <div>
-                                <Label>Status</Label>
+                                <Label className="mb-3">Status</Label>
                                 <Input
                                     value={formData.status}
                                     onChange={(e) => handleChange("status", e.target.value)}
                                 />
                             </div>
                             <div>
-                                <Label>Alert Type</Label>
+                                <Label className="mb-3">Alert Type</Label>
                                 <Input
                                     value={formData.alert_type}
                                     onChange={(e) =>

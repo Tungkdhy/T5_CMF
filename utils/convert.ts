@@ -1,6 +1,7 @@
 export function mapTasksToBoard(data: any) {
   const statusMap: Record<string, string> = {
     Open: "open",
+    ReOpen: "reopen",
     "In Progress": "in progress",
     Done: "done",
     Cancelled: "cancelled",
@@ -8,6 +9,7 @@ export function mapTasksToBoard(data: any) {
 
   const columns: any = {
     open: { id: "open", title: "📌 Cần làm", taskIds: [] },
+    reopen: { id: "reopen", title: "ReOpen", taskIds: [] },
     "in progress": { id: "in progress", title: "⚡ Đang làm", taskIds: [] },
     done: { id: "done", title: "✅ Hoàn thành", taskIds: [] },
     cancelled: { id: "cancelled", title: "❌ Đã hủy", taskIds: [] },

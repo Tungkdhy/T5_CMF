@@ -41,7 +41,8 @@ export default function RoleManagement() {
     const [formData, setFormData] = useState<Omit<Role, "roleId">>({
         roleName: "",
         actionIds: [],
-        display_name: ""
+        display_name: "",
+        id:[]
     });
 
     const [status, setStatus] = useState<"success" | "error" | null>(null);
@@ -144,7 +145,7 @@ export default function RoleManagement() {
     // 👉 hàm toggle quyền
     const toggleAction = (actionId: string) => {
         setFormData((prev) => {
-            const exists = prev?.id?.includes(actionId) ?? [];
+            const exists = prev?.id?.includes(actionId) ?? false;
             return {
                 ...prev,
                 id: exists
