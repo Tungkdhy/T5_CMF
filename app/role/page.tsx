@@ -241,7 +241,7 @@ export default function RoleManagement() {
                 </Table>
 
                 {/* Phân trang */}
-                <div className="flex items-center justify-end mt-4 space-x-2">
+                {/* <div className="flex items-center justify-end mt-4 space-x-2">
                     <Button
                         size="sm"
                         variant="outline"
@@ -263,7 +263,7 @@ export default function RoleManagement() {
                     >
                         <ChevronRight className="w-4 h-4" />
                     </Button>
-                </div>
+                </div> */}
             </div>
 
             {/* Modal thêm/sửa */}
@@ -312,7 +312,7 @@ export default function RoleManagement() {
                                                 checked={formData?.id?.includes(a.id)}
                                                 onChange={() => toggleAction(a.id)}
                                             />
-                                            {a.url} ({a.method_category.display_name})
+                                            {a.display_name} ({a.method_category.display_name})
                                         </label>
                                     ))}
                                 </div>
