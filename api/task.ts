@@ -83,6 +83,7 @@ export async function createTasks({
   if (team_id) payload.team_id = team_id;
   if (progress_percent) payload.progress_percent = progress_percent;
   if (assignee_id) payload.assignee_id = assignee_id;
+  // if (assignee_id) payload.assignee_id = assignee_id;
   const res = await api.post("/tasks", payload);
   return res.data;
 }

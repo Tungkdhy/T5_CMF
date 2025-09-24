@@ -197,12 +197,17 @@ export default function TasksPage() {
     setFormData({ ...formData, reload: !formData.reload });
   }
   const handleAddSubTask = async () => {
-    const res = await createSubTask(detail)
+    try{
+         const res = await createSubTask(detail)
     // console.log(editingTask);
 
     // if (!newSubTask.trim()) return;
     // setSubTasks([...subTasks, { id: Date.now(), title: newSubTask }]);
     // setNewSubTask("");
+    }
+    catch(e:any){
+      showAlert(e.response.data.message, "error");
+    }
   };
   const toggleReplyInput = (commentId: string) => {
     setReplyVisible((prev) => ({ ...prev, [commentId]: !prev[commentId] }));
