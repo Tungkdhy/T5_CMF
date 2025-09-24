@@ -21,7 +21,7 @@ export function mapTasksToBoard(data: any) {
       id: t.id,
       title: t.title,
       code: t.code,
-      status: t.status.display_name,
+      status: t.status?.display_name,
       priority: t.priority?.display_name,
       type: t.type?.display_name,
       startDate: t.start_date,
