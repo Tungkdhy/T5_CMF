@@ -589,11 +589,11 @@ export default function UserManagement() {
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Lọc theo loại">
-                        {multiSelect.roles.find((x: any) => x.value === formData.role_id)?.label}
+                        {multiSelect.roles?.find((x: any) => x.value === formData.role_id)?.label}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent >
-                      {multiSelect.roles.map((r: any) => (
+                      {multiSelect.roles?.map((r: any) => (
                         <SelectItem key={r.value} value={r.value}>
                           {r.label}
                         </SelectItem>
@@ -653,7 +653,7 @@ export default function UserManagement() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className='mb-' htmlFor="status">Chức vụ</Label>
+                  <Label className='mb-3' htmlFor="status">Chức vụ</Label>
                   <Select value={formData.position_name ?? ""} onValueChange={(value) => setFormData((prev) => ({ ...prev, position_name: value }))}>
                     <SelectTrigger className="w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                       <SelectValue placeholder="Lọc theo loại">

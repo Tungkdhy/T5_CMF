@@ -135,6 +135,7 @@ const columnOrder = ["open", "in progress", "done", "cancelled"];
 export default function TasksPage() {
   const [replyVisible, setReplyVisible] = useState<{ [key: string]: boolean }>({});
   const [replyInputs, setReplyInputs] = useState<{ [key: string]: string }>({});
+  const [replyFiles, setReplyFiles] = useState<{ [key: string]: File[] }>({});
   const [showComments, setShowComments] = useState(true)
   // State để quản lý input edit comment cho từng comment
   const [editVisible, setEditVisible] = useState<{ [key: string]: boolean }>({});
@@ -516,6 +517,7 @@ export default function TasksPage() {
       }
       setOpen(false);
       setFormData((prev) => ({ ...prev, reload: !prev.reload }))
+      showAlert("Thêm mới nhiệm vụ thành công","success")
     }
 
   };
@@ -1299,138 +1301,126 @@ export default function TasksPage() {
                 
             </div> */}
               <TaskAttachments taskId={editingTask?.id ?? null} />
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <Label className="block font-semibold">Bình luận</Label>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowComments((prev) => !prev)}
-                  >
-                    {showComments ? "Ẩn bình luận" : "Hiện bình luận"}
-                  </Button>
+              {/* Danh sách bình luận */}
+              <div className="space-y-4 max-h-[250px] overflow-y-auto pr-2">
+                {comments.map((c) => (
+                  <div key={c.id} className="flex flex-col gap-1">
+                    <div className="flex items-start gap-3">
+                      {/* Avatar */}
+                      <div
+                        style={{ backgroundColor: stringToColor(c?.user_name || c?.user_id) }}
+                        className="h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold text-gray-700"
+                      >
+                        {c?.user_name.slice(0, 2)}
+                      </div>
+
+                      {/* Nội dung */}
+                      <div className="flex flex-col bg-gray-100 rounded-2xl px-3 py-2 max-w-[80%]">
+                        <span className="text-sm font-semibold">{c?.user_name}</span>
+                        <span className="text-sm text-gray-800">{c?.content}</span>
+
+                        {/* 📂 File đính kèm */}
+                        {c.files && c.files.length > 0 && (
+                          <div className="mt-1 space-y-1">
+                            {c.files.map((f: any, idx: number) => (
+                              <a
+                                key={idx}
+                                href={URL.createObjectURL(f)} // khi backend có link file thì thay bằng f.url
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-blue-600 underline"
+                              >
+                                📎 {f.name}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Icon hành động */}
+                        <div className="flex gap-3 mt-1 text-gray-500 text-xs">
+                          <button
+                            onClick={() =>
+                              setReplyVisible((prev) => ({
+                                ...prev,
+                                [c.id]: !prev[c.id],
+                              }))
+                            }
+                          >
+                            💬 Trả lời
+                          </button>
+                          <button
+                            onClick={() =>
+                              setEditVisible((prev) => ({
+                                ...prev,
+                                [c.id]: !prev[c.id],
+                              }))
+                            }
+                          >
+                            ✏️ Sửa
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Reply */}
+                    {replyVisible[c.id] && (
+                      <div className="ml-12 flex flex-col gap-2 mt-1">
+                        <Input
+                          placeholder="Trả lời..."
+                          value={replyInputs[c.id] || ""}
+                          onChange={(e) =>
+                            setReplyInputs((prev) => ({ ...prev, [c.id]: e.target.value }))
+                          }
+                        />
+                        {/* Upload file cho reply */}
+                        <input
+                          type="file"
+                          onChange={(e) =>
+                            setReplyFiles((prev) => ({
+                              ...prev,
+                              [c.id]: Array.from(e.target.files || []),
+                            }))
+                          }
+                        />
+                        <Button onClick={() => handleAddReply(c.id)}>Gửi</Button>
+                      </div>
+                    )}
+
+                    {/* Input sửa comment */}
+                    {editVisible[c.id] && (
+                      <div className="ml-12 flex gap-2 mt-1">
+                        <Input
+                          value={editInputs[c.id] ?? ""}
+                          onChange={(e) =>
+                            setEditInputs((prev) => ({ ...prev, [c.id]: e.target.value }))
+                          }
+                        />
+                        <Button onClick={() => handleEditComment(c.id)}>Cập nhật</Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Input bình luận mới */}
+              <div className="mt-2 flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Thêm bình luận..."
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                  />
+                  <Button onClick={handleAddComment}>Gửi</Button>
                 </div>
 
-                {showComments && (
-                  <>
-                    {/* Danh sách bình luận */}
-                    <div className="space-y-4 max-h-[250px] overflow-y-auto pr-2">
-                      {comments.map((c) => (
-                        <div key={c.id} className="flex flex-col gap-1">
-                          <div className="flex items-start gap-3">
-                            {/* Avatar */}
-                            <div
-                              style={{ backgroundColor: stringToColor(c?.user_name || c?.user_id) }}
-                              className="h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold text-gray-700"
-                            >
-                              {c?.user_name.slice(0, 2)}
-                            </div>
-
-                            {/* Nội dung */}
-                            <div className="flex flex-col bg-gray-100 rounded-2xl px-3 py-2 max-w-[80%]">
-                              <span className="text-sm font-semibold">{c?.user_name}</span>
-                              <span className="text-sm text-gray-800">{c?.content}</span>
-
-                              {/* Icon hành động */}
-                              <div className="flex gap-3 mt-1 text-gray-500 text-xs">
-                                <button
-                                  onClick={() =>
-                                    setReplyVisible((prev) => ({
-                                      ...prev,
-                                      [c.id]: !prev[c.id],
-                                    }))
-                                  }
-                                >
-                                  💬 Trả lời
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    setEditVisible((prev) => ({
-                                      ...prev,
-                                      [c.id]: !prev[c.id],
-                                    }))
-                                  }
-                                >
-                                  ✏️ Sửa
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Danh sách reply */}
-                          {c.replies && c.replies.length > 0 && (
-                            <div className="ml-12 mt-1 space-y-1">
-                              {c.replies.map((r: any, ridx: number) => (
-                                <div key={ridx} className="flex items-start gap-3">
-                                  <div
-                                    style={{ backgroundColor: stringToColor(r.user_name || r.user_id) }}
-                                    className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold text-gray-700"
-                                  >
-                                    {r.user_name.slice(0, 2)}
-                                  </div>
-                                  <div className="flex flex-col bg-gray-200 rounded-2xl px-2 py-1 max-w-[75%]">
-                                    <span className="text-xs font-semibold">{r.user_name}</span>
-                                    <span className="text-xs text-gray-800">{r.content}</span>
-                                    <div className="flex gap-3 mt-1 text-gray-500 text-xs">
-                                      <button
-                                        onClick={() =>
-                                          setEditVisible((prev) => ({
-                                            ...prev,
-                                            [c.id]: !prev[c.id],
-                                          }))
-                                        }
-                                      >
-                                        ✏️ Sửa
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-
-                          {/* Input reply */}
-                          {replyVisible[c.id] && (
-                            <div className="ml-12 flex gap-2 mt-1">
-                              <Input
-                                placeholder="Trả lời..."
-                                value={replyInputs[c.id] || ""}
-                                onChange={(e) =>
-                                  setReplyInputs((prev) => ({ ...prev, [c.id]: e.target.value }))
-                                }
-                              />
-                              <Button onClick={() => handleAddReply(c.id)}>Gửi</Button>
-                            </div>
-                          )}
-
-                          {/* Input sửa comment */}
-                          {editVisible[c.id] && (
-                            <div className="ml-12 flex gap-2 mt-1">
-                              <Input
-                                value={editInputs[c.id] ?? ""}
-                                onChange={(e) =>
-                                  setEditInputs((prev) => ({ ...prev, [c.id]: e.target.value }))
-                                }
-                              />
-                              <Button onClick={() => handleEditComment(c.id)}>Cập nhật</Button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Input bình luận mới */}
-                    <div className="mt-2 flex gap-2">
-                      <Input
-                        placeholder="Thêm bình luận..."
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                      />
-                      <Button onClick={handleAddComment}>Gửi</Button>
-                    </div>
-                  </>
-                )}
+                {/* Upload file cho comment */}
+                <input
+                  type="file"
+                  multiple
+                  // onChange={(e) => setNewFiles(Array.from(e.target.files || []))}
+                />
               </div>
+
             </div>
           </div>
           <DialogFooter>

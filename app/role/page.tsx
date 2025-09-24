@@ -10,7 +10,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Giả lập API
-import { getRoles, createRole, updateRole, deleteRole, getRolesAction } from "@/api/role";
+import { getRoles, createRole, updateRole, deleteRole, getRolesAction, createRoleAction, getRole, getDetail, updateRoleAction } from "@/api/role";
 
 // 👉 giả lập danh sách quyền (sau bạn gọi API getActions)
 // const actions = [
@@ -22,14 +22,16 @@ import { getRoles, createRole, updateRole, deleteRole, getRolesAction } from "@/
 // ];
 
 interface Role {
-    roleId: string;
-    roleName: string;
-    actionIds: string[];
+    roleId?: string;
+    roleName?: string;
+    actionIds?: string[];
     display_name?: string;
+    id?:any,
+    description?:any
 }
 
 export default function RoleManagement() {
-    const [roles, setRoles] = useState<Role[]>([]);
+    const [roles, setRoles] = useState<any[]>([]);
     const [actions, setActions] = useState<any[]>([]);
     const [pageIndex, setPageIndex] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -58,8 +60,8 @@ export default function RoleManagement() {
 
     const fetchRoles = async (page: number) => {
         try {
-            const res = await getRoles({ pageSize, pageIndex: page });
-            setRoles(res.data.rows);
+            const res = await getRole({ pageSize, pageIndex: page });
+            setRoles(res.data.roles);
             setTotalPages(Math.ceil(res.data.count / pageSize));
         } catch (err: any) {
             // console.error(err);
@@ -79,12 +81,22 @@ export default function RoleManagement() {
     const handleSave = async () => {
         try {
             if (editingRole) {
-                await updateRole(editingRole.roleId, formData);
+                const {actionIds,description,...rest} = formData
+                await updateRoleAction(editingRole.roleId ?? "",{
+                    display_name:formData.display_name,
+                    description:formData.description
+                })
+                await updateRole(editingRole.roleId ?? "", rest);
                 showAlert("Cập nhật role thành công", "success");
             } else {
                 const res = await createRole(formData);
 
-                console.log(res);
+                if (res) {
+                    await createRoleAction({
+                        roleId: res.data.id,
+                        actionIds: formData.id
+                    })  // id
+                }
                 // const newRoleId = res.data.roleId; // Giả sử API trả về ID của role mới tạo
                 showAlert("Thêm role thành công", "success");
             }
@@ -97,7 +109,18 @@ export default function RoleManagement() {
             showAlert(err.response.data.message, "error");
         }
     };
+    const handleGetDetailRole = async (id: any,name:any) => {
+        try {
+            const res = await getDetail(id)
+            setEditingRole({roleId:id});
+            setFormData({ roleName:name, id: res.data.actions.map((data:any)=>data.id) });
+            setIsModalOpen(true);
+        }
 
+        catch (e) {
+
+        }
+    }
     const handleDelete = async (id: string) => {
         try {
             await deleteRole(id);
@@ -116,15 +139,17 @@ export default function RoleManagement() {
     useEffect(() => {
         fetchActions();
     }, []);
+    console.log(formData);
+    
     // 👉 hàm toggle quyền
     const toggleAction = (actionId: string) => {
         setFormData((prev) => {
-            const exists = prev.actionIds.includes(actionId);
+            const exists = prev?.id?.includes(actionId) ?? [];
             return {
                 ...prev,
-                actionIds: exists
-                    ? prev.actionIds.filter((id) => id !== actionId)
-                    : [...prev.actionIds, actionId],
+                id: exists
+                    ? prev?.id?.filter((id:any) => id !== actionId)
+                    : [...prev?.id ??"", actionId],
             };
         });
     };
@@ -181,29 +206,25 @@ export default function RoleManagement() {
                         <TableRow>
                             <TableHead>STT</TableHead>
                             <TableHead>Tên quyền</TableHead>
-                            <TableHead>Số lượng quyền</TableHead>
+                            <TableHead>Mô tả</TableHead>
                             <TableHead className="w-[150px]">Hành động</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {roles.map((r, i) => (
-                            <TableRow key={r.roleId}>
+                            <TableRow key={r.id}>
                                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
-                                <TableCell>{r.roleName}</TableCell>
-                                <TableCell>{r.actionIds.length}</TableCell>
+                                <TableCell>{r.display_name}</TableCell>
+                                <TableCell>{r.description}</TableCell>
                                 <TableCell className="flex gap-2 justify-end">
                                     <Button
                                         size="sm"
                                         variant="outline"
-                                        onClick={() => {
-                                            setEditingRole(r);
-                                            setFormData({ roleName: r.roleName, actionIds: r.actionIds });
-                                            setIsModalOpen(true);
-                                        }}
+                                        onClick={() => handleGetDetailRole(r.id,r.display_name)}
                                     >
                                         <Edit className="w-4 h-4" /> Sửa
                                     </Button>
-                                    <Button size="sm" variant="destructive" onClick={() => handleDelete(r.roleId)}>
+                                    <Button size="sm" variant="destructive" onClick={() => handleDelete(r.id)}>
                                         <Trash2 className="w-4 h-4" /> Xóa
                                     </Button>
                                 </TableCell>
@@ -253,28 +274,35 @@ export default function RoleManagement() {
 
                         <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                             <div>
-                                <Label>Tên role</Label>
+                                <Label className="mb-3">Tên role</Label>
                                 <Input
                                     value={formData.roleName}
                                     onChange={(e) => setFormData((p) => ({ ...p, roleName: e.target.value }))}
                                 />
                             </div>
                             <div>
-                                <Label>Tên hiển thị</Label>
+                                <Label className="mb-3">Tên hiển thị</Label>
                                 <Input
                                     value={formData.display_name}
                                     onChange={(e) => setFormData((p) => ({ ...p, display_name: e.target.value }))}
                                 />
                             </div>
+                            <div>
+                                <Label className="mb-3">Mô tả</Label>
+                                <Input
+                                    value={formData.description}
+                                    onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                                />
+                            </div>
                             {/* ✅ Danh sách quyền bằng checkbox */}
                             <div>
-                                <Label>Danh sách quyền</Label>
+                                <Label className="mb-3">Danh sách quyền</Label>
                                 <div className="grid grid-cols-2 gap-2 mt-2">
                                     {actions.map((a) => (
                                         <label key={a.id} className="flex items-center gap-2 text-sm">
                                             <input
                                                 type="checkbox"
-                                                checked={formData.actionIds.includes(a.id)}
+                                                checked={formData?.id?.includes(a.id)}
                                                 onChange={() => toggleAction(a.id)}
                                             />
                                             {a.url} ({a.method_category.display_name})

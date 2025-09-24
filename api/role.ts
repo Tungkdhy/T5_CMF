@@ -42,27 +42,59 @@ export async function createRoleAction(data: any) {
     return res.data;
 }
 export async function createRole(data: any) {
-    const res = await api.post("/roles", {
-        roleId: data.roleName,
+    const res = await api.post("/role", {
+        code: data.roleName,
         display_name: data.roleName,
-        description: data.display_name,
+        description: data.description,
         // action_ids: data.actionIds,
     });
     return res.data;
 }
 // Cập nhật role
 export async function updateRole(
-    id: string,
+    idEdit: string,
     data: any
 
 ) {
-    const res = await api.put(`/roles-actions/${id}`, data);
+    console.log(data);
+    const { id, ...rest } = data
+    const res = await api.put(`/roles-actions/${idEdit}`, {
+        ...rest,
+        actionIds: data.id
+    });
     return res.data;
 }
+export async function updateRoleAction(
+    idEdit: string,
+    data: any
 
+) {
+    console.log(data);
+    const { id, ...rest } = data
+    const res = await api.put(`/role/${idEdit}`, {
+        ...data,
+        code:data.display_name
+    });
+    return res.data;
+}
 // Xóa role
 export async function deleteRole(id: string) {
-    const res = await api.delete(`/roles-actions/${id}`);
+    const res = await api.delete(`/role/${id}`);
+    return res.data;
+}
+export async function getRole({
+    pageSize = 10,
+    pageIndex = 1,
+    name = "",
+    visible,
+}: {
+    pageSize?: number;
+    pageIndex?: number;
+    name?: string;
+    visible?: boolean;
+}) {
+    //   const visibleCheck = visible !== undefined ? { visible } : {};
+    const res = await api.get("/role");
     return res.data;
 }
 export async function getRolesAction({
@@ -102,5 +134,9 @@ export async function updateAction(
 // Xóa action
 export async function deleteAction(id: string) {
     const res = await api.delete(`/action/${id}`);
+    return res.data;
+}
+export async function getDetail(id: string) {
+    const res = await api.get(`/roles-actions/${id}`);
     return res.data;
 }
