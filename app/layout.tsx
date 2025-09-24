@@ -267,6 +267,12 @@ function Layout({ children }: { children: ReactNode }) {
           href: "/warning",
         },
         {
+          id: "alert",
+          title: "Cảnh báo mất an toàn thông tin",
+          icon: <AlertCircle className="w-5 h-5" />,
+          href: "/alert",
+        },
+        {
           id: "log",
           title: "Nhật ký hệ thống",
           icon: <FileText className="w-5 h-5" />,
