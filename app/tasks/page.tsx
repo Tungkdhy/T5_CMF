@@ -53,10 +53,11 @@ import { createTasks, deleteTask, getTaskById, getTasks, sendNotification, sendN
 import { buildCommentTree, mapTasksToBoard } from "@/utils/convert";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { createComment, getComments, replyComment as replyComments } from "@/api/comment";
+import { createComment, getComments, replyComment as replyComments, updateComment } from "@/api/comment";
 import { createSubTask, getStaff } from "@/api/staff";
 import { set } from "react-hook-form";
 import TaskAttachments from "@/components/file/File";
+import CommentItem from "@/components/task/Comment";
 interface Task {
   id: string;
   title: string;
@@ -133,13 +134,6 @@ const initialColumns: Record<string, Column> = {
 const columnOrder = ["open", "in progress", "done", "cancelled"];
 
 export default function TasksPage() {
-  const [replyVisible, setReplyVisible] = useState<{ [key: string]: boolean }>({});
-  const [replyInputs, setReplyInputs] = useState<{ [key: string]: string }>({});
-  const [replyFiles, setReplyFiles] = useState<{ [key: string]: File[] }>({});
-  const [showComments, setShowComments] = useState(true)
-  // State để quản lý input edit comment cho từng comment
-  const [editVisible, setEditVisible] = useState<{ [key: string]: boolean }>({});
-  const [editInputs, setEditInputs] = useState<{ [key: string]: string }>({});
   const [showAddSubTask, setShowAddSubTask] = useState(false);
   const [detail, setDetail] = useState<any>({})
   const [priority, setPriority] = useState<any[]>([]);
@@ -177,6 +171,8 @@ export default function TasksPage() {
   const [type, setType] = useState<"success" | "error" | null>(null);
   const [isReload, setIsReload] = useState(false)
   const [units, setUnits] = useState<any>([])
+  const [open, setOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<any | null>(null);
   // loading skeleton
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
@@ -199,70 +195,32 @@ export default function TasksPage() {
   const handleAddSubTask = async () => {
     try {
       const res = await createSubTask(detail)
-         showAlert("Thêm mới nhiệm vụ phụ thành công", "error");
-      // console.log(editingTask);
-
-      // if (!newSubTask.trim()) return;
-      // setSubTasks([...subTasks, { id: Date.now(), title: newSubTask }]);
-      // setNewSubTask("");
+      showAlert("Thêm mới nhiệm vụ phụ thành công", "success");
+      console.log(res);
+      setEditingTask((prev: any) => ({
+        ...prev,
+        subTasks: [...prev.subTasks, res.data]
+      }))
+      setShowSubTasks(false)
     }
     catch (e: any) {
       showAlert(e.response.data.message, "error");
     }
   };
-  const toggleReplyInput = (commentId: string) => {
-    setReplyVisible((prev) => ({ ...prev, [commentId]: !prev[commentId] }));
-  };
-
-  // Hàm toggle hiển thị input edit
-  const toggleEditInput = (commentId: string) => {
-    setEditVisible((prev) => ({ ...prev, [commentId]: !prev[commentId] }));
-  };
-
   // Hàm thêm reply
-  const handleAddReply = async (commentId: string) => {
-    const content = replyInputs[commentId]?.trim();
-    if (!content) return;
+  const handleAddReply = async (commentId: string, replyText: string) => {
 
     try {
       // gọi API
       const params = {
         task_id: editingTask?.id,          // biến taskId từ props/context
         user_id: removeQuotes(localStorage.getItem("user") || "") || "",          // biến userId từ auth/context
-        content: content,
+        content: replyText,
         comment_id: commentId,    // id của comment cha
       }
-      const res = await replyComments(params)
+      await replyComments(params)
 
-      // if (!res.ok) {
-      //   throw new Error("Failed to add reply");
-      // }
 
-      // const data = await res.json();
-
-      // Cập nhật state local (nếu API trả về reply mới, bạn có thể dùng data thay vì content)
-      // setComments((prev) =>
-      //   prev.map((c) =>
-      //     c.id === commentId
-      //       ? {
-      //           ...c,
-      //           replies: [
-      //             ...(c.replies || []),
-      //             {
-      //               user_name: data.user_name || "Bạn",
-      //               user_id: data.user_id || userId,
-      //               content: data.content || content,
-      //               id: data.id, // id reply do backend trả về
-      //             },
-      //           ],
-      //         }
-      //       : c
-      //   )
-      // );
-
-      // reset input & ẩn input
-      setReplyInputs((prev) => ({ ...prev, [commentId]: "" }));
-      setReplyVisible((prev) => ({ ...prev, [commentId]: false }));
       setIsReload(!isReload)
     } catch (err: any) {
       showAlert(err.response.data.message, "error");
@@ -271,16 +229,20 @@ export default function TasksPage() {
 
 
   // Hàm sửa comment
-  const handleEditComment = (commentId: string) => {
-    const newContent = editInputs[commentId]?.trim();
-    if (!newContent) return;
+  const handleEditComment = async (commentId: string, replyText: string) => {
+    try {
+      await updateComment(commentId, {
+        content: replyText,
+        task_id: editingTask?.id,
+        user_id: removeQuotes(localStorage.getItem("user") || "") || "",
+      })
+      setIsReload(!isReload)
 
-    setComments((prev) =>
-      prev.map((c) => (c.id === commentId ? { ...c, content: newContent } : c))
-    );
+    }
+    catch (e:any) {
+      showAlert(e.response.data.message, "error");
 
-    // Ẩn input sau khi cập nhật
-    setEditVisible((prev) => ({ ...prev, [commentId]: false }));
+    }
   };
   const handleDeleteSubTask = (id: number) => {
     setSubTasks(subTasks.filter((t) => t.id !== id));
@@ -318,8 +280,7 @@ export default function TasksPage() {
   }, []);
 
   // modal state
-  const [open, setOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+
 
   // form data
   const [formData, setFormData] = useState<Omit<Task, "id">>({
@@ -1325,101 +1286,12 @@ export default function TasksPage() {
               {/* Danh sách bình luận */}
               <div className="space-y-4 max-h-[250px] overflow-y-auto pr-2">
                 {comments.map((c) => (
-                  <div key={c.id} className="flex flex-col gap-1">
-                    <div className="flex items-start gap-3">
-                      {/* Avatar */}
-                      <div
-                        style={{ backgroundColor: stringToColor(c?.user_name || c?.user_id) }}
-                        className="h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold text-gray-700"
-                      >
-                        {c?.user_name.slice(0, 2)}
-                      </div>
-
-                      {/* Nội dung */}
-                      <div className="flex flex-col bg-gray-100 rounded-2xl px-3 py-2 max-w-[80%]">
-                        <span className="text-sm font-semibold">{c?.user_name}</span>
-                        <span className="text-sm text-gray-800">{c?.content}</span>
-
-                        {/* 📂 File đính kèm */}
-                        {c.files && c.files.length > 0 && (
-                          <div className="mt-1 space-y-1">
-                            {c.files.map((f: any, idx: number) => (
-                              <a
-                                key={idx}
-                                href={URL.createObjectURL(f)} // khi backend có link file thì thay bằng f.url
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs text-blue-600 underline"
-                              >
-                                📎 {f.name}
-                              </a>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Icon hành động */}
-                        <div className="flex gap-3 mt-1 text-gray-500 text-xs">
-                          <button
-                            onClick={() =>
-                              setReplyVisible((prev) => ({
-                                ...prev,
-                                [c.id]: !prev[c.id],
-                              }))
-                            }
-                          >
-                            💬 Trả lời
-                          </button>
-                          <button
-                            onClick={() =>
-                              setEditVisible((prev) => ({
-                                ...prev,
-                                [c.id]: !prev[c.id],
-                              }))
-                            }
-                          >
-                            ✏️ Sửa
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Reply */}
-                    {replyVisible[c.id] && (
-                      <div className="ml-12 flex flex-col gap-2 mt-1">
-                        <Input
-                          placeholder="Trả lời..."
-                          value={replyInputs[c.id] || ""}
-                          onChange={(e) =>
-                            setReplyInputs((prev) => ({ ...prev, [c.id]: e.target.value }))
-                          }
-                        />
-                        {/* Upload file cho reply */}
-                        <input
-                          type="file"
-                          onChange={(e) =>
-                            setReplyFiles((prev) => ({
-                              ...prev,
-                              [c.id]: Array.from(e.target.files || []),
-                            }))
-                          }
-                        />
-                        <Button onClick={() => handleAddReply(c.id)}>Gửi</Button>
-                      </div>
-                    )}
-
-                    {/* Input sửa comment */}
-                    {editVisible[c.id] && (
-                      <div className="ml-12 flex gap-2 mt-1">
-                        <Input
-                          value={editInputs[c.id] ?? ""}
-                          onChange={(e) =>
-                            setEditInputs((prev) => ({ ...prev, [c.id]: e.target.value }))
-                          }
-                        />
-                        <Button onClick={() => handleEditComment(c.id)}>Cập nhật</Button>
-                      </div>
-                    )}
-                  </div>
+                  <CommentItem
+                    key={c.id}
+                    comment={c}
+                    onReply={handleAddReply}
+                    onEdit={handleEditComment}
+                  />
                 ))}
               </div>
 

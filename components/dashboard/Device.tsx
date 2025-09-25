@@ -82,37 +82,35 @@ export default function DeviceStatistics() {
   return (
     <>
       {/* Bộ lọc */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Thống kê thiết bị</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-4 items-end">
-          {/* Ngày bắt đầu */}
-          <div>
-            <label className="block text-sm font-medium">Từ ngày</label>
-            <Input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              // className="w-[180px]"
-            />
-          </div>
 
-          {/* Ngày kết thúc */}
-          <div>
-            <label className="block text-sm font-medium">Đến ngày</label>
-            <Input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              // className="w-[180px]"
-            />
-          </div>
 
-          {/* Button */}
-          <Button onClick={fetchData}>Lọc</Button>
-        </CardContent>
-      </Card>
+      <div className="flex flex-wrap gap-4 items-end mb-6">
+        {/* Ngày bắt đầu */}
+        <div>
+          <label className="block text-sm font-medium">Từ ngày</label>
+          <Input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          // className="w-[180px]"
+          />
+        </div>
+
+        {/* Ngày kết thúc */}
+        <div>
+          <label className="block text-sm font-medium">Đến ngày</label>
+          <Input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          // className="w-[180px]"
+          />
+        </div>
+
+        {/* Button */}
+        <Button onClick={fetchData}>Lọc</Button>
+      </div>
+
 
 
       {/* Tổng quan */}

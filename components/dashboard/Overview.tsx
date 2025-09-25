@@ -47,7 +47,7 @@ export default function Overview() {
 
   const statsData = [
     {
-      title: "Tổng công việc",
+      title: "Tổng nhiệm vụ",
       value: overviewData.tasks?.total,
       icon: CheckCircle,
       color: "bg-yellow-500",
@@ -65,8 +65,8 @@ export default function Overview() {
       color: "bg-green-500",
     },
     {
-      title: "Thiết bị",
-      value: overviewData.devices?.total,
+      title: "Mới",
+      value: overviewData.tasks?.new,
       icon: Package,
       color: "bg-purple-500",
     },
@@ -126,7 +126,7 @@ export default function Overview() {
           {/* Task Doughnut Chart */}
           <Card>
             <CardHeader>
-              <CardTitle>Thống kê công việc</CardTitle>
+              <CardTitle>Thống kê nhiệm vụ</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-80">

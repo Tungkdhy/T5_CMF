@@ -52,12 +52,18 @@ export async function updateComment(
   id: string,
   {
     content,
+    task_id,
+    user_id
   }: {
     content: string;
+    task_id:string,
+    user_id:string
   }
 ) {
   const res = await api.put(`/task-comments/${id}`, {
     content,
+    task_id,
+    user_id
   });
   return res.data;
 }

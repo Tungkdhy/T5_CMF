@@ -65,10 +65,10 @@ export default function TaskTimeline() {
   return (
     <>
       {/* Biểu đồ công việc theo thời gian */}
-      <Card>
+      <Card className="mb-6">
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <CardTitle>Biểu đồ nhiệm vụ theo thời gian</CardTitle>
+          
             <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
               <input
                 type="date"
@@ -94,7 +94,7 @@ export default function TaskTimeline() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="gap-6">
           <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>

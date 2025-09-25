@@ -285,7 +285,7 @@ export default function ReportManagementPage() {
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500">
                                             <button
-                                                onClick={() => downloadFile(`http://10.10.53.58:3002/${item.url}`, `${item.report_name}.pdf`)}
+                                                onClick={() => downloadFile(`http://10.10.53.58:3002/${item.url}`, `${item.url}`)}
                                                 className="text-blue-500 hover:underline"
                                             >
                                                 Tải file

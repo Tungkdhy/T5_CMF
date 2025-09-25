@@ -76,11 +76,8 @@ export default function StatisticsDashboard() {
   return (
     <div className="space-y-6">
       {/* Bộ lọc */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Bộ lọc</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-4 items-end">
+      
+        <div className="flex flex-wrap gap-4 items-end">
           <div>
             <label className="block text-sm font-medium">Từ ngày</label>
             <Input
@@ -111,8 +108,8 @@ export default function StatisticsDashboard() {
             </Select>
           </div>
           <Button onClick={fetchData}>Lọc</Button>
-        </CardContent>
-      </Card>
+        </div>
+
 
       {/* Tổng quan */}
       <div className="grid grid-cols-3 gap-4">

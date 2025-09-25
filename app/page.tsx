@@ -241,7 +241,7 @@ export default function Dashboard() {
         {/* Tổng quan nhân sự */}
         <Card>
           <CardHeader>
-            <CardTitle>Nhân sự</CardTitle>
+            <CardTitle>Thống kê lực lượng</CardTitle>
           </CardHeader>
           <CardContent>
             <PersonnelOverview />
@@ -251,7 +251,7 @@ export default function Dashboard() {
         {/* Dashboard tổng hợp */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Dashboard thống kê</CardTitle>
+            <CardTitle>Thống kê hệ thống</CardTitle>
           </CardHeader>
           <CardContent>
             <StatisticsDashboard />

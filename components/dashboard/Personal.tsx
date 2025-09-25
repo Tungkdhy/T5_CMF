@@ -89,11 +89,8 @@ export default function PersonnelOverview() {
   return (
     <div className="min-h-screen bg-gray-50  space-y-6">
       {/* Bộ lọc gọn */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Bộ lọc</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-4 items-end">
+
+        <div className="flex flex-wrap gap-4 items-end">
           {/* Trung tâm */}
           <div>
             <label className="block text-sm font-medium">Trung tâm</label>
@@ -160,8 +157,8 @@ export default function PersonnelOverview() {
 
           {/* Button */}
           <Button onClick={fetchData}>Lọc</Button>
-        </CardContent>
-      </Card>
+        </div>
+ 
 
       {/* Thông tin đơn vị */}
 
