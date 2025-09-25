@@ -45,8 +45,8 @@ export async function createRoleAction(data: any) {
 }
 export async function createRole(data: any) {
     const res = await api.post("/role", {
-        code: data.roleName,
-        display_name: data.roleName,
+        code: data.display_name,
+        display_name: data.display_name,
         description: data.description,
         // action_ids: data.actionIds,
     });

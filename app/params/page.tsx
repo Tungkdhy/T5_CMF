@@ -351,39 +351,39 @@ function ModalForm({ title, config, onCancel, onSave, onChange }: ModalFormProps
         </div>
         <div className="p-6 space-y-4">
           <div>
-            <Label>Tên hiển thị</Label>
+            <Label className="mb-3">Tên hiển thị</Label>
             <Input value={config.display_name || ""} onChange={(e) => onChange("display_name", e.target.value)} />
           </div>
           <div>
-            <Label>Key</Label>
+            <Label className="mb-3">Key</Label>
             <Input value={config.value || ""} onChange={(e) => onChange("value", e.target.value)} />
           </div>
           <div>
-            <Label>Mô tả</Label>
+            <Label className="mb-3">Mô tả</Label>
             <Input value={config.description || ""} onChange={(e) => onChange("description", e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Tối thiểu</Label>
+              <Label className="mb-3">Tối thiểu</Label>
               <Input type="number" value={config.data?.min ?? ""} onChange={(e) => onChange("min", Number(e.target.value), true)} />
             </div>
             <div>
-              <Label>Tối đa</Label>
+              <Label className="mb-3">Tối đa</Label>
               <Input type="number" value={config.data?.max ?? ""} onChange={(e) => onChange("max", Number(e.target.value), true)} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Mặc định</Label>
+              <Label className="mb-3">Mặc định</Label>
               <Input value={config.data?.default_value ?? ""} onChange={(e) => onChange("default_value", e.target.value, true)} />
             </div>
             <div>
-              <Label>Đơn vị tính</Label>
+              <Label className="mb-3">Đơn vị tính</Label>
               <Input value={config.data?.unit ?? ""} onChange={(e) => onChange("unit", e.target.value, true)} />
             </div>
           </div>
           <div>
-            <Label>Giá trị hiển thị</Label>
+            <Label className="mb-3">Giá trị hiển thị</Label>
             <Input value={config.data?.display_value ?? ""} onChange={(e) => onChange("display_value", e.target.value, true)} />
           </div>
         </div>

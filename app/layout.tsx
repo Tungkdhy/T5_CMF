@@ -94,8 +94,8 @@ function Layout({ children }: { children: ReactNode }) {
   const { isRefreshMenu, setIsRefreshMenu } = useGlobalContext();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
     { id: "dashboard", title: "Bảng điều khiển", icon: <Home className="w-5 h-5" />, href: "/" },
-    { id: "profile", title: "Quản lý người dùng", icon: <User className="w-5 h-5" />, href: "/user" },
-    { id: "staff", title: "Quản lý nhân viên", icon: <Users className="w-5 h-5" />, href: "/staff" },
+    { id: "profile", title: "Quản lý tài khoản", icon: <User className="w-5 h-5" />, href: "/user" },
+    { id: "staff", title: "Quản lý cán bộ, nhân viên", icon: <Users className="w-5 h-5" />, href: "/staff" },
     {
       id: "category_task",
       title: "Danh mục nhiệm vụ",
@@ -105,7 +105,7 @@ function Layout({ children }: { children: ReactNode }) {
     { id: "messages", title: "Quản lý công việc", icon: <Clipboard className="w-5 h-5" />, href: "/tasks" },
     { id: "bccs", title: "Báo cáo chuyên sâu", icon: <FileText className="w-5 h-5" />, href: "/reports" },
     // { id: "notifications", title: "Quản lý danh mục", icon: <Folder className="w-5 h-5" />,  href: "/category" },
-    { id: "device", title: "Quản lý thiết bị", icon: <Cpu className="w-5 h-5" />, href: "/devices" },
+    { id: "device", title: "Danh sách thiết bị tham gia mạng đơn vị", icon: <Cpu className="w-5 h-5" />, href: "/devices" },
     { id: "category_type", title: "Loại danh mục", icon: <Layers className="w-5 h-5" />, href: "/category_type" },
     {
       id: "target",
@@ -115,7 +115,7 @@ function Layout({ children }: { children: ReactNode }) {
     },
     {
       id: "backup",
-      title: "Sao lưu dữ liệu",
+      title: "Sao lưu phục hồi hệ thống",
       icon: <RefreshCcw className="w-5 h-5" />,
       href: "/backup",
     },
@@ -171,14 +171,14 @@ function Layout({ children }: { children: ReactNode }) {
         },
         {
           id: "profile",
-          title: "Quản lý người dùng",
+          title: "Quản lý tài khoản",
           icon: <User className="w-5 h-5" />,
           href: "/user",
         },
-        { id: "staff", title: "Quản lý nhân viên", icon: <Users className="w-5 h-5" />, href: "/staff" },
+        { id: "staff", title: "Quản lý cán bộ, nhân viên", icon: <Users className="w-5 h-5" />, href: "/staff" },
         {
           id: "role",
-          title: "Quản lý phân quyền",
+          title: "Phân quyền nhóm người sử dụng",
           icon: <RollerCoaster className="w-5 h-5" />,
           children: [
             {
@@ -214,13 +214,13 @@ function Layout({ children }: { children: ReactNode }) {
         },
         {
           id: "device",
-          title: "Quản lý thiết bị",
+          title: "Danh sách thiết bị tham gia mạng đơn vị",
           icon: <Cpu className="w-5 h-5" />,
           href: "/devices",
         },
         {
           id: "device_manager",
-          title: "Quản lý trang thiết bị",
+          title: "Danh sách trang thiết bị quản lý",
           icon: <Cpu className="w-5 h-5" />,
           href: "/manager_device",
         },
@@ -256,7 +256,7 @@ function Layout({ children }: { children: ReactNode }) {
         },
         {
           id: "backup",
-          title: "Sao lưu dữ liệu",
+          title: "Sao lưu phục hồi hệ thống",
           icon: <RefreshCcw className="w-5 h-5" />,
           href: "/backup",
         },
@@ -348,7 +348,7 @@ function Layout({ children }: { children: ReactNode }) {
                   fixed md:static z-30 h-full bg-white shadow-lg transform transition-all duration-300 ease-in-out
                   ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} 
                   md:translate-x-0
-                  ${isCollapsed ? "w-20" : "w-64"}
+                  ${isCollapsed ? "w-20" : "w-66"}
                 `}
           >
             <div className="flex flex-col h-full">
