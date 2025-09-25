@@ -33,7 +33,11 @@ interface Device {
     description: string;
     unit_name?: string;
     device_group?: string;
+    date_created?: string,
+    date_received?: string,
+    device_type_name?: string,
     reload?: boolean;
+
 }
 
 export default function DeviceManagementPage() {
@@ -53,6 +57,8 @@ export default function DeviceManagementPage() {
         description: "",
         reload: true,
         unit_name: "",
+        date_created: "",
+        date_received: ""
         // device_group: ""
     });
 
@@ -214,6 +220,8 @@ export default function DeviceManagementPage() {
                                 status: "active",
                                 description: "",
                                 reload: true,
+                                date_created: "",
+                                date_received: ""
                             })
                             setEditingDevice(null);
                         }} className="flex items-center gap-2">
@@ -233,6 +241,8 @@ export default function DeviceManagementPage() {
                             <TableHead>Loại</TableHead>
                             <TableHead>Đơn vị</TableHead>
                             <TableHead>Mô tả</TableHead>
+                            <TableHead>Thời gian tạo</TableHead>
+                            <TableHead>Thời gian tiếp nhận</TableHead>
                             <TableHead>Trạng thái</TableHead>
                             <TableHead className="w-[150px]">Hành động</TableHead>
                         </TableRow>
@@ -244,9 +254,11 @@ export default function DeviceManagementPage() {
                                 <TableCell>{d.device_name}</TableCell>
                                 <TableCell>{d.ip_address}</TableCell>
                                 <TableCell>{d.mac_address}</TableCell>
-                                <TableCell>{d.device_type}</TableCell>
+                                <TableCell>{d.device_type_name}</TableCell>
                                 <TableCell>{d.unit_name}</TableCell>
-                                <TableCell>{d.description}</TableCell>
+                                <TableCell className="max-w-[200px] truncate whitespace-nowrap overflow-hidden">{d.description}</TableCell>
+                                <TableCell>{new Date(d.date_created ?? "").toLocaleDateString("en-GB")}</TableCell>
+                                <TableCell>{new Date(d.date_received ?? "").toLocaleDateString("en-GB")}</TableCell>
                                 <TableCell>{d.status === "active" ? "Hoạt động" : "Ngừng"}</TableCell>
                                 <TableCell className="flex gap-2 justify-end">
                                     <Button size="sm" variant="outline" onClick={() => handleEdit(d)}>
@@ -352,6 +364,14 @@ export default function DeviceManagementPage() {
                                         ))}
                                     </SelectContent>
                                 </Select>
+                            </div>
+                            <div className="w-full">
+                                <Label className="mb-3">Thời gian tiếp nhận</Label>
+                                <Input className="w-full block min-w-0" type="date" value={
+                                    formData.date_received
+                                        ? new Date(formData.date_received).toISOString().split("T")[0]
+                                        : ""
+                                } onChange={(e) => handleChange("date_received", e.target.value)} />
                             </div>
                             <div>
                                 <Label className="mb-3">Mô tả</Label>

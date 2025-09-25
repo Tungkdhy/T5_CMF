@@ -38,6 +38,7 @@ export async function createDevice({
   mac_address,
   status,
   description,
+  date_received,
 }: {
   unit_id: string;
   device_type: string;
@@ -46,6 +47,7 @@ export async function createDevice({
   mac_address: string;
   status: "active" | "inactive";
   description: string;
+  date_received?:string
 }) {
   const data = unit_id ? { unit_id } : {};
   const res = await api.post("/unit-devices", {
@@ -56,6 +58,7 @@ export async function createDevice({
     mac_address,
     status,
     description,
+    date_received
   });
   return res.data;
 }
@@ -71,6 +74,7 @@ export async function updateDevice(
     mac_address,
     status,
     description,
+    date_received
   }: {
     unit_id: string;
     device_type: string;
@@ -79,6 +83,7 @@ export async function updateDevice(
     mac_address: string;
     status: "active" | "inactive";
     description: string;
+      date_received?:string
   }
 ) {
   const data = unit_id ? { unit_id } : {};
@@ -90,6 +95,7 @@ export async function updateDevice(
     mac_address,
     status,
     description,
+    date_received
   });
   return res.data;
 }

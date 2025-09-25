@@ -151,4 +151,12 @@ export async function sendNotificationProcess(data: any) {
   const res = await api.post(`/notifications/send-progress-update`, data);
   return res.data;
 }
+export async function getCompletionOverview(data:any) {
+  const res = await api.get("/dashboard/completion/overview",{
+    params:{
+      ...data
+    }
+  })
+  return res.data;
+}
 // Thêm user mới

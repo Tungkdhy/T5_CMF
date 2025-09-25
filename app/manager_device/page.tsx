@@ -20,6 +20,7 @@ import { createDevice, deleteDevice, getDevices, updateDevice } from "@/api/devi
 import { exportExcel } from "@/api/excel";
 import { getCategory } from "@/api/categor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getStaff } from "@/api/staff";
 
 interface Device {
     id: string;
@@ -29,12 +30,18 @@ interface Device {
     device_status: "active" | "maintenance" | "inactive";
     description: string;
     unit_id?: string;
+    owner?: string;
+    owner_name?: string;
+    device_type_id?: string;
+    date_received?: string;
     reload?: boolean;
 }
 
 export default function DeviceManagementPage() {
     const [devices, setDevices] = useState<Device[]>([]);
     const [units, setUnits] = useState<any[]>([]);
+    const [deviceType, setDeviceType] = useState<any[]>([])
+    const [staff, setStaff] = useState<any[]>([])
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDevice, setEditingDevice] = useState<Device | null>(null);
     const [formData, setFormData] = useState<Omit<Device, "id">>({
@@ -45,6 +52,9 @@ export default function DeviceManagementPage() {
         description: "",
         reload: true,
         unit_id: "",
+        owner: "",
+        device_type_id: "",
+        date_received: ""
     });
 
     const [message, setMessage] = useState<string | null>(null);
@@ -73,17 +83,22 @@ export default function DeviceManagementPage() {
     };
 
     const handleSave = async () => {
-        const { reload, ...rest } = formData;
-        if (editingDevice) {
-            await updateDevice(editingDevice.id, rest);
-            showAlert("Cập nhật thành công", "success");
-        } else {
-            await createDevice(rest);
-            showAlert("Thêm mới thành công", "success");
+        try {
+            const { reload, ...rest } = formData;
+            if (editingDevice) {
+                await updateDevice(editingDevice.id, rest);
+                showAlert("Cập nhật thành công", "success");
+            } else {
+                await createDevice(rest);
+                showAlert("Thêm mới thành công", "success");
+            }
+            setFormData((prev) => ({ ...prev, reload: !prev.reload }));
+            setEditingDevice(null);
+            setIsModalOpen(false);
         }
-        setFormData((prev) => ({ ...prev, reload: !prev.reload }));
-        setEditingDevice(null);
-        setIsModalOpen(false);
+        catch (e: any) {
+            showAlert(e.response.data.message, "error");
+        }
     };
 
     const handleChange = (field: keyof typeof formData, value: string) => {
@@ -134,6 +149,7 @@ export default function DeviceManagementPage() {
             showAlert("Xuất Excel thất bại", "error");
         }
     };
+
     useEffect(() => {
         const fetchDevices = async () => {
             try {
@@ -148,9 +164,13 @@ export default function DeviceManagementPage() {
     const fetchSelect = async (page: number) => {
         try {
             const res = await getCategory({ pageSize: 1000, pageIndex: page, scope: "UNIT" });
+            const res2 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "DEVICE_TYPE" });
+            const res3 = await getStaff({ pageSize: 1000, pageIndex: page })
+            setDeviceType(res2.data.rows);
             // const res2 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "DEVICE_TYPE" });
             // setDeviceTypes(res2.data.rows);
             setUnits(res.data.rows);
+            setStaff(res3.data.data.rows)
 
         } catch (err) {
             console.error(err);
@@ -209,6 +229,8 @@ export default function DeviceManagementPage() {
                             <TableHead>Tên thiết bị</TableHead>
                             <TableHead>Serial</TableHead>
                             <TableHead>IP</TableHead>
+                            <TableHead>Người sở hữu</TableHead>
+                            <TableHead>Ngày tiếp nhận</TableHead>
                             <TableHead>Trạng thái</TableHead>
                             <TableHead>Mô tả</TableHead>
                             <TableHead className="w-[150px]">Hành động</TableHead>
@@ -221,6 +243,8 @@ export default function DeviceManagementPage() {
                                 <TableCell>{d.device_name}</TableCell>
                                 <TableCell>{d.serial_number}</TableCell>
                                 <TableCell>{d.ip_address}</TableCell>
+                                <TableCell>{d.owner_name}</TableCell>
+                                <TableCell>{new Date(d.date_received ?? "").toLocaleDateString("en-GB")}</TableCell>
                                 <TableCell>{d.device_status === "active" ? "Hoạt động" : d.device_status === "maintenance" ? "Bảo trì" : "Ngừng"}</TableCell>
                                 <TableCell>{d.description}</TableCell>
                                 <TableCell className="flex gap-2 justify-end">
@@ -272,6 +296,24 @@ export default function DeviceManagementPage() {
                                 <Label className="mb-3">Địa chỉ IP</Label>
                                 <Input value={formData.ip_address} onChange={(e) => handleChange("ip_address", e.target.value)} />
                             </div>
+                            <div>
+                                <Label className="mb-3">Loại thiết bị</Label>
+                                <Select
+                                    value={formData.device_type_id}
+                                    onValueChange={(value) => handleChange("device_type_id", value)}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Chọn loại thiết bị" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {deviceType.map((unit) => (
+                                            <SelectItem key={unit.id} value={unit.id}>
+                                                {unit.display_name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                             {/* <div>
                                 <Label className="mb-3">Đơn vị</Label>
                                 <Select
@@ -290,6 +332,30 @@ export default function DeviceManagementPage() {
                                     </SelectContent>
                                 </Select>
                             </div> */}
+                            <div>
+                                <Label className="mb-3">Người sở hữu</Label>
+                                <Select
+                                    value={formData.owner}
+                                    onValueChange={(value) => handleChange("owner", value)}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Chọn Người sở hữu" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {staff.map((unit) => (
+                                            <SelectItem key={unit.id} value={unit.id}>
+                                                {unit.display_name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="w-full">
+                                <Label className="mb-3">Thời gian tiếp nhận</Label>
+                                <Input className="w-full block min-w-0" type="date" value={formData.date_received
+                                    ? new Date(formData.date_received).toISOString().split("T")[0]
+                                    : ""} onChange={(e) => handleChange("date_received", e.target.value)} />
+                            </div>
                             <div>
                                 <Label className="mb-3">Trạng thái</Label>
                                 <Input value={formData.device_status} onChange={(e) => handleChange("device_status", e.target.value)} />

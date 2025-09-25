@@ -14,6 +14,8 @@ import { Switch } from "@/components/ui/switch";
 import { useGlobalContext } from '@/context/GlobalContext';
 // API giả lập
 import { createTarget, deleteTarget, getTargets, updateTarget } from "@/api/targets";
+import { getCategory } from "@/api/categor";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Target {
     id: string;
@@ -22,6 +24,8 @@ interface Target {
     combat_status: string;
     description: string;
     reload?: boolean;
+    target_type?: string;
+    target_type_tc?: string;
 }
 
 export default function TargetManagement() {
@@ -32,12 +36,16 @@ export default function TargetManagement() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingTarget, setEditingTarget] = useState<Target | null>(null);
+    const [typeTarget, setTypeTarget] = useState<any[]>([])
+    const [typeTargetTC, setTypeTargetTC] = useState<any[]>([])
     const [formData, setFormData] = useState<Omit<Target, "id">>({
         target_name: "",
         target_url: "",
         combat_status: "active",
         description: "",
         reload: false,
+        target_type: "",
+        target_type_tc: ""
     });
     const [status, setStatus] = useState<"success" | "error" | null>(null);
     const [message, setMessage] = useState<string | null>(null);
@@ -81,10 +89,10 @@ export default function TargetManagement() {
             fetchTargets(pageIndex);
             setIsRefreshMenu(!isRefreshMenu);
         }
-        catch (err:any) { 
-             showAlert( err?.response?.data.message, "error");
+        catch (err: any) {
+            showAlert(err?.response?.data.message, "error");
             // console.log(err);
-            
+
         }
     };
     const handleChange = (field: keyof typeof formData, value: string) => {
@@ -103,7 +111,26 @@ export default function TargetManagement() {
             console.error(err);
             showAlert("Lấy danh sách thất bại", "error");
         }
-    }; 
+    };
+    const fetchSelect = async (page: number) => {
+        try {
+            const res = await getCategory({ pageSize: 1000, pageIndex: page, scope: "OBJECT_TCTT" });
+            const res2 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "target_tctt" });
+
+            setTypeTarget(res.data.rows)
+            setTypeTargetTC(res2.data.rows)
+            // FORCE_TCCS
+
+
+        } catch (err) {
+            console.error(err);
+            showAlert("Lấy danh sách thất bại", "error");
+        }
+    };
+
+    useEffect(() => {
+        fetchSelect(1);
+    }, []);
     useEffect(() => {
         fetchTargets(pageIndex);
     }, [pageIndex, formData.reload]);
@@ -126,7 +153,7 @@ export default function TargetManagement() {
                         setIsModalOpen(true);
                         setFormData({ target_name: "", target_url: "", combat_status: "active", description: "" });
                     }} className="flex items-center gap-2">
-                        <Plus className="w-4 h-4" /> Thêm target
+                        <Plus className="w-4 h-4" /> Thêm mục tiêu
                     </Button>
                 </div>
 
@@ -134,8 +161,10 @@ export default function TargetManagement() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>STT</TableHead>
-                            <TableHead>Tên target</TableHead>
+                            <TableHead>Tên mục tiêu</TableHead>
                             <TableHead>URL</TableHead>
+                            <TableHead>Loại mục tiêu</TableHead>
+                            <TableHead>Mục tiêu TCTT</TableHead>
                             <TableHead>Trạng thái</TableHead>
                             <TableHead>Mô tả</TableHead>
                             <TableHead className="w-[150px]">Hành động</TableHead>
@@ -147,6 +176,9 @@ export default function TargetManagement() {
                                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
                                 <TableCell>{t.target_name}</TableCell>
                                 <TableCell><a href={t.target_url} target="_blank" className="text-blue-600">{t.target_url}</a></TableCell>
+                                <TableCell>{t.target_name}</TableCell>
+                                <TableCell>{t.target_name}</TableCell>
+
                                 <TableCell>
                                     <Switch
                                         checked={t.combat_status === "active"}
@@ -216,6 +248,54 @@ export default function TargetManagement() {
                             <div>
                                 <Label className="mb-3">URL</Label>
                                 <Input value={formData.target_url} onChange={(e) => handleChange("target_url", e.target.value)} />
+                            </div>
+                            <div>
+                                <Label className="mb-3">Loại mục tiêu</Label>
+                                <Select
+                                    value={formData.target_type ?? ""}
+                                    onValueChange={(val) => {
+                                        console.log(val);
+
+                                        handleChange("target_type", val);
+                                    }}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Lựa chọn">
+                                            {typeTarget?.find((x: any) => x.id === formData.target_type)?.label}
+                                        </SelectValue>
+                                    </SelectTrigger>
+                                    <SelectContent >
+                                        {typeTarget?.map((r: any) => (
+                                            <SelectItem key={r.id} value={r.id}>
+                                                {r.display_name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label className="mb-3">Mục tiêu TCTT</Label>
+                                <Select
+                                    value={formData.target_type_tc ?? ""}
+                                    onValueChange={(val) => {
+                                        console.log(val);
+
+                                        handleChange("target_type_tc", val);
+                                    }}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Lựa chọn">
+                                            {typeTargetTC?.find((x: any) => x.id === formData.target_type_tc)?.label}
+                                        </SelectValue>
+                                    </SelectTrigger>
+                                    <SelectContent >
+                                        {typeTargetTC?.map((r: any) => (
+                                            <SelectItem key={r.id} value={r.id}>
+                                                {r.display_name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div>
                                 <Label className="mb-3">Trạng thái</Label>
