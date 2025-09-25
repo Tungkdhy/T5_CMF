@@ -154,6 +154,7 @@ export default function TasksPage() {
     const hue = hash % 360
     return `hsl(${hue}, 70%, 50%)`
   }
+  const [columnOrder, setColumnOrder] = useState<any>([])
   const [openSender, setOpenSender] = useState(false)
   const [openReceiver, setOpenReceiver] = useState(false)
   const [staff, setStaff] = useState<any[]>([]);
@@ -199,12 +200,12 @@ export default function TasksPage() {
   const handleAddSubTask = async () => {
     try {
       const res = await createSubTask(detail)
-         showAlert("Thêm mới nhiệm vụ phụ thành công", "success");
+      showAlert("Thêm mới nhiệm vụ phụ thành công", "success");
       // console.log(editingTask);
 
       // if (!newSubTask.trim()) return;
       setSubTasks([...subTasks, detail]);
-      setIsReload((prev)=>!prev)
+      setIsReload((prev) => !prev)
       // setNewSubTask("");
     }
     catch (e: any) {
@@ -385,7 +386,7 @@ export default function TasksPage() {
     });
 
 
-    const id = status.find((s: any) => s.display_name.toUpperCase() === result.destination?.droppableId.toUpperCase())?.id;
+    const id = status.find((s: any) => s.id.toUpperCase() === result.destination?.droppableId.toUpperCase())?.id;
     // console.log(id);
     try {
       await updateTask(result.draggableId, { status_id: id });
@@ -402,7 +403,8 @@ export default function TasksPage() {
     try {
       if (task) {
         setEditingTask(task);
-        console.log(task);
+        // console.log(task);
+
 
         setFormData({ ...task, category_task: task.category_task });
         const res = await getTaskById(task.id);
@@ -566,12 +568,29 @@ export default function TasksPage() {
         category_id: filter.category_id,
         team_id: filter.team_id
       });
-      setColumns(mapTasksToBoard(res.data.rows).columns);
-      setTasks(mapTasksToBoard(res.data.rows).tasks);
+      const res2 = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "STATUS" })
+      const statusMap: Record<string, string> = {};
+      const columns: any = {};
+      const data2: any = []
+      res2.data.rows.forEach((s: any) => {
+        statusMap[s.display_name] = s.id;
+        data2.push(s.id)
+        columns[s.id] = {
+          id: s.id,
+          title: `${s.display_name}`,
+          taskIds: [],
+        };
+      });
+      const test = mapTasksToBoard(res.data.rows, statusMap, columns)
+      setColumnOrder(data2)
+      setColumns(test.columns);
+      setTasks(test.tasks);
     } catch (err: any) {
       showAlert(err.response.data.message, "error");
     }
   };
+  // console.log(columns, tasks);
+
   const fetchComment = async (id: any) => {
     try {
       const res = await getComments({ pageSize: 1000, pageIndex: 1, taskId: id });
@@ -769,10 +788,10 @@ export default function TasksPage() {
 
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {columnOrder.map((colId) => {
+        <div className={`grid grid-cols-1 md:grid-cols-${columnOrder.length} gap-6`}>
+          {columnOrder.map((colId: any) => {
             const column = columns[colId];
-            const columnTasks = column.taskIds.map((id) => tasks[id]);
+            const columnTasks = (column?.taskIds ?? []).map((id) => tasks[id]);
 
             return (
               <Droppable key={colId} droppableId={colId}>
@@ -798,7 +817,7 @@ export default function TasksPage() {
                       ))
                       : columnTasks.map((task, index) => (
                         <Draggable
-                          key={task.id}
+                          key={index}
                           draggableId={task.id}
                           index={index}
                         >
@@ -868,7 +887,7 @@ export default function TasksPage() {
 
                     {provided.placeholder}
 
-                    {colId === "open" && !loading && (
+                    {!loading && (
                       <Button
                         variant="ghost"
                         className="w-full mt-3 text-gray-500 hover:text-black"

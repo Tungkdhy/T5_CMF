@@ -1,21 +1,7 @@
-export function mapTasksToBoard(data: any) {
-  const statusMap: Record<string, string> = {
-    Open: "open",
-    "In Progress": "in progress",
-    Done: "done",
-    Cancelled: "cancelled",
-  };
-
-  const columns: any = {
-    open: { id: "open", title: "📌 Cần làm", taskIds: [] },
-    "in progress": { id: "in progress", title: "⚡ Đang làm", taskIds: [] },
-    done: { id: "done", title: "✅ Hoàn thành", taskIds: [] },
-    cancelled: { id: "cancelled", title: "❌ Đã hủy", taskIds: [] },
-  };
-
+export function mapTasksToBoard(data: any[], statusMap: Record<string, string>, columns: any) {
   const tasks: Record<string, any> = {};
 
-  // Tạo bản đồ task trước
+  // build tasks
   data.forEach((t: any) => {
     tasks[t.id] = {
       id: t.id,
@@ -37,23 +23,24 @@ export function mapTasksToBoard(data: any) {
       team_id: t.team_id,
       parent_task_id: t.parent_task_id,
       subTasks: [],
-      progress_percent:t.progress_percent,
+      progress_percent: t.progress_percent,
       sender: t.sender_id,
-      
     };
   });
 
-  // Gán subtask vào cha
+  // assign tasks
   data.forEach((t: any) => {
     if (t.parent_task_id && tasks[t.parent_task_id]) {
       tasks[t.parent_task_id].subTasks.push(tasks[t.id]);
     } else {
       const colKey = statusMap[t.status?.display_name] || "open";
-      columns[colKey].taskIds.push(t.id);
+      if (columns[colKey]) {
+        columns[colKey].taskIds.push(t.id);
+      }
     }
   });
 
-  // cập nhật lại title với số lượng task
+  // update titles
   Object.keys(columns).forEach((key) => {
     const col = columns[key];
     col.title = `${col.title} (${col.taskIds.length})`;

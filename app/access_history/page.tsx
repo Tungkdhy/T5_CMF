@@ -202,7 +202,7 @@ export default function LogManagement() {
                                         <PopoverContent>
                                             <p>Bạn có chắc muốn xóa log này?</p>
                                             <div className="flex justify-end gap-2 mt-2">
-                                                <Button size="sm" variant="outline" onClick={() => { }}>
+                                                <Button size="sm" variant="outline" >
                                                     Hủy
                                                 </Button>
                                                 <Button size="sm" variant="destructive" onClick={() => handleDelete(log.id)}>

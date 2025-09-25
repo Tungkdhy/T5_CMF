@@ -10,8 +10,8 @@ export async function getTargets({
 }) {
   const res = await api.get("/combat-targets", {
     params: {
-      limit:pageSize,
-      page:pageIndex,
+      limit: pageSize,
+      page: pageIndex,
     },
   });
   return res.data;
@@ -23,6 +23,8 @@ export async function createTarget(data: {
   target_url: string;
   combat_status?: string;
   description?: string;
+  type_target?: string;
+  target_tctt?: string;
 }) {
   const res = await api.post("/combat-targets", data);
   return res.data;
@@ -36,8 +38,11 @@ export async function updateTarget(
     target_url?: string;
     combat_status?: string;
     description?: string;
+    type_target?: string;
+    target_tctt?: string;
   }
 ) {
+  
   const res = await api.put(`/combat-targets/${id}`, data);
   return res.data;
 }

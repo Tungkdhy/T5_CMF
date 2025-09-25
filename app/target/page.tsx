@@ -21,11 +21,14 @@ interface Target {
     id: string;
     target_name: string;
     target_url: string;
+    created_at?: string;
     combat_status: string;
     description: string;
     reload?: boolean;
-    target_type?: string;
-    target_type_tc?: string;
+    type_target?: string;
+    target_tctt?: string;
+    target_tctt_name?: string;
+    type_target_name?:string;
 }
 
 export default function TargetManagement() {
@@ -44,8 +47,8 @@ export default function TargetManagement() {
         combat_status: "active",
         description: "",
         reload: false,
-        target_type: "",
-        target_type_tc: ""
+        type_target: "",
+        target_tctt: ""
     });
     const [status, setStatus] = useState<"success" | "error" | null>(null);
     const [message, setMessage] = useState<string | null>(null);
@@ -76,7 +79,8 @@ export default function TargetManagement() {
     const handleSave = async () => {
         try {
             if (editingTarget) {
-                const { reload, ...rest } = formData;
+                const { reload,created_at,target_tctt_name
+,type_target_name, ...rest } = formData;
                 await updateTarget(editingTarget.id, rest);
                 showAlert("Cập nhật target thành công", "success");
             } else {
@@ -176,8 +180,8 @@ export default function TargetManagement() {
                                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
                                 <TableCell>{t.target_name}</TableCell>
                                 <TableCell><a href={t.target_url} target="_blank" className="text-blue-600">{t.target_url}</a></TableCell>
-                                <TableCell>{t.target_name}</TableCell>
-                                <TableCell>{t.target_name}</TableCell>
+                                <TableCell>{t.type_target_name}</TableCell>
+                                <TableCell>{t.target_tctt_name}</TableCell>
 
                                 <TableCell>
                                     <Switch
@@ -252,16 +256,16 @@ export default function TargetManagement() {
                             <div>
                                 <Label className="mb-3">Loại mục tiêu</Label>
                                 <Select
-                                    value={formData.target_type ?? ""}
+                                    value={formData.type_target ?? ""}
                                     onValueChange={(val) => {
                                         console.log(val);
 
-                                        handleChange("target_type", val);
+                                        handleChange("type_target", val);
                                     }}
                                 >
                                     <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Lựa chọn">
-                                            {typeTarget?.find((x: any) => x.id === formData.target_type)?.label}
+                                            {typeTarget?.find((x: any) => x.id === formData.type_target)?.label}
                                         </SelectValue>
                                     </SelectTrigger>
                                     <SelectContent >
@@ -276,16 +280,16 @@ export default function TargetManagement() {
                             <div>
                                 <Label className="mb-3">Mục tiêu TCTT</Label>
                                 <Select
-                                    value={formData.target_type_tc ?? ""}
+                                    value={formData.target_tctt ?? ""}
                                     onValueChange={(val) => {
                                         console.log(val);
 
-                                        handleChange("target_type_tc", val);
+                                        handleChange("target_tctt", val);
                                     }}
                                 >
                                     <SelectTrigger className="w-full">
                                         <SelectValue placeholder="Lựa chọn">
-                                            {typeTargetTC?.find((x: any) => x.id === formData.target_type_tc)?.label}
+                                            {typeTargetTC?.find((x: any) => x.id === formData.target_tctt)?.label}
                                         </SelectValue>
                                     </SelectTrigger>
                                     <SelectContent >
