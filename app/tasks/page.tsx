@@ -487,29 +487,29 @@ export default function TasksPage() {
         });
         setOpen(false);
         setFormData((prev) => ({ ...prev, reload: !prev.reload }))
-        if (formData.receiver && formData.receiver !== editingTask.receiver) {
-          await sendNotification({
-            task_id: editingTask.id,
-            assignee_id: formData.receiver,
-            task_title: formData.title
-          });
-        }
-        else if (formData.dueDate !== editingTask.dueDate) {
-          await sendNotificationDue({
-            task_id: editingTask.id,
-            due_date: formData.dueDate,
-            task_title: formData.title,
-            assignee_id: formData.receiver,
-          });
-        }
-        else if (formData.progress_percent !== editingTask.progress_percent) {
-          await sendNotificationProcess({
-            task_id: editingTask.id,
-            progress_percent: formData.progress_percent,
-            task_title: formData.title,
-            task_creator_id: editingTask.sender,
-          });
-        }
+        // if (formData.receiver && formData.receiver !== editingTask.receiver) {
+        //   await sendNotification({
+        //     task_id: editingTask.id,
+        //     assignee_id: formData.receiver,
+        //     task_title: formData.title
+        //   });
+        // }
+        // else if (formData.dueDate !== editingTask.dueDate) {
+        //   await sendNotificationDue({
+        //     task_id: editingTask.id,
+        //     due_date: formData.dueDate,
+        //     task_title: formData.title,
+        //     assignee_id: formData.receiver,
+        //   });
+        // }
+        // else if (formData.progress_percent !== editingTask.progress_percent) {
+        //   await sendNotificationProcess({
+        //     task_id: editingTask.id,
+        //     progress_percent: formData.progress_percent,
+        //     task_title: formData.title,
+        //     task_creator_id: editingTask.sender,
+        //   });
+        // }
       } else {
         const res = await createTasks({
           title: formData.title,
@@ -524,13 +524,13 @@ export default function TasksPage() {
           progress_percent: formData.progress_percent,
           assignee_id: formData.receiver,
         });
-        if (formData.receiver) {
-          await sendNotification({
-            task_id: res.data.id,
-            assignee_id: formData.receiver,
-            task_title: formData.title
-          });
-        }
+        // if (formData.receiver) {
+        //   await sendNotification({
+        //     task_id: res.data.id,
+        //     assignee_id: formData.receiver,
+        //     task_title: formData.title
+        //   });
+        // }
         setOpen(false);
         setFormData((prev) => ({ ...prev, reload: !prev.reload }))
         showAlert("Thêm mới nhiệm vụ thành công", "success")

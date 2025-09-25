@@ -129,12 +129,12 @@ export default function TaskOverview() {
 
   // Mock fetch API
   const fetchData = async () => {
-   const res = await getTSCS({
-    start_date: filters.start_date,
-    end_date: filters.end_date,
-    category_id: filters.category_id,
-   });
-   setData(res);
+    const res = await getTSCS({
+      start_date: filters.start_date,
+      end_date: filters.end_date,
+      category_id: filters.category_id,
+    });
+    setData(res);
     // gọi API thật thì thay ở đây
   };
 
@@ -161,9 +161,9 @@ export default function TaskOverview() {
     try {
 
       const category_task = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "MISSION" });
-  
+
       setCategoryTask(category_task.data.rows)
-    
+
     } catch (err) {
       console.error(err);
 
@@ -175,60 +175,58 @@ export default function TaskOverview() {
   return (
     <div className="min-h-screen bg-gray-50 space-y-6">
       {/* Bộ lọc */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Thống kê hoạt động Trinh sát chuyên sâu</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-4 items-end">
-          {/* Category */}
-          <div>
-            <label className="block text-sm font-medium">Loại nhiệm vụ</label>
-            <Select
-              value={filters.category_id}
-              onValueChange={(v) => setFilters({ ...filters, category_id: v })}
-            >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Chọn category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categoryTask.map((c:any) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.display_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
-          {/* Ngày bắt đầu */}
-          <div>
-            <label className="block text-sm font-medium">Từ ngày</label>
-            <Input
-              type="date"
-              value={filters.start_date}
-              onChange={(e) =>
-                setFilters({ ...filters, start_date: e.target.value })
-              }
-              className="w-[180px]"
-            />
-          </div>
 
-          {/* Ngày kết thúc */}
-          <div>
-            <label className="block text-sm font-medium">Đến ngày</label>
-            <Input
-              type="date"
-              value={filters.end_date}
-              onChange={(e) =>
-                setFilters({ ...filters, end_date: e.target.value })
-              }
-              className="w-[180px]"
-            />
-          </div>
+      <div className="flex flex-wrap gap-4 items-end">
+        {/* Category */}
+        <div>
+          <label className="block text-sm font-medium">Loại nhiệm vụ</label>
+          <Select
+            value={filters.category_id}
+            onValueChange={(v) => setFilters({ ...filters, category_id: v })}
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Chọn category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categoryTask.map((c: any) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.display_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-          <Button onClick={fetchData}>Lọc</Button>
-        </CardContent>
-      </Card>
+        {/* Ngày bắt đầu */}
+        <div>
+          <label className="block text-sm font-medium">Từ ngày</label>
+          <Input
+            type="date"
+            value={filters.start_date}
+            onChange={(e) =>
+              setFilters({ ...filters, start_date: e.target.value })
+            }
+            className="w-[180px]"
+          />
+        </div>
+
+        {/* Ngày kết thúc */}
+        <div>
+          <label className="block text-sm font-medium">Đến ngày</label>
+          <Input
+            type="date"
+            value={filters.end_date}
+            onChange={(e) =>
+              setFilters({ ...filters, end_date: e.target.value })
+            }
+            className="w-[180px]"
+          />
+        </div>
+
+        <Button onClick={fetchData}>Lọc</Button>
+      </div>
+
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

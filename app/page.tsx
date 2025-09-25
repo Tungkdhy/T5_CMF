@@ -199,13 +199,64 @@ export default function Dashboard() {
       <main className="p-4 space-y-6">
         {/* Thống kê nhanh */}
 
-        <Overview />
+        <Card>
+          <CardHeader>
+            <CardTitle>Tổng quan</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Overview />
+          </CardContent>
+        </Card>
+
         {/* Biểu đồ đường */}
-        <TaskOverview />
-        <TaskTimeline />
-        <DeviceStatistics/>
-        <PersonnelOverview/>
-        <StatisticsDashboard/>
+        <Card>
+          <CardHeader>
+            <CardTitle>Thống kê nhiệm vụ</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TaskOverview />
+          </CardContent>
+        </Card>
+
+        {/* Timeline công việc */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Tiến độ theo thời gian</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TaskTimeline />
+          </CardContent>
+        </Card>
+
+        {/* Thống kê thiết bị */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Thống kê thiết bị</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DeviceStatistics />
+          </CardContent>
+        </Card>
+
+        {/* Tổng quan nhân sự */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Nhân sự</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PersonnelOverview />
+          </CardContent>
+        </Card>
+
+        {/* Dashboard tổng hợp */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Dashboard thống kê</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <StatisticsDashboard />
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
