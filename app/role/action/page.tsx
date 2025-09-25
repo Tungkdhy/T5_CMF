@@ -55,6 +55,7 @@ interface Action {
     description?: string | null;
     method: string;
     is_active: boolean;
+    created_at?:string;
     method_category: {
         id: string;
         category_type_id: string;
@@ -112,7 +113,8 @@ export default function ActionManagement() {
 
     const handleSave = async () => {
         if (editingAction) {
-            await updateAction(editingAction.id, formData);
+            const {created_at,...rest} = formData
+            await updateAction(editingAction.id, rest);
             showAlert("Cập nhật action thành công", "success");
         } else {
             await createAction(formData);
