@@ -48,7 +48,7 @@ export default function RoleManagement() {
     const [status, setStatus] = useState<"success" | "error" | null>(null);
     const [message, setMessage] = useState<string | null>(null);
 
-    const pageSize = 10;
+    const pageSize = 100;
 
     const showAlert = (msg: string, type: "success" | "error") => {
         setMessage(msg);

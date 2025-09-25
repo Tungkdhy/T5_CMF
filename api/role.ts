@@ -77,7 +77,7 @@ export async function updateRoleAction(
     data: any
 
 ) {
-    console.log("test 2",data);
+    // console.log("test 2",data);
     const { id, ...rest } = data
     const res = await api.put(`/role/${idEdit}`, {
         display_name:data.display_name,
@@ -103,7 +103,12 @@ export async function getRole({
     visible?: boolean;
 }) {
     //   const visibleCheck = visible !== undefined ? { visible } : {};
-    const res = await api.get("/role");
+    const res = await api.get("/role",{
+        params:{
+            pageSize,
+            pageIndex
+        }
+    });
     return res.data;
 }
 export async function getRolesAction({
