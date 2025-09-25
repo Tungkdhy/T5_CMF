@@ -84,7 +84,7 @@ export default function DeviceStatistics() {
       {/* Bộ lọc */}
       <Card>
         <CardHeader>
-          <CardTitle>Bộ lọc</CardTitle>
+          <CardTitle>Thống kê thiết bị</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4 items-end">
           {/* Ngày bắt đầu */}

@@ -177,7 +177,7 @@ export default function TaskOverview() {
       {/* Bộ lọc */}
       <Card>
         <CardHeader>
-          <CardTitle>Bộ lọc</CardTitle>
+          <CardTitle>Thống kê hoạt động Trinh sát chuyên sâu</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4 items-end">
           {/* Category */}
