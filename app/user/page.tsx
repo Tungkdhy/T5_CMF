@@ -97,8 +97,9 @@ export default function UserManagement() {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const res = await getAllRoles({ pageSize, pageIndex });
+        const res = await getAllRoles({ pageSize:10000, pageIndex });
         setRoles(res.data.data.roles);
+
       } catch (err:any) {
         showAlert(err.response.data.message, "error");
       }

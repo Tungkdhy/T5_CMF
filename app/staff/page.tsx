@@ -222,7 +222,7 @@ export default function UserManagement() {
       const res7 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "UNIT" });
       const res8 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "ORGANIZATION" });
       // FORCE_TCCS
-      const res6 = await getAllRoles({ pageSize, pageIndex });
+      const res6 = await getAllRoles({ pageSize:20000, pageIndex });
       const res9 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "FORCE_TCCS" });
       setMultiSelect({
         skill: res.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),

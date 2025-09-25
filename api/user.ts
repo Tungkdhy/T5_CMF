@@ -2,7 +2,7 @@ import api from "./base";
 
 // Lấy danh sách user
 export async function getUsers({ pageSize = 10, pageIndex = 1, name = "" }) {
-  return api.get("/user/all", {
+  return api.get("/user", {
     params: { pageSize, pageIndex, name },
   });
 }

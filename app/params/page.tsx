@@ -186,25 +186,25 @@ export default function ConfigManagement() {
       const res = await exportExcel("system-parameters");
       const workbook = XLSX.read(res, { type: "string" });
 
-    // 2. Lấy sheet đầu tiên từ CSV
-    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      // 2. Lấy sheet đầu tiên từ CSV
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
-    // 3. Tạo workbook mới & append sheet với tên "Tham số"
-    const newWorkbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(newWorkbook, worksheet, "Tham số");
+      // 3. Tạo workbook mới & append sheet với tên "Tham số"
+      const newWorkbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(newWorkbook, worksheet, "Tham số");
 
-    // 4. Ghi workbook ra buffer Excel
-    const excelBuffer = XLSX.write(newWorkbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+      // 4. Ghi workbook ra buffer Excel
+      const excelBuffer = XLSX.write(newWorkbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
 
-    // 5. Tạo file blob và tải về
-    const blob = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    saveAs(blob, "tham_so_he_thong.xlsx");
-      
+      // 5. Tạo file blob và tải về
+      const blob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      saveAs(blob, "tham_so_he_thong.xlsx");
+
 
     } catch (err) {
       console.error("Export failed:", err);
@@ -225,13 +225,7 @@ export default function ConfigManagement() {
         </div>
       )}
 
-      <div className="flex justify-end gap-2 mb-3">
-        <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
-          <FileSpreadsheet className="w-4 h-4 text-green-600" />
-          Xuất Excel
-        </Button>
-        <Button onClick={handleAddNew}>+ Thêm mới</Button>
-      </div>
+
 
       <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
         <div className="flex items-center justify-between mb-3">
@@ -244,6 +238,13 @@ export default function ConfigManagement() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+          </div>
+          <div className="flex justify-end gap-2 mb-3">
+            <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+              <FileSpreadsheet className="w-4 h-4 text-green-600" />
+              Xuất Excel
+            </Button>
+            <Button onClick={handleAddNew}>+ Thêm mới</Button>
           </div>
         </div>
 
