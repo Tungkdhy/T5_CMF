@@ -831,7 +831,7 @@ export default function TasksPage() {
                                     )}
 
                                     {/* Số lượng subtask */}
-                                    {Array.isArray(task.subTasks) && (
+                                    {Array.isArray(task.subTasks) && task.subTasks.length > 0 && (
                                       <span className="text-green-600 font-medium">
                                         📌 {task.subTasks.length} nhiệm vụ phụ
                                       </span>
@@ -1290,7 +1290,7 @@ export default function TasksPage() {
               <>
                 {/* Nút toggle */}
                 <div className="mt-2 " style={{ justifyContent: 'space-between', display: "flex", alignItems: "center" }}>
-                  <div>Bình luận</div>
+                   <Label className="mb-2 font-semibold flex items-center gap-2">Bình luận</Label>
                   <Button
                     variant="outline"
                     size="sm"
