@@ -737,8 +737,19 @@ export default function TasksPage() {
                     className={`bg-white rounded-xl shadow p-4 flex flex-col ${snapshot.isDraggingOver ? "bg-blue-50" : ""
                       }`}
                   >
-                    <h2 className="font-semibold mb-3">{column.title}</h2>
+                    <div className="flex items-center justify-between mb-3">
+                      <h2 className="font-semibold">{column.title}</h2>
 
+                      {colId === "open" && !loading && (
+                        <Button
+                          variant="ghost"
+                          className="text-gray-500 hover:text-black"
+                          onClick={() => handleOpenModal()}
+                        >
+                          <Plus size={16} className="mr-1" /> Thêm mới
+                        </Button>
+                      )}
+                    </div>
                     {loading
                       ? Array.from({ length: 3 }).map((_, i) => (
                         <div
@@ -780,8 +791,8 @@ export default function TasksPage() {
                                 {/* Hạn công việc */}
                                 <p
                                   className={`text-xs font-medium mt-1 ${new Date(task?.dueDate ?? "") < new Date()
-                                      ? "text-red-500"
-                                      : "text-gray-700"
+                                    ? "text-red-500"
+                                    : "text-gray-700"
                                     }`}
                                 >
                                   {task.dueDate
@@ -850,15 +861,7 @@ export default function TasksPage() {
 
                     {provided.placeholder}
 
-                    {colId === "open" && !loading && (
-                      <Button
-                        variant="ghost"
-                        className="w-full mt-3 text-gray-500 hover:text-black"
-                        onClick={() => handleOpenModal()}
-                      >
-                        <Plus size={16} className="mr-1" /> Thêm mới
-                      </Button>
-                    )}
+
                   </div>
                 )}
               </Droppable>
