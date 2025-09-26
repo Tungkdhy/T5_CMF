@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import axios from "axios";
 
 // Hàm tạo màu avatar từ tên
 function stringToColor(str: string) {
@@ -26,7 +27,7 @@ interface Comment {
   user_id: string;
   user_name: string;
   content: string;
-  file?: string;
+  document_url?: string;
   // files?: FileData[];
   replies?: Comment[];
 }
@@ -45,7 +46,33 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
 
   const replyInputRef = useRef<HTMLInputElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
+  const downloadFile = async (fileUrl?: string, filename?: string) => {
+    try {
+      console.log(fileUrl);
 
+      const token = localStorage.getItem("accessToken");
+      if (!token) return;
+
+      const response = await axios.get('http://10.10.53.58:3002/' + fileUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // Accept: "application/octet-stream", // thường cần cho API download
+        },
+        responseType: "blob", // quan trọng để nhận file nhị phân
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename ?? "" );
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download error:", error);
+    }
+  };
   // focus khi hiện ô reply
   useEffect(() => {
     if (replyVisible && replyInputRef.current) {
@@ -77,16 +104,17 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
           <span className="text-sm text-gray-800">{comment.content}</span>
 
           {
-            comment.file && <div className="mt-2 space-y-1">
+            comment.document_url && <div className="mt-2 space-y-1">
 
               <a
                 // key={idx}
-                href={comment.file || "#"}
-                target="_blank"
+                // href={comment.document_url || "#"}
+                // target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                className=" text-blue-600 hover:underline flex items-center gap-1"
+                onClick={(e)=>downloadFile(comment.document_url,comment.document_url)}
               >
-                📎 {comment.file}
+                📎 {comment.document_url}
               </a>
 
             </div>

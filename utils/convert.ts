@@ -39,6 +39,7 @@ export function mapTasksToBoard(data: any) {
       subTasks: [],
       progress_percent:t.progress_percent,
       sender: t.sender_id,
+      author_name:t.author_name
       
     };
   });

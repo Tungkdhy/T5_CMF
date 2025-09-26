@@ -34,15 +34,19 @@ export async function createComment({
   task_id,
   user_id,
   content,
+  document_url
 }: {
   task_id: string;
   user_id: string;
   content: string;
+  document_url?:string
 }) {
+  const doc = document_url ?{document_url}:{}
   const res = await api.post("/task-comments", {
     task_id,
     user_id,
     content,
+    ...doc
   });
   return res.data;
 }

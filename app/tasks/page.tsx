@@ -71,6 +71,7 @@ interface Task {
   sender?: string,
   receiver?: string,
   assignee_name?: string,
+  author_name?: string,
   priority_id?: string,
   subTasks?: any,
   category_task?: any,
@@ -242,7 +243,7 @@ export default function TasksPage() {
   }
   const handleAddComment = async () => {
     try {
-      const doc = idDocument ? { document_id: idDocument } : {}
+      const doc = idDocument ? { document_url: idDocument } : {}
       const res = await createComment({
         user_id: removeQuotes(localStorage.getItem("user") || "") || "",
         content: newComment,
@@ -539,13 +540,13 @@ export default function TasksPage() {
           },
         });
         const data = res.data.data;
-        const documet = await createDocument({
-          "file_name": data.file_name,
-          "file_size": data.file_size,
-          "file_path": data.file_path,
-          "description": "Sample document"
-        })
-        setIdDocument(data.id)
+        // const documet = await createDocument({
+        //   "file_name": data.file_name,
+        //   "file_size": data.file_size,
+        //   "file_path": data.file_path,
+        //   "description": "Sample document"
+        // })
+        setIdDocument(data.file_path)
       }
       catch (err) {
         console.error("Upload failed:", err);
@@ -826,7 +827,7 @@ export default function TasksPage() {
                                     {/* Người giao việc */}
                                     {task.assignee_name && (
                                       <span className="text-purple-600 font-medium">
-                                        👤 Người giao: {task.assignee_name}
+                                        👤 Người giao: {task.author_name}
                                       </span>
                                     )}
 
