@@ -226,8 +226,9 @@ export default function ActionManagement() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>STT</TableHead>
-                            <TableHead>Endpoint</TableHead>
-                            <TableHead>Method</TableHead>
+                            <TableHead>Đường dẫn</TableHead>
+                            <TableHead>Tên hiển thị</TableHead>
+                            <TableHead>Phương thức</TableHead>
                             <TableHead>Mô tả</TableHead>
                             <TableHead>Hoạt động</TableHead>
                             <TableHead className="w-[150px]">Hành động</TableHead>
@@ -237,6 +238,7 @@ export default function ActionManagement() {
                         {actions.map((a, i) => (
                             <TableRow key={a.id}>
                                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
+                                <TableCell>{a.url}</TableCell>
                                 <TableCell>{a.display_name}</TableCell>
                                 <TableCell>{a.method_category?.display_name}</TableCell>
                                 <TableCell>{a.description || "-"}</TableCell>

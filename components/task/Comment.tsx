@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -26,7 +26,7 @@ interface Comment {
   user_id: string;
   user_name: string;
   content: string;
-//   files?: FileData[];
+  // files?: FileData[];
   replies?: Comment[];
 }
 
@@ -41,6 +41,23 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
   const [editVisible, setEditVisible] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [editText, setEditText] = useState(comment.content);
+
+  const replyInputRef = useRef<HTMLInputElement>(null);
+  const editInputRef = useRef<HTMLInputElement>(null);
+
+  // focus khi hiện ô reply
+  useEffect(() => {
+    if (replyVisible && replyInputRef.current) {
+      replyInputRef.current.focus();
+    }
+  }, [replyVisible]);
+
+  // focus khi hiện ô edit
+  useEffect(() => {
+    if (editVisible && editInputRef.current) {
+      editInputRef.current.focus();
+    }
+  }, [editVisible]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -58,23 +75,6 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
           <span className="text-sm font-semibold">{comment.user_name}</span>
           <span className="text-sm text-gray-800">{comment.content}</span>
 
-          {/* 📂 File đính kèm */}
-          {/* {comment.files && comment.files.length > 0 && (
-            <div className="mt-1 space-y-1">
-              {comment.files.map((f, idx) => (
-                <a
-                  key={idx}
-                  href={f.url || "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-600 underline"
-                >
-                  📎 {f.name}
-                </a>
-              ))}
-            </div>
-          )} */}
-
           {/* Icon hành động */}
           <div className="flex gap-3 mt-1 text-gray-500 text-xs">
             <button onClick={() => setReplyVisible(!replyVisible)}>💬 Trả lời</button>
@@ -87,6 +87,7 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
       {replyVisible && (
         <div className="ml-12 flex gap-2 mt-1">
           <Input
+            ref={replyInputRef}
             placeholder="Trả lời..."
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
@@ -107,6 +108,7 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
       {editVisible && (
         <div className="ml-12 flex gap-2 mt-1">
           <Input
+            ref={editInputRef}
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
           />

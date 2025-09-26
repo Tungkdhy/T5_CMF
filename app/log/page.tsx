@@ -202,7 +202,7 @@ export default function LogManagement() {
                             <TableHead>Người dùng</TableHead>
                             <TableHead>Hành động</TableHead>
                             <TableHead>Loại log</TableHead>
-                            <TableHead>Mô tả</TableHead>
+                            <TableHead className="max-w-[400px] truncate whitespace-nowrap overflow-hidden">Mô tả</TableHead>
                             <TableHead className="w-[150px]">Hành động</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -213,7 +213,7 @@ export default function LogManagement() {
                                 <TableCell>{log.user?.display_name}</TableCell>
                                 <TableCell>{log.action_name}</TableCell>
                                 <TableCell>{log.log_type?.display_name || "-"}</TableCell>
-                                <TableCell>{log.description || "-"}</TableCell>
+                                <TableCell className="max-w-[400px] truncate whitespace-nowrap overflow-hidden">{log.description || "-"}</TableCell>
                                 <TableCell className="flex gap-2 justify-end">
                                     <Button size="sm" variant="outline" onClick={() => setModalLog(log)}>
                                         Xem

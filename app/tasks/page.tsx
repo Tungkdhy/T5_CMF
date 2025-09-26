@@ -11,11 +11,6 @@ import {
   AvatarFallback,
 } from "@/components/ui/avatar"
 import { Label } from "@/components/ui/label";
-// import {
-//   Select,
-//   SelectTrigger,
-//   SelectContent,
-// } from "@/components/ui/select"
 import {
   Command,
   CommandInput,
@@ -55,9 +50,9 @@ import { buildCommentTree, mapTasksToBoard } from "@/utils/convert";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createComment, getComments, replyComment as replyComments, updateComment } from "@/api/comment";
 import { createSubTask, getStaff } from "@/api/staff";
-import { set } from "react-hook-form";
 import TaskAttachments from "@/components/file/File";
 import CommentItem from "@/components/task/Comment";
+import api from "@/api/base";
 interface Task {
   id: string;
   title: string;
@@ -173,7 +168,7 @@ export default function TasksPage() {
   const [units, setUnits] = useState<any>([])
   const [open, setOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<any | null>(null);
-  // loading skeleton
+  const [idDocument, setIdDocument] = useState("")
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [showSubTasks, setShowSubTasks] = useState(false);
@@ -186,22 +181,19 @@ export default function TasksPage() {
 
 
   }]);
-  // const [newSubTask, setNewSubTask] = useState("");
   const handleUpdateSubTask = async (data: any, field: string, v = "") => {
     const payload: any = { [field]: v };
-    const res = await updateTask(data.id, payload);
+    await updateTask(data.id, payload);
     setFormData({ ...formData, reload: !formData.reload });
   }
   const handleAddSubTask = async () => {
     try {
-      const res = await createSubTask(detail)
+      await createSubTask(detail)
       showAlert("Thêm mới nhiệm vụ phụ thành công", "success");
-      console.log(res);
-      setEditingTask((prev: any) => ({
+      setFormData((prev)=>({
         ...prev,
-        subTasks: [...prev.subTasks, res.data]
+        reload:!prev.reload
       }))
-      setShowSubTasks(false)
     }
     catch (e: any) {
       showAlert(e.response.data.message, "error");
@@ -209,7 +201,6 @@ export default function TasksPage() {
   };
   // Hàm thêm reply
   const handleAddReply = async (commentId: string, replyText: string) => {
-
     try {
       // gọi API
       const params = {
@@ -226,8 +217,6 @@ export default function TasksPage() {
       showAlert(err.response.data.message, "error");
     }
   };
-
-
   // Hàm sửa comment
   const handleEditComment = async (commentId: string, replyText: string) => {
     try {
@@ -237,11 +226,9 @@ export default function TasksPage() {
         user_id: removeQuotes(localStorage.getItem("user") || "") || "",
       })
       setIsReload(!isReload)
-
     }
-    catch (e:any) {
+    catch (e: any) {
       showAlert(e.response.data.message, "error");
-
     }
   };
   const handleDeleteSubTask = (id: number) => {
@@ -253,14 +240,17 @@ export default function TasksPage() {
   }
   const handleAddComment = async () => {
     try {
+      const doc = idDocument ? { document_id: idDocument } : {}
       const res = await createComment({
         user_id: removeQuotes(localStorage.getItem("user") || "") || "",
         content: newComment,
-        task_id: editingTask?.id || ""
+        task_id: editingTask?.id || "",
+        ...doc
       });
       showAlert("Thêm bình luận thành công", "success");
       setNewComment("");
       setIsReload(!isReload)
+      setIdDocument("")
     } catch (error: any) {
       showAlert(error.response.data.message, "error");
     }
@@ -274,14 +264,9 @@ export default function TasksPage() {
     }, 3000);
   };
   useEffect(() => {
-    // giả lập call API
     const timer = setTimeout(() => setLoading(false), 1500);
     return () => clearTimeout(timer);
   }, []);
-
-  // modal state
-
-
   // form data
   const [formData, setFormData] = useState<Omit<Task, "id">>({
     title: "",
@@ -302,7 +287,6 @@ export default function TasksPage() {
     category_task: "",
     team_id: "",
     attachments: [],
-
   });
 
   const onDragEnd = async (result: any) => {
@@ -503,16 +487,6 @@ export default function TasksPage() {
     }
 
   };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData({ ...formData, image: reader.result as string });
-    };
-    reader.readAsDataURL(file);
-  };
   const fetchTask = async () => {
     try {
       const res = await getTasks({
@@ -528,6 +502,11 @@ export default function TasksPage() {
       });
       setColumns(mapTasksToBoard(res.data.rows).columns);
       setTasks(mapTasksToBoard(res.data.rows).tasks);
+      // console.log(mapTasksToBoard(res.data.rows).tasks);
+      if(editingTask?.id){
+        const edit_task = Object.keys(mapTasksToBoard(res.data.rows).tasks).filter(key =>(key === editingTask.id))
+        setEditingTask(mapTasksToBoard(res.data.rows).tasks[`${edit_task}`])
+      }
     } catch (err: any) {
       showAlert(err.response.data.message, "error");
     }
@@ -544,16 +523,33 @@ export default function TasksPage() {
     }
   };
 
-
+  const handleUpload = async (e: any) => {
+    const files = e.target.files?.[0];
+    if (files) {
+      const formDataUpload = new FormData();
+      formDataUpload.append("file", files);
+      try {
+        const res = await api.post("/documents/upload", formDataUpload, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        const data = res.data.data;
+        setIdDocument(data.id)
+      }
+      catch (err) {
+        console.error("Upload failed:", err);
+      }
+    }
+  }
   useEffect(() => {
     setComments([])
     if (editingTask?.id) fetchComment(editingTask.id);
   }, [editingTask?.id, isReload]);
-
-  // },[])
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       fetchTask();
+      
     }, 500);
     return () => clearTimeout(delayDebounce);
   }, [filter, formData.reload]);
@@ -571,7 +567,6 @@ export default function TasksPage() {
       setListTeam(team.data.rows)
     } catch (err) {
       console.error(err);
-
     }
   }
   useEffect(() => {
@@ -583,7 +578,6 @@ export default function TasksPage() {
       setStaff(res.data.data.rows);
     } catch (err: any) {
       showAlert(err.response.data.message, "error");
-
     }
   }
   useEffect(() => {
@@ -618,15 +612,6 @@ export default function TasksPage() {
               onChange={(e) => setFilter({ ...filter, searchTerm: e.target.value })}
             />
           </div>
-          {/* <div className="flex-1">
-            <Input
-              type="text"
-              placeholder="Mô tả"
-              className="w-full min-w-[240px]"
-              value={filter.description}
-              onChange={(e) => setFilter({ ...filter, description: e.target.value })}
-            />
-          </div> */}
           <div className="flex-1">
             <Select
               value={filter.category_id}
@@ -726,7 +711,6 @@ export default function TasksPage() {
             Đặt lại bộ lọc
           </Button>
         </div>
-
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -946,11 +930,6 @@ export default function TasksPage() {
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Chọn trạng thái" />
                     </SelectTrigger>
-                    {/* <SelectContent>
-                  <SelectItem value="todo">Todo</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="done">Done</SelectItem>
-                </SelectContent> */}
                     <SelectContent>
                       {
                         status.map((item: any) => (
@@ -969,11 +948,6 @@ export default function TasksPage() {
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Chọn độ ưu tiên" />
                     </SelectTrigger>
-                    {/* <SelectContent>
-                  <SelectItem value="todo">Todo</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="done">Done</SelectItem>
-                </SelectContent> */}
                     <SelectContent>
                       {
                         priority.map((item: any) => (
@@ -1113,7 +1087,7 @@ export default function TasksPage() {
                 <Textarea
                   rows={6}
                   placeholder="Nhập mô tả chi tiết..."
-                  value={formData.description}
+                  value={formData.description ?? ""}
                   className="whitespace-pre-wrap break-words"
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
@@ -1269,19 +1243,7 @@ export default function TasksPage() {
                   </div>
                 )}
               </div>
-              {/* Ảnh */}
-              {/* <div>
-              <Label className="mb-2">Ảnh đại diện</Label>
-              <Input type="file" accept="image/*" onChange={handleImageUpload} />
-              {formData.image && (
-                <img
-                  src={formData.image}
-                  alt="preview"
-                  className="mt-2 w-24 h-24 object-cover rounded-md shadow"
-                />
-              )}
-                
-            </div> */}
+              {/* // File đính kèm */}
               <TaskAttachments taskId={editingTask?.id ?? null} />
               {/* Danh sách bình luận */}
               <div className="space-y-4 max-h-[250px] overflow-y-auto pr-2">
@@ -1310,7 +1272,7 @@ export default function TasksPage() {
                 <input
                   type="file"
                   multiple
-                // onChange={(e) => setNewFiles(Array.from(e.target.files || []))}
+                  onChange={handleUpload}
                 />
               </div>
 
