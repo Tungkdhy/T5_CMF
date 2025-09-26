@@ -26,6 +26,7 @@ interface Comment {
   user_id: string;
   user_name: string;
   content: string;
+  file?: string;
   // files?: FileData[];
   replies?: Comment[];
 }
@@ -74,6 +75,22 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
         <div className="flex flex-col bg-gray-100 rounded-2xl px-3 py-2 max-w-[80%]">
           <span className="text-sm font-semibold">{comment.user_name}</span>
           <span className="text-sm text-gray-800">{comment.content}</span>
+
+          {
+            comment.file && <div className="mt-2 space-y-1">
+
+              <a
+                // key={idx}
+                href={comment.file || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+              >
+                📎 {comment.file}
+              </a>
+
+            </div>
+          }
 
           {/* Icon hành động */}
           <div className="flex gap-3 mt-1 text-gray-500 text-xs">

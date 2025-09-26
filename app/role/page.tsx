@@ -26,8 +26,8 @@ interface Role {
     roleName?: string;
     actionIds?: string[];
     display_name?: string;
-    id?:any,
-    description?:any
+    id?: any,
+    description?: any
 }
 
 export default function RoleManagement() {
@@ -42,7 +42,7 @@ export default function RoleManagement() {
         roleName: "",
         actionIds: [],
         display_name: "",
-        id:[]
+        id: []
     });
 
     const [status, setStatus] = useState<"success" | "error" | null>(null);
@@ -82,10 +82,10 @@ export default function RoleManagement() {
     const handleSave = async () => {
         try {
             if (editingRole) {
-                const {actionIds,description,...rest} = formData
-                await updateRoleAction(editingRole.roleId ?? "",{
-                    display_name:formData.display_name,
-                    description:formData.description,
+                const { actionIds, description, ...rest } = formData
+                await updateRoleAction(editingRole.roleId ?? "", {
+                    display_name: formData.display_name,
+                    description: formData.description,
                     // code:formData.display_name
                 })
                 await updateRole(editingRole.roleId ?? "", rest);
@@ -111,16 +111,16 @@ export default function RoleManagement() {
             showAlert(err.response.data.message, "error");
         }
     };
-    const handleGetDetailRole = async (id: any,name:any,data:any) => {
+    const handleGetDetailRole = async (id: any, name: any, data: any) => {
         try {
             const res = await getDetail(id)
-            setEditingRole({roleId:id});
-            setFormData({ roleName:name, id: res.data.actions.map((data:any)=>data.id) });
+            setEditingRole({ roleId: id });
+            setFormData({ roleName: name, id: res.data.actions.map((data: any) => data.id) });
             setIsModalOpen(true);
-            setFormData(prev=>({
+            setFormData(prev => ({
                 ...prev,
-                description:data.description,
-                display_name:data.display_name,
+                description: data.description,
+                display_name: data.display_name,
             }))
         }
 
@@ -147,7 +147,7 @@ export default function RoleManagement() {
         fetchActions();
     }, []);
     console.log(formData);
-    
+
     // 👉 hàm toggle quyền
     const toggleAction = (actionId: string) => {
         setFormData((prev) => {
@@ -155,8 +155,8 @@ export default function RoleManagement() {
             return {
                 ...prev,
                 id: exists
-                    ? prev?.id?.filter((id:any) => id !== actionId)
-                    : [...prev?.id ??"", actionId],
+                    ? prev?.id?.filter((id: any) => id !== actionId)
+                    : [...prev?.id ?? "", actionId],
             };
         });
     };
@@ -227,7 +227,7 @@ export default function RoleManagement() {
                                     <Button
                                         size="sm"
                                         variant="outline"
-                                        onClick={() => handleGetDetailRole(r.id,r.display_name,r)}
+                                        onClick={() => handleGetDetailRole(r.id, r.display_name, r)}
                                     >
                                         <Edit className="w-4 h-4" /> Sửa
                                     </Button>
@@ -304,12 +304,38 @@ export default function RoleManagement() {
                             {/* ✅ Danh sách quyền bằng checkbox */}
                             <div>
                                 <Label className="mb-3">Danh sách quyền</Label>
+                                <div className="mb-2">
+                                    <label className="flex items-center gap-2 text-sm font-semibold">
+                                        <input
+                                            type="checkbox"
+                                            checked={
+                                                actions.length > 0 && formData.id?.length === actions.length
+                                            }
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    // chọn tất cả
+                                                    setFormData((p: any) => ({
+                                                        ...p,
+                                                        id: actions.map((a: any) => a.id),
+                                                    }));
+                                                } else {
+                                                    // bỏ hết
+                                                    setFormData((p: any) => ({
+                                                        ...p,
+                                                        id: [],
+                                                    }));
+                                                }
+                                            }}
+                                        />
+                                        Chọn tất cả
+                                    </label>
+                                </div>
                                 <div className="grid grid-cols-2 gap-2 mt-2">
                                     {actions.map((a) => (
                                         <label key={a.id} className="flex items-center gap-2 text-sm">
                                             <input
                                                 type="checkbox"
-                                                checked={formData?.id?.includes(a.id)}
+                                                checked={formData?.id?.includes(a.id) ?? ""}
                                                 onChange={() => toggleAction(a.id)}
                                             />
                                             {a.display_name} ({a.method_category.display_name})

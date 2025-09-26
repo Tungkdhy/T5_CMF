@@ -65,7 +65,7 @@ export default function Overview() {
       color: "bg-green-500",
     },
     {
-      title: "Mới",
+      title: "Nhiệm vụ được giao",
       value: overviewData.tasks?.new,
       icon: Package,
       color: "bg-purple-500",

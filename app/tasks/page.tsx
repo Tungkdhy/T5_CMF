@@ -130,6 +130,7 @@ const initialColumns: Record<string, Column> = {
 const columnOrder = ["open", "in progress", "done", "cancelled"];
 
 export default function TasksPage() {
+  const [showComments, setShowComments] = useState(true);
   const [showAddSubTask, setShowAddSubTask] = useState(false);
   const [detail, setDetail] = useState<any>({})
   const [priority, setPriority] = useState<any[]>([]);
@@ -771,14 +772,23 @@ export default function TasksPage() {
                                 />
                               )}
                               <div className="p-3">
+                                {/* Tiêu đề */}
                                 <p className="font-medium text-sm line-clamp-2">
                                   {task.title}
                                 </p>
+
+                                {/* Hạn công việc */}
                                 <p
-                                  className={`text-xs font-medium mt-1 ${new Date(task?.dueDate ?? "") < new Date() ? 'text-red-500' : 'text-gray-700'
+                                  className={`text-xs font-medium mt-1 ${new Date(task?.dueDate ?? "") < new Date()
+                                      ? "text-red-500"
+                                      : "text-gray-700"
                                     }`}
                                 >
-                                  {task.dueDate ? (new Date(task.dueDate) < new Date() ? `⚠️ ${task.dueDate}` : `⏰ ${task.dueDate}`) : "Chưa có hạn"}
+                                  {task.dueDate
+                                    ? new Date(task.dueDate) < new Date()
+                                      ? `⚠️ ${task.dueDate}`
+                                      : `⏰ ${task.dueDate}`
+                                    : "Chưa có hạn"}
                                 </p>
 
                                 {/* Progress công việc */}
@@ -791,21 +801,40 @@ export default function TasksPage() {
                                     <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                                       <div
                                         className="h-full bg-green-500"
-                                        style={{ width: `${Math.round(Number(task.progress_percent))}%` }}
+                                        style={{
+                                          width: `${Math.round(Number(task.progress_percent))}%`,
+                                        }}
                                       />
                                     </div>
                                   </div>
                                 )}
 
+                                {/* Thông tin phụ */}
                                 <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
-                                  <span className="text-blue-500 font-semibold">
-                                    {/* {task.description} */}
-                                  </span>
+                                  <div className="flex flex-col">
+                                    {/* Người giao việc */}
+                                    {task.assignee_name && (
+                                      <span className="text-purple-600 font-medium">
+                                        👤 Người giao: {task.assignee_name}
+                                      </span>
+                                    )}
+
+                                    {/* Số lượng subtask */}
+                                    {Array.isArray(task.subTasks) && (
+                                      <span className="text-green-600 font-medium">
+                                        📌 {task.subTasks.length} nhiệm vụ phụ
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* Người nhận việc */}
                                   <div className="flex items-center gap-1">
                                     <span className="text-yellow-500 text-2xl">=</span>
                                     <span
                                       style={{
-                                        backgroundColor: stringToColor(task?.assignee_name || task.id),
+                                        backgroundColor: stringToColor(
+                                          task?.assignee_name || task.id
+                                        ),
                                       }}
                                       className="w-6 h-6 flex items-center justify-center rounded-full text-white text-xs"
                                     >
@@ -1255,35 +1284,54 @@ export default function TasksPage() {
               {/* // File đính kèm */}
               <TaskAttachments taskId={editingTask?.id ?? null} />
               {/* Danh sách bình luận */}
-              <div className="space-y-4 max-h-[250px] overflow-y-auto pr-2">
-                {comments.map((c) => (
-                  <CommentItem
-                    key={c.id}
-                    comment={c}
-                    onReply={handleAddReply}
-                    onEdit={handleEditComment}
-                  />
-                ))}
-              </div>
-
-              {/* Input bình luận mới */}
-              <div className="mt-2 flex flex-col gap-2">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Thêm bình luận..."
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                  />
-                  <Button onClick={handleAddComment}>Gửi</Button>
+              <>
+                {/* Nút toggle */}
+                <div className="mt-2 " style={{ justifyContent: 'space-between', display: "flex", alignItems: "center" }}>
+                  <div>Bình luận</div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowComments(!showComments)}
+                  >
+                    {showComments ? "Ẩn bình luận" : "Hiện bình luận"}
+                  </Button>
                 </div>
 
-                {/* Upload file cho comment */}
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleUpload}
-                />
-              </div>
+                {/* Toàn bộ phần bình luận */}
+                {showComments && (
+                  <>
+                    <div className="space-y-4 max-h-[250px] overflow-y-auto pr-2 mt-2">
+                      {comments.map((c) => (
+                        <CommentItem
+                          key={c.id}
+                          comment={c}
+                          onReply={handleAddReply}
+                          onEdit={handleEditComment}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Input bình luận mới */}
+                    <div className="mt-2 flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Thêm bình luận..."
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                        />
+                        <Button onClick={handleAddComment}>Gửi</Button>
+                      </div>
+
+                      {/* Upload file cho comment */}
+                      <input
+                        type="file"
+                        multiple
+                        onChange={handleUpload}
+                      />
+                    </div>
+                  </>
+                )}
+              </>
 
             </div>
           </div>
