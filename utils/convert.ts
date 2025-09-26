@@ -21,7 +21,7 @@ export function mapTasksToBoard(data: any) {
       id: t.id,
       title: t.title,
       code: t.code,
-      status: t.status.display_name,
+      status: t.status?.display_name,
       priority: t.priority?.display_name,
       type: t.type?.display_name,
       startDate: t.start_date,
@@ -48,7 +48,7 @@ export function mapTasksToBoard(data: any) {
     if (t.parent_task_id && tasks[t.parent_task_id]) {
       tasks[t.parent_task_id].subTasks.push(tasks[t.id]);
     } else {
-      const colKey = statusMap[t.status.display_name] || "open";
+      const colKey = statusMap[t?.status?.display_name] || "open";
       columns[colKey].taskIds.push(t.id);
     }
   });

@@ -53,6 +53,7 @@ import { createSubTask, getStaff } from "@/api/staff";
 import TaskAttachments from "@/components/file/File";
 import CommentItem from "@/components/task/Comment";
 import api from "@/api/base";
+import { createDocument } from "@/api/document";
 interface Task {
   id: string;
   title: string;
@@ -190,9 +191,9 @@ export default function TasksPage() {
     try {
       await createSubTask(detail)
       showAlert("Thêm mới nhiệm vụ phụ thành công", "success");
-      setFormData((prev)=>({
+      setFormData((prev) => ({
         ...prev,
-        reload:!prev.reload
+        reload: !prev.reload
       }))
     }
     catch (e: any) {
@@ -503,11 +504,13 @@ export default function TasksPage() {
       setColumns(mapTasksToBoard(res.data.rows).columns);
       setTasks(mapTasksToBoard(res.data.rows).tasks);
       // console.log(mapTasksToBoard(res.data.rows).tasks);
-      if(editingTask?.id){
-        const edit_task = Object.keys(mapTasksToBoard(res.data.rows).tasks).filter(key =>(key === editingTask.id))
+      if (editingTask?.id) {
+        const edit_task = Object.keys(mapTasksToBoard(res.data.rows).tasks).filter(key => (key === editingTask.id))
         setEditingTask(mapTasksToBoard(res.data.rows).tasks[`${edit_task}`])
       }
     } catch (err: any) {
+      console.log(err);
+
       showAlert(err.response.data.message, "error");
     }
   };
@@ -535,6 +538,12 @@ export default function TasksPage() {
           },
         });
         const data = res.data.data;
+        const documet = await createDocument({
+          "file_name": data.file_name,
+          "file_size": data.file_size,
+          "file_path": data.file_path,
+          "description": "Sample document"
+        })
         setIdDocument(data.id)
       }
       catch (err) {
@@ -549,7 +558,7 @@ export default function TasksPage() {
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       fetchTask();
-      
+
     }, 500);
     return () => clearTimeout(delayDebounce);
   }, [filter, formData.reload]);

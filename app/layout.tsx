@@ -137,6 +137,12 @@ function Layout({ children }: { children: ReactNode }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [hasToken, setHasToken] = useState(false);
   const pathname = usePathname();
+  const [displayName, setDisplayName] = useState("");
+
+  useEffect(() => {
+    const name = localStorage.getItem("displayName")?.replace(/^"|"$/g, "") ?? "";
+    setDisplayName(name);
+  }, []);
   useEffect(() => {
     // Kiểm tra token trong localStorage
     const token = localStorage.getItem("accessToken");
@@ -485,7 +491,7 @@ function Layout({ children }: { children: ReactNode }) {
               {/* Notifications */}<NotificationBell />
               <div className="flex items-center">
                 <div className="bg-gray-200 border-2 border-dashed rounded-xl w-8 h-8" />
-                <span className="ml-2 hidden md:inline text-gray-700">{localStorage.getItem("displayName")?.replace(/^"|"$/g, "") ?? ""}</span>
+                <span className="ml-2 hidden md:inline text-gray-700">{displayName}</span>
               </div>
             </div>
           </header>

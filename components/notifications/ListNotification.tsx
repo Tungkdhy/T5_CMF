@@ -31,7 +31,6 @@ interface NotificationItem {
   };
 }
 
-// Kiểu dữ liệu setting
 interface NotificationSettings {
   task_assigned: boolean;
   task_due_reminder: boolean;
@@ -48,6 +47,7 @@ const settingLabels: Record<string, string> = {
   email_notifications: "Thông báo qua email",
   push_notifications: "Thông báo đẩy (Push)"
 };
+
 export default function NotificationBell() {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -66,6 +66,7 @@ export default function NotificationBell() {
   });
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const popupRef = useRef<HTMLDivElement | null>(null); // ref popup
   const pageSize = 10;
 
   const toggleNotif = () => setIsNotifOpen(!isNotifOpen);
@@ -116,6 +117,7 @@ export default function NotificationBell() {
       console.error("Đánh dấu tất cả thất bại:", err);
     }
   };
+
   const handleToggle = async (key: keyof NotificationSettings) => {
     const newValue = !settings[key];
     setSettings((prev:any) => ({ ...prev, [key]: newValue }));
@@ -127,11 +129,12 @@ export default function NotificationBell() {
       });
     } catch (err) {
       console.error("Cập nhật setting thất bại:", err);
-      // rollback nếu muốn
       setSettings((prev:any) => ({ ...prev, [key]: !newValue }));
     }
   };
+
   const deleteNotification = async (id: string) => {
+    if (!confirm("Bạn có chắc muốn xóa thông báo này?")) return; // ✅ confirm trước
     try {
       await api.delete(`/notifications/${id}`);
       setNotifications((prev) => prev.filter((n) => n.id !== id));
@@ -153,11 +156,25 @@ export default function NotificationBell() {
     if (page > 1) fetchNotifications(page);
   }, [page]);
 
-  // Lấy setting từ API khi mở modal
+  // 🔹 Đóng popup khi click ra ngoài
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+        setIsNotifOpen(false);
+      }
+    };
+    if (isNotifOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isNotifOpen]);
+
   const openSettingsModal = async () => {
     try {
       const res = await api.get("/notifications/settings");
-      setSettings(res.data.data.settings); // giả sử API trả về đúng kiểu NotificationSettings
+      setSettings(res.data.data.settings);
       setIsSettingOpen(true);
     } catch (err) {
       console.error("Lấy cài đặt thất bại:", err);
@@ -200,7 +217,7 @@ export default function NotificationBell() {
 
       {/* Notification dropdown */}
       {isNotifOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-50">
+        <div ref={popupRef} className="absolute right-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-50">
           <div className="flex justify-between items-center p-2 border-b font-semibold">
             Thông báo
             {unreadCount > 0 && (
@@ -261,7 +278,7 @@ export default function NotificationBell() {
             </div>
             <div className="space-y-3">
               {Object.entries(settings)
-                .filter(([key]) => key !== "id" && key !== "user_id") // bỏ id và user_id
+                .filter(([key]) => key !== "id" && key !== "user_id")
                 .map(([key, value]) => (
                   <label key={key} className="flex items-center gap-2">
                     <input

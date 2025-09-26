@@ -47,10 +47,10 @@ export default function PerformanceTable() {
         `/tasks/performance/completion-volume?start_date=${startDate}&end_date=${endDate}`
       );
 
-      if (result.data.statusCode === "10000") {
-        setData(result.data.data);
-        setData2(result2.data.data);
-      }
+
+      setData(result.data.data);
+      setData2(result2.data.data);
+
     } catch (error) {
       console.error(error);
     } finally {
@@ -70,6 +70,7 @@ export default function PerformanceTable() {
   useEffect(() => {
     fetchPerformance();
   }, []);
+  console.log(data2);
 
   return (
     <div className="p-6 bg-white rounded-xl shadow">
@@ -148,22 +149,36 @@ export default function PerformanceTable() {
               <TableRow>
                 <TableHead>STT</TableHead>
                 <TableHead>Người thực hiện</TableHead>
+                {/* <TableHead>Assignee ID</TableHead> */}
+                <TableHead>Tổng số task</TableHead>
+                <TableHead>Tổng giờ ước lượng</TableHead>
                 <TableHead>Tổng giờ thực tế</TableHead>
-                <TableHead>Giờ TB</TableHead>
+                <TableHead>Giờ TB ước lượng</TableHead>
+                <TableHead>Giờ TB thực tế</TableHead>
+                <TableHead>Giờ ước lượng đã hoàn thành</TableHead>
+                <TableHead>Giờ thực tế đã hoàn thành</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data2.map((item, i) => (
-                <TableRow key={item.assignee_id}>
+                <TableRow key={item.assignee_id ?? i}>
                   <TableCell>{i + 1}</TableCell>
-                  <TableCell>{item.assignee_name}</TableCell>
+                  <TableCell>{item.assignee_name ?? "-"}</TableCell>
+                  {/* <TableCell>{item.assignee_id ?? "-"}</TableCell> */}
+                  <TableCell>{item.total_tasks ?? "-"}</TableCell>
+                  <TableCell>{item.total_estimated_hours ?? "-"}</TableCell>
                   <TableCell>{item.total_actual_hours ?? "-"}</TableCell>
+                  <TableCell>{item.avg_estimated_hours ?? "-"}</TableCell>
                   <TableCell>{item.avg_actual_hours ?? "-"}</TableCell>
+                  <TableCell>{item.completed_estimated_hours ?? "-"}</TableCell>
+                  <TableCell>{item.completed_actual_hours ?? "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TabsContent>
+
+
       </Tabs>
 
       {/* Dialog chi tiết user */}
