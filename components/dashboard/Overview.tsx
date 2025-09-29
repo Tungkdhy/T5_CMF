@@ -53,6 +53,12 @@ export default function Overview() {
       color: "bg-yellow-500",
     },
     {
+      title: "Cần làm",
+      value: overviewData.tasks?.new,
+      icon: Package,
+      color: "bg-purple-500",
+    },
+    {
       title: "Đang làm",
       value: overviewData.tasks?.in_progress,
       icon: Clock,
@@ -64,12 +70,7 @@ export default function Overview() {
       icon: CheckCircle,
       color: "bg-green-500",
     },
-    {
-      title: "Nhiệm vụ được giao",
-      value: overviewData.tasks?.new,
-      icon: Package,
-      color: "bg-purple-500",
-    },
+
   ];
 
   const taskChartData = [

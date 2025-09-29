@@ -56,7 +56,9 @@ export async function createTasks({
   category_id,
   team_id,
   progress_percent,
-  assignee_id
+  assignee_id,
+  actual_hours,
+  estimated_hours
 }: {
   title: string;
   description: string;
@@ -65,10 +67,13 @@ export async function createTasks({
   end_date?: string;
   due_date?: string;
   priority_id?: string;
-  category_id?:string;
-  team_id?:string;
-  progress_percent?:string,
-  assignee_id?:string
+  category_id?: string;
+  team_id?: string;
+  progress_percent?: string,
+  assignee_id?: string,
+  actual_hours?: number | string,
+  estimated_hours?: number | string
+
 }) {
   const payload: any = {};
 
@@ -83,6 +88,8 @@ export async function createTasks({
   if (team_id) payload.team_id = team_id;
   if (progress_percent) payload.progress_percent = progress_percent;
   if (assignee_id) payload.assignee_id = assignee_id;
+  if (actual_hours) payload.actual_hours = actual_hours;
+  if (estimated_hours) payload.estimated_hours = estimated_hours;
   // if (assignee_id) payload.assignee_id = assignee_id;
   const res = await api.post("/tasks", payload);
   return res.data;
@@ -98,9 +105,11 @@ export async function updateTask(
     due_date,
     priority_id,
     assignee_id,
-     category_id,
-     team_id,
-      progress_percent
+    category_id,
+    team_id,
+    progress_percent,
+    actual_hours,
+    estimated_hours
   }: {
     title?: string;
     description?: string;
@@ -112,8 +121,10 @@ export async function updateTask(
     assignee_id?: string;
     category_id?: string;
     team_id?: string;
-    progress_percent?:string,
-    
+    progress_percent?: string,
+    actual_hours?: number | string,
+    estimated_hours?: number | string
+
   }
 ) {
   // tạo payload chỉ chứa field có giá trị
@@ -130,6 +141,8 @@ export async function updateTask(
   if (category_id) payload.category_id = category_id;
   if (team_id) payload.team_id = team_id;
   if (progress_percent) payload.progress_percent = progress_percent;
+  if (actual_hours) payload.actual_hours = actual_hours;
+  if (estimated_hours) payload.estimated_hours = estimated_hours;
 
   const res = await api.put(`/tasks/${id}`, payload);
   return res.data;
@@ -151,9 +164,9 @@ export async function sendNotificationProcess(data: any) {
   const res = await api.post(`/notifications/send-progress-update`, data);
   return res.data;
 }
-export async function getCompletionOverview(data:any) {
-  const res = await api.get("/dashboard/completion/overview",{
-    params:{
+export async function getCompletionOverview(data: any) {
+  const res = await api.get("/dashboard/completion/overview", {
+    params: {
       ...data
     }
   })

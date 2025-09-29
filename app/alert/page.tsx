@@ -224,7 +224,6 @@ export default function AlertManagement() {
                     </TableHeader>
                     <TableBody>
                         {filteredAlerts
-                            .slice((pageIndex - 1) * pageSize, pageIndex * pageSize)
                             .map((a, i) => (
                                 <TableRow key={a.id}>
                                     <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>

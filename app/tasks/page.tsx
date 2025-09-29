@@ -78,6 +78,8 @@ interface Task {
   team_id?: string,
   progress_percent?: string,
   attachments?: any[],
+  actual_hours?: number | string,
+  estimated_hours?: number | string,
 }
 
 interface Column {
@@ -290,6 +292,9 @@ export default function TasksPage() {
     category_task: "",
     team_id: "",
     attachments: [],
+    progress_percent: '0',
+    actual_hours: 0,
+    estimated_hours: 0
   });
 
   const onDragEnd = async (result: any) => {
@@ -393,7 +398,9 @@ export default function TasksPage() {
         })
       } else {
         setEditingTask(null);
-        setFormData({
+        setFormData(prev => ({
+          ...prev,
+
           title: "",
           startDate: "",
           endDate: "",
@@ -403,9 +410,10 @@ export default function TasksPage() {
           description: "",
           image: "",
           sender: "",
-          receiver: "",
+          // receiver: "",
           priority_id: ""
-        });
+
+        }));
       }
       setOpen(true);
     }
@@ -431,10 +439,14 @@ export default function TasksPage() {
           team_id: formData.team_id,
           progress_percent: formData.progress_percent,
           assignee_id: formData.receiver,
+          actual_hours: formData.actual_hours,
+          estimated_hours: formData.estimated_hours
 
         });
         setOpen(false);
         setFormData((prev) => ({ ...prev, reload: !prev.reload }))
+        showAlert("Cập nhập nhiệm vụ thành công", "success")
+
         // if (formData.receiver && formData.receiver !== editingTask.receiver) {
         //   await sendNotification({
         //     task_id: editingTask.id,
@@ -471,6 +483,8 @@ export default function TasksPage() {
           team_id: formData.team_id,
           progress_percent: formData.progress_percent,
           assignee_id: formData.receiver,
+          actual_hours: formData.actual_hours,
+          estimated_hours: formData.estimated_hours
         });
         // if (formData.receiver) {
         //   await sendNotification({
@@ -587,6 +601,14 @@ export default function TasksPage() {
     try {
       const res = await getStaff({ pageSize: 1000, pageIndex: 1 });
       setStaff(res.data.data.rows);
+      if (res.data.data.rows.length > 0) {
+        setFormData((prev) => ({
+          ...prev,
+          receiver: res.data.data.rows[0].id
+        }))
+        // console.log(res.data.data.rows[0].id);
+
+      }
     } catch (err: any) {
       showAlert(err.response.data.message, "error");
     }
@@ -594,6 +616,8 @@ export default function TasksPage() {
   useEffect(() => {
     fetchStaff();
   }, [])
+  console.log(formData);
+
   return (
     <div className="p-3 bg-gray-50 min-h-screen">
       {message && (
@@ -926,6 +950,31 @@ export default function TasksPage() {
                     }
                   />
                 </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="mb-2">Giờ ước tính (giờ)</Label>
+                  <Input
+                    type="number"
+                    className="w-full block min-w-0"
+                    value={formData.estimated_hours}
+                    onChange={(e) =>
+                      setFormData({ ...formData, estimated_hours: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2">Giờ thực tế (giờ)</Label>
+                  <Input
+                    className="w-full block min-w-0"
+                    type="number"
+                    value={formData.actual_hours}
+                    onChange={(e) =>
+                      setFormData({ ...formData, actual_hours: e.target.value })
+                    }
+                  />
+                </div>
+
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -1291,7 +1340,7 @@ export default function TasksPage() {
               <>
                 {/* Nút toggle */}
                 <div className="mt-2 " style={{ justifyContent: 'space-between', display: "flex", alignItems: "center" }}>
-                   <Label className="mb-2 font-semibold flex items-center gap-2">Bình luận</Label>
+                  <Label className="mb-2 font-semibold flex items-center gap-2">Bình luận</Label>
                   <Button
                     variant="outline"
                     size="sm"

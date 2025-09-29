@@ -38,6 +38,8 @@ export function mapTasksToBoard(data: any) {
       parent_task_id: t.parent_task_id,
       subTasks: [],
       progress_percent:t.progress_percent,
+      actual_hours:t.actual_hours,
+      estimated_hours:t.estimated_hours,
       sender: t.sender_id,
       author_name:t.author_name
       
