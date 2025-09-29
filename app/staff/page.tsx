@@ -231,7 +231,7 @@ export default function UserManagement() {
         level: res4.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         level_tckgm: res5.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         team_tccs: res9.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
-        roles: res6.data.data.roles,
+        roles: res6.data.data.rows,
         unit: res7.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
         organization: res8.data.rows.map((item: any) => ({ value: item.id, label: item.display_name })),
       });

@@ -48,7 +48,7 @@ export default function RoleManagement() {
     const [status, setStatus] = useState<"success" | "error" | null>(null);
     const [message, setMessage] = useState<string | null>(null);
 
-    const pageSize = 100;
+    const pageSize = 10;
 
     const showAlert = (msg: string, type: "success" | "error") => {
         setMessage(msg);
@@ -59,10 +59,10 @@ export default function RoleManagement() {
         }, 3000);
     };
 
-    const fetchRoles = async (page: number) => {
+    const fetchRoles = async (page: number,searchTerm:any) => {
         try {
-            const res = await getRole({ pageSize, pageIndex: page });
-            setRoles(res.data.roles);
+            const res = await getRole({ pageSize, pageIndex: page,name: searchTerm});
+            setRoles(res.data.rows);
             setTotalPages(Math.ceil(res.data.count / pageSize));
         } catch (err: any) {
             // console.error(err);
@@ -104,7 +104,7 @@ export default function RoleManagement() {
             }
             setIsModalOpen(false);
             setEditingRole(null);
-            fetchRoles(pageIndex);
+            fetchRoles(pageIndex,searchTerm);
         }
         catch (err: any) {
             // console.error(err);
@@ -132,7 +132,7 @@ export default function RoleManagement() {
         try {
             await deleteRole(id);
             showAlert("Xóa role thành công", "success");
-            fetchRoles(pageIndex);
+            fetchRoles(pageIndex,searchTerm);
         }
         catch (err: any) {
             // console.error(err);
@@ -141,8 +141,8 @@ export default function RoleManagement() {
     };
 
     useEffect(() => {
-        fetchRoles(pageIndex);
-    }, [pageIndex]);
+        fetchRoles(pageIndex,searchTerm);
+    }, [pageIndex,searchTerm]);
     useEffect(() => {
         fetchActions();
     }, []);
@@ -241,7 +241,7 @@ export default function RoleManagement() {
                 </Table>
 
                 {/* Phân trang */}
-                {/* <div className="flex items-center justify-end mt-4 space-x-2">
+                <div className="flex items-center justify-end mt-4 space-x-2">
                     <Button
                         size="sm"
                         variant="outline"
@@ -263,7 +263,7 @@ export default function RoleManagement() {
                     >
                         <ChevronRight className="w-4 h-4" />
                     </Button>
-                </div> */}
+                </div>
             </div>
 
             {/* Modal thêm/sửa */}

@@ -102,11 +102,13 @@ export async function getRole({
     name?: string;
     visible?: boolean;
 }) {
+    const search = name ? {search:name}:{}
     //   const visibleCheck = visible !== undefined ? { visible } : {};
     const res = await api.get("/role",{
         params:{
             pageSize,
-            pageIndex
+            pageIndex,
+            ...search
         }
     });
     return res.data;

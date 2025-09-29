@@ -98,7 +98,7 @@ export default function UserManagement() {
     const fetchRoles = async () => {
       try {
         const res = await getAllRoles({ pageSize:10000, pageIndex });
-        setRoles(res.data.data.roles);
+        setRoles(res.data.data.rows);
 
       } catch (err:any) {
         showAlert(err.response.data.message, "error");
