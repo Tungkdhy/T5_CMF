@@ -27,7 +27,11 @@ import {
   Target,
   Database,
   AlertCircle,
-  RollerCoaster
+  RollerCoaster,
+  AlertCircleIcon,
+  BatteryWarning,
+  Laptop,
+  FileWarning
 } from "lucide-react";
 import {
   Sidebar,
@@ -109,7 +113,7 @@ function Layout({ children }: { children: ReactNode }) {
     { id: "category_type", title: "Loại danh mục", icon: <Layers className="w-5 h-5" />, href: "/category_type" },
     {
       id: "target",
-      title: "Mục tiêu tác chiến",
+      title: "Danh sách mục tiêu TCTT",
       icon: <RefreshCcw className="w-5 h-5" />,
       href: "/target",
     },
@@ -227,7 +231,7 @@ function Layout({ children }: { children: ReactNode }) {
         {
           id: "device_manager",
           title: "Danh sách trang thiết bị quản lý",
-          icon: <Cpu className="w-5 h-5" />,
+          icon: <Laptop className="w-5 h-5" />,
           href: "/manager_device",
         },
         {
@@ -238,25 +242,25 @@ function Layout({ children }: { children: ReactNode }) {
         },
         {
           id: "document",
-          title: "Quản lý tài liệu",
+          title: "Danh sách tài liệu trên hệ  thống",
           icon: <BookAIcon className="w-5 h-5" />,
           href: "/document",
         },
         {
           id: "collected_data",
-          title: "Dữ liệu thu thập",
+          title: "Danh sách dữ liệu thu thập từ tác chiến",
           icon: <Database className="w-5 h-5" />,
           href: "/collected_data",
         },
         {
           id: "link",
-          title: "Quản lý liên kết",
+          title: "Quản lý liên kết với các hệ thống khác",
           icon: <Paperclip className="w-5 h-5" />,
           href: "/link",
         },
         {
           id: "target",
-          title: "Mục tiêu tác chiến",
+          title: "Danh sách mục tiêu TCTT",
           icon: <Target className="w-5 h-5" />,
           href: "/target",
         },
@@ -268,14 +272,14 @@ function Layout({ children }: { children: ReactNode }) {
         },
         {
           id: "warning",
-          title: "Cảnh báo hệ thống",
+          title: " Cảnh báo trạng thái hoạt động của máy chủ hệ thống",
           icon: <AlertCircle className="w-5 h-5" />,
           href: "/warning",
         },
         {
           id: "alert",
-          title: "Cảnh báo mất an toàn thông tin",
-          icon: <AlertCircle className="w-5 h-5" />,
+          title: "Danh sách dấu hiệu mất an toàn thông tin",
+          icon: <FileWarning className="w-5 h-5" />,
           href: "/alert",
         },
         {

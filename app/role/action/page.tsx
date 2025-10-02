@@ -230,7 +230,7 @@ export default function ActionManagement() {
                             <TableHead>Tên hiển thị</TableHead>
                             <TableHead>Phương thức</TableHead>
                             <TableHead>Mô tả</TableHead>
-                            <TableHead>Hoạt động</TableHead>
+                            {/* <TableHead>Hoạt động</TableHead> */}
                             <TableHead className="w-[150px]">Hành động</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -380,7 +380,7 @@ export default function ActionManagement() {
                                     }
                                 />
                             </div>
-                            <div className="flex items-center gap-2">
+                            {/* <div className="flex items-center gap-2">
                                 <Label>Hoạt động</Label>
                                 <Switch
                                     checked={formData.is_active}
@@ -388,7 +388,7 @@ export default function ActionManagement() {
                                         handleChange("is_active", checked)
                                     }
                                 />
-                            </div>
+                            </div> */}
                         </div>
 
                         <div className="flex justify-end gap-2 p-4 border-t">

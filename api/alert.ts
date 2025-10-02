@@ -69,12 +69,14 @@ export async function updateAlert(
         description,
         severity,
         status,
+        alert_type
 
     }: {
         title: string;
         description: string;
         severity: string;
         status: string;
+        alert_type:string;
 
     }
 ) {
@@ -83,6 +85,7 @@ export async function updateAlert(
         description,
         severity,
         status,
+        alert_type
 
     });
     return res.data;

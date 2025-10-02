@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import { deleteAlert, getAlerts, updateAlert } from "@/api/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 // Giả lập API gọi alert
 // file chứa data bạn đưa ở trên
 
@@ -47,6 +48,7 @@ interface AlertItem {
     status: string;
     alert_type: string;
     created_at: string;
+    updated_at:string
 }
 
 export default function AlertManagement() {
@@ -64,6 +66,7 @@ export default function AlertManagement() {
         status: "new",
         alert_type: "",
         created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
     });
 
     const [status, setStatus] = useState<"success" | "error" | null>(null);
@@ -101,12 +104,13 @@ export default function AlertManagement() {
     const handleSave = async () => {
         if (editingAlert) {
             // update
-            await updateAlert(editingAlert.id,{
+            await updateAlert(editingAlert.id, {
                 title: formData.title,
                 description: formData.description,
                 severity: formData.severity,
                 status: formData.status,
-               
+                alert_type: formData.alert_type
+
             })
             showAlert("Cập nhật alert thành công", "success");
         } else {
@@ -219,6 +223,7 @@ export default function AlertManagement() {
                             <TableHead>Mức độ</TableHead>
                             <TableHead>Trạng thái</TableHead>
                             <TableHead>Loại</TableHead>
+                            <TableHead>Thời gian</TableHead>
                             <TableHead className="w-[150px]">Hành động</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -232,6 +237,8 @@ export default function AlertManagement() {
                                     <TableCell>{a.severity}</TableCell>
                                     <TableCell>{a.status}</TableCell>
                                     <TableCell>{a.alert_type}</TableCell>
+                                    <TableCell>{new Date(a.updated_at ?? "").toLocaleDateString("en-GB")}</TableCell>
+
                                     <TableCell className="flex gap-2 justify-end">
                                         <Button
                                             size="sm"
@@ -340,20 +347,47 @@ export default function AlertManagement() {
                                 />
                             </div>
                             <div>
-                                <Label className="mb-3">Severity</Label>
-                                <Input
-                                    value={formData.severity}
-                                    onChange={(e) =>
-                                        handleChange("severity", e.target.value)
-                                    }
-                                />
+                                <div>
+                                    <Label className="mb-3">Trạng thái</Label>
+                                    <Select
+                                        value={formData.severity}
+                                        onValueChange={(value: any) => handleChange("severity", value)}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Chọn trạng thái" />
+                                        </SelectTrigger>
+                                        {/* low, medium, high, critical */}
+                                        <SelectContent>
+                                            <SelectItem value="low">Low</SelectItem>
+                                            <SelectItem value="medium">Medium</SelectItem>
+                                            <SelectItem value="high">High</SelectItem>
+                                            <SelectItem value="critical">Critical</SelectItem>
+                                            {/* <SelectItem value="resolved">Resolved</SelectItem>
+                                            <SelectItem value="dismissed">Dismissed</SelectItem> */}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                             <div>
-                                <Label className="mb-3">Status</Label>
-                                <Input
-                                    value={formData.status}
-                                    onChange={(e) => handleChange("status", e.target.value)}
-                                />
+                                <div>
+                                    <Label className="mb-3">Trạng thái</Label>
+                                    <Select
+                                        value={formData.status}
+                                        onValueChange={(value: any) => handleChange("status", value)}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue placeholder="Chọn trạng thái" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="new">New</SelectItem>
+                                            <SelectItem value="investigating">Investigating</SelectItem>
+                                            <SelectItem value="confirmed">Confirmed</SelectItem>
+                                            <SelectItem value="false_positive">False Positive</SelectItem>
+                                            <SelectItem value="resolved">Resolved</SelectItem>
+                                            <SelectItem value="dismissed">Dismissed</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                             <div>
                                 <Label className="mb-3">Alert Type</Label>

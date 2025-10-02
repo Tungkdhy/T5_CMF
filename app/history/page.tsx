@@ -17,6 +17,7 @@ interface Log {
     action_name: string;
     description: string | null;
     is_active: boolean;
+    created_at:string,
     user: {
         display_name: string;
         user_name: string;
@@ -51,7 +52,7 @@ export default function LogManagement() {
 
     const fetchLogs = async (page: number) => {
         try {
-            const res = await getLogs({ pageSize, pageIndex: page, searchTerm, logTypeId: "1"  });
+            const res = await getLogs({ pageSize, pageIndex: page, searchTerm, logTypeId: "1" });
             let filtered = res.data.rows;
 
             // if (searchTerm) {
@@ -140,6 +141,7 @@ export default function LogManagement() {
                             <TableHead>Hành động</TableHead>
                             <TableHead>Loại log</TableHead>
                             <TableHead>Mô tả</TableHead>
+                            <TableHead>Thời gian</TableHead>
                             <TableHead className="w-[150px]">Hành động</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -151,6 +153,7 @@ export default function LogManagement() {
                                 <TableCell>{log.action_name}</TableCell>
                                 <TableCell>{log.log_type?.display_name || "-"}</TableCell>
                                 <TableCell>{log.description || "-"}</TableCell>
+                               {new Date(log.created_at ?? "").toLocaleDateString("en-GB")}
                                 <TableCell className="flex gap-2 justify-end">
                                     <Button size="sm" variant="outline" onClick={() => setModalLog(log)}>
                                         Xem
