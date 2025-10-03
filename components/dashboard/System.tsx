@@ -23,9 +23,16 @@ export default function StatisticsDashboard() {
   const [statsData, setStatsData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // === Tính ngày mặc định ===
+  const today = new Date();
+  const endDateDefault = today.toISOString().split("T")[0];
+  const prevMonth = new Date();
+  prevMonth.setMonth(today.getMonth() - 1);
+  const startDateDefault = prevMonth.toISOString().split("T")[0];
+
   // filter state
-  const [startDate, setStartDate] = useState("2025-01-01");
-  const [endDate, setEndDate] = useState("2025-08-31");
+  const [startDate, setStartDate] = useState(startDateDefault);
+  const [endDate, setEndDate] = useState(endDateDefault);
   const [groupBy, setGroupBy] = useState("day");
 
   const fetchData = () => {
@@ -39,8 +46,6 @@ export default function StatisticsDashboard() {
         },
       })
       .then((res) => {
-        console.log(res.data);
-        
         setStatsData(res.data.data);
       })
       .catch((err) => {
@@ -76,40 +81,38 @@ export default function StatisticsDashboard() {
   return (
     <div className="space-y-6">
       {/* Bộ lọc */}
-      
-        <div className="flex flex-wrap gap-4 items-end">
-          <div>
-            <label className="block text-sm font-medium">Từ ngày</label>
-            <Input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Đến ngày</label>
-            <Input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Nhóm theo</label>
-            <Select value={groupBy} onValueChange={(v) => setGroupBy(v)}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Chọn group" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="day">Ngày</SelectItem>
-                <SelectItem value="week">Tuần</SelectItem>
-                <SelectItem value="month">Tháng</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <Button onClick={fetchData}>Lọc</Button>
+      <div className="flex flex-wrap gap-4 items-end">
+        <div>
+          <label className="block text-sm font-medium">Từ ngày</label>
+          <Input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
         </div>
-
+        <div>
+          <label className="block text-sm font-medium">Đến ngày</label>
+          <Input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Nhóm theo</label>
+          <Select value={groupBy} onValueChange={(v) => setGroupBy(v)}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Chọn group" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="day">Ngày</SelectItem>
+              <SelectItem value="week">Tuần</SelectItem>
+              <SelectItem value="month">Tháng</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <Button onClick={fetchData}>Lọc</Button>
+      </div>
 
       {/* Tổng quan */}
       <div className="grid grid-cols-3 gap-4">
@@ -118,7 +121,7 @@ export default function StatisticsDashboard() {
             <CardTitle>CPU trung bình</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">
-            {summary.avg_cpu_usage}%
+            {Math.round(summary.avg_cpu_usage)}%
           </CardContent>
         </Card>
         <Card>
@@ -126,7 +129,7 @@ export default function StatisticsDashboard() {
             <CardTitle>Memory trung bình</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">
-            {summary.avg_memory_usage}%
+            {Math.round(summary.avg_memory_usage)}%
           </CardContent>
         </Card>
         <Card>
@@ -134,7 +137,7 @@ export default function StatisticsDashboard() {
             <CardTitle>Disk trung bình</CardTitle>
           </CardHeader>
           <CardContent className="text-2xl font-bold">
-            {summary.avg_disk_usage}%
+            {Math.round(summary.avg_disk_usage)}%
           </CardContent>
         </Card>
         <Card>
@@ -241,9 +244,9 @@ export default function StatisticsDashboard() {
                     <TableCell>{row.create_activities}</TableCell>
                     <TableCell>{row.update_activities}</TableCell>
                     <TableCell>{row.delete_activities}</TableCell>
-                    <TableCell>{row.avg_cpu_usage}%</TableCell>
-                    <TableCell>{row.avg_memory_usage}%</TableCell>
-                    <TableCell>{row.avg_disk_usage}%</TableCell>
+                    <TableCell>{Math.round(row.avg_cpu_usage)}%</TableCell>
+                    <TableCell>{Math.round(row.avg_memory_usage)}%</TableCell>
+                    <TableCell>{Math.round(row.avg_disk_usage)}%</TableCell>
                   </TableRow>
                 ))
               )}

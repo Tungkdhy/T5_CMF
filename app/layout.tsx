@@ -31,7 +31,8 @@ import {
   AlertCircleIcon,
   BatteryWarning,
   Laptop,
-  FileWarning
+  FileWarning,
+  Eraser
 } from "lucide-react";
 import {
   Sidebar,
@@ -288,6 +289,7 @@ function Layout({ children }: { children: ReactNode }) {
           icon: <FileText className="w-5 h-5" />,
           href: "/log",
         },
+        // category/SYSTEM_CODE
         {
           id: "access_history",
           title: "Lịch sử truy cập",
@@ -305,6 +307,12 @@ function Layout({ children }: { children: ReactNode }) {
           title: "Hiệu suất thực hiện TCCS",
           icon: <Zap className="w-5 h-5" />,
           href: "/work_performance", // 👈 cho hết vào đây làm submenu
+        },
+         {
+          id: "error",
+          title: "Quản lý mã lỗi hệ thống",
+          icon: <Eraser className="w-5 h-5" />,
+          href: "/category/SYSTEM_CODE", // 👈 cho hết vào đây làm submenu
         },
         {
           id: "category",
