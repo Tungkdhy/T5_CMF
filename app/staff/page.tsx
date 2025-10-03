@@ -214,7 +214,7 @@ export default function UserManagement() {
   };
   const fetchSelect = async (page: number) => {
     try {
-      const res = await getCategory({ pageSize: 1000, pageIndex: page, scope: "SKILL" });
+      const res = await getCategory({ pageSize: 1000, pageIndex: page, scope: "SPECIALIZED_SKILLS" });
       const res2 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "INTERNATIONAL_CERTIFICATE" });
       const res3 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "POSITION" });
       const res4 = await getCategory({ pageSize: 1000, pageIndex: page, scope: "LEVEL" });
