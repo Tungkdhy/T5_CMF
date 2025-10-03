@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, Plus, Edit, Trash2, X, XCircle, CheckCircle } from "lucide-react";
+import { Search, Plus, Edit, Trash2, X, XCircle, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,8 @@ interface Report {
 export default function ReportManagementPage() {
     const [reports, setReports] = useState<Report[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
+     const [pageIndex, setPageIndex] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingReport, setEditingReport] = useState<Report | null>(null);
     const [level, setLevel] = useState<any>([])
@@ -148,7 +150,7 @@ export default function ReportManagementPage() {
     const downloadFile = async (fileUrl: string, filename: string) => {
         try {
             console.log(fileUrl);
-            
+
             const token = localStorage.getItem("accessToken");
             if (!token) return;
 
@@ -177,13 +179,14 @@ export default function ReportManagementPage() {
         const fetchReports = async () => {
             const data = await getReport({
                 pageSize: 10,
-                pageIndex: 1,
+                pageIndex: pageIndex,
                 name: searchTerm,
             });
             setReports(data.data.rows);
+            setTotalPages(Math.ceil(data.data.count/10))
         };
         fetchReports();
-    }, [searchTerm, reload]);
+    }, [searchTerm, reload,pageIndex]);
     useEffect(() => {
         const fetchLevel = async () => {
             const data = await getCategory({
@@ -335,6 +338,29 @@ export default function ReportManagementPage() {
                                 ))}
                             </tbody>
                         </table>
+                        <div className="flex items-center justify-end mt-4 space-x-2">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={pageIndex === 1}
+                                onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
+                                className="p-1"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </Button>
+                            <span className="flex items-center px-2">
+                                Trang {pageIndex} / {totalPages}
+                            </span>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={pageIndex === totalPages}
+                                onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
+                                className="p-1"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </Button>
+                        </div>
                     </div>
 
                     {reports.length === 0 && (

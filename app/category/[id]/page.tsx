@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Search, Plus, Edit, Trash2, X, XCircle } from 'lucide-react';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { CheckCircle, AlertCircle } from "lucide-react"
+import { CheckCircle, ChevronLeft, ChevronRight } from "lucide-react"
 import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,7 +50,8 @@ export default function CategoryManagementPage() {
     const [open2, setOpen2] = useState(false)
     const [categories, setCategories] = useState<Category[]>([
     ]);
-
+    const [pageIndex, setPageIndex] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
     const [categoryTypes, setCategoryTypes] = useState<any>([]);
     const [filterType, setFilterType] = useState<string>('id');
@@ -100,7 +101,7 @@ export default function CategoryManagementPage() {
             value: data.value,
             // category_type_id: getIdByScope(id as string, categoryTypes),
             id: data.id,
-            data:data.data
+            data: data.data
         }))
         setIsModalOpen(true);
         // setEditingCategory(data);
@@ -235,17 +236,19 @@ export default function CategoryManagementPage() {
             const fetchCategories = async () => {
                 const data = await getCategory({
                     pageSize: 10,
-                    pageIndex: 1,
+                    pageIndex: pageIndex,
                     scope: id_scope,
                     name: searchTerm, // truyền thêm name
                 });
                 setCategories(data.data.rows);
+                setTotalPages(Math.ceil(data.data.count / 10));
+
             };
             fetchCategories();
         }, 500); // 500ms debounce
 
         return () => clearTimeout(delayDebounce); // clear nếu user tiếp tục gõ
-    }, [id_scope, formData.reload, searchTerm]);
+    }, [id_scope, formData.reload, searchTerm,pageIndex]);
     return (
         <div className="min-h-screen bg-gray-50 p-3">
             {message && (
@@ -423,6 +426,29 @@ export default function CategoryManagementPage() {
                                 ))}
                             </tbody>
                         </table>
+                        <div className="flex items-center justify-end mt-4 space-x-2">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={pageIndex === 1}
+                                onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
+                                className="p-1"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </Button>
+                            <span className="flex items-center px-2">
+                                Trang {pageIndex} / {totalPages}
+                            </span>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={pageIndex === totalPages}
+                                onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
+                                className="p-1"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </Button>
+                        </div>
                     </div>
 
                     {categories.length === 0 && (
