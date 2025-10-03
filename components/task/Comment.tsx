@@ -64,7 +64,7 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", filename ?? "" );
+      link.setAttribute("download", filename ?? "");
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -86,7 +86,8 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
       editInputRef.current.focus();
     }
   }, [editVisible]);
-
+  console.log(localStorage.getItem("user"));
+  
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-start gap-3">
@@ -112,7 +113,7 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
                 // target="_blank"
                 rel="noopener noreferrer"
                 className=" text-blue-600 hover:underline flex items-center gap-1"
-                onClick={(e)=>downloadFile(comment.document_url,comment.document_url)}
+                onClick={(e) => downloadFile(comment.document_url, comment.document_url)}
               >
                 📎 {comment.document_url}
               </a>
@@ -123,7 +124,9 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
           {/* Icon hành động */}
           <div className="flex gap-3 mt-1 text-gray-500 text-xs">
             <button onClick={() => setReplyVisible(!replyVisible)}>💬 Trả lời</button>
-            <button onClick={() => setEditVisible(!editVisible)}>✏️ Sửa</button>
+            {
+              localStorage.getItem("user") === `"${comment.user_id}"` && <button onClick={() => setEditVisible(!editVisible)}>✏️ Sửa</button>
+            }
           </div>
         </div>
       </div>
