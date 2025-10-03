@@ -275,7 +275,7 @@ export default function UserManagement() {
 
       // 4. Ghi workbook ra buffer Excel
       const excelBuffer = XLSX.write(newWorkbook, {
-        bookType: "xlsx",
+        bookType: "csv",
         type: "array",
       });
 
@@ -283,7 +283,7 @@ export default function UserManagement() {
       const blob = new Blob([excelBuffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       });
-      saveAs(blob, "tham_so_he_thong.xlsx");
+      saveAs(blob, "tham_so_he_thong.csv");
 
 
     } catch (err:any) {
