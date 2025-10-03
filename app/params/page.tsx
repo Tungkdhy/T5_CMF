@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import api from "@/api/base";
 import { getCategory } from "@/api/categor";
 import { exportExcel } from "@/api/excel";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // ---- Types ----
 interface Config {
@@ -71,6 +72,7 @@ export default function ConfigManagement() {
   const [newConfig, setNewConfig] = useState<Partial<Config>>({ data: {} });
   const [status, setStatus] = useState<"success" | "error" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [unit, setUnit] = useState<any>([])
   const pageSize = 10;
 
   const showAlert = (msg: string, type: "success" | "error") => {
@@ -211,7 +213,19 @@ export default function ConfigManagement() {
       showAlert("Xuất Excel thất bại", "error");
     }
   };
+  const fetchStatus = async () => {
+    try {
+      const res = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "UNIT_OF_CALCULATION" });
 
+      setUnit(res.data.rows);
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  useEffect(() => {
+    fetchStatus();
+  }, [])
   // ---- Render ----
   return (
     <div className="min-h-screen bg-gray-50 p-3">
@@ -314,6 +328,7 @@ export default function ConfigManagement() {
           onCancel={handleCancelEdit}
           onSave={handleSaveEdit}
           onChange={handleChange}
+          unit={unit}
         />
       )}
 
@@ -325,6 +340,7 @@ export default function ConfigManagement() {
           onCancel={handleCancelAdd}
           onSave={handleSaveNew}
           onChange={handleNewChange}
+          unit={unit}
         />
       )}
     </div>
@@ -338,9 +354,10 @@ interface ModalFormProps {
   onCancel: () => void;
   onSave: () => void;
   onChange: (field: string, value: any, nested?: boolean) => void;
+  unit: any
 }
 
-function ModalForm({ title, config, onCancel, onSave, onChange }: ModalFormProps) {
+function ModalForm({ title, config, onCancel, onSave, onChange, unit }: ModalFormProps) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -380,8 +397,25 @@ function ModalForm({ title, config, onCancel, onSave, onChange }: ModalFormProps
             </div>
             <div>
               <Label className="mb-3">Đơn vị tính</Label>
-              <Input value={config.data?.unit ?? ""} onChange={(e) => onChange("unit", e.target.value, true)} />
+              <Select
+                value={config.data?.unit ?? ""}
+                onValueChange={(value: any) => onChange("unit", value, true)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Chọn đơn vị tính" />
+                </SelectTrigger>
+                {/* low, medium, high, critical */}
+                <SelectContent>
+                  {
+                    unit.map((item: any) => (<SelectItem key={item.id} value={item.value}>{item.display_name}</SelectItem>))
+                  }
+
+                  {/* <SelectItem value="resolved">Resolved</SelectItem>
+                                            <SelectItem value="dismissed">Dismissed</SelectItem> */}
+                </SelectContent>
+              </Select>
             </div>
+
           </div>
           <div>
             <Label className="mb-3">Giá trị hiển thị</Label>
