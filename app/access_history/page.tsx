@@ -134,10 +134,13 @@ export default function LogManagement() {
         }
     }
     // Lấy danh sách loại log duy nhất để lọc
+
+        
     const logTypes = Array.from(new Set(logs.map((l) => l.log_type?.display_name).filter(Boolean))) as string[];
     useEffect(() => {
         fetchStatus()
     }, []);
+       
     return (
         <div className="min-h-screen bg-gray-50 p-3">
             {message && (
@@ -167,6 +170,10 @@ export default function LogManagement() {
                             onChange={(e: any) => setSearchTerm(e.target.value)}
                         />
                     </div>
+                    <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+                        <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                        Xuất csv
+                    </Button>
                    
                 </div>
 

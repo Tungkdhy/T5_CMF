@@ -203,7 +203,7 @@ export default function DeviceManagementPage() {
                     <div className="flex gap-2">
                         <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
                             <FileSpreadsheet className="w-4 h-4 text-green-600" />
-                            Xuất Excel
+                            Xuất csv
                         </Button>
                         <Button onClick={() => {
                             setIsModalOpen(true)
