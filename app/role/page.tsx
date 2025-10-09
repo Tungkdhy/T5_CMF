@@ -272,7 +272,7 @@ export default function RoleManagement() {
                     <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl">
                         <div className="flex justify-between items-center p-4 border-b">
                             <h3 className="text-lg font-semibold">
-                                {editingRole ? "Sửa role" : "Thêm role"}
+                                {editingRole ? "Sửa quyền" : "Thêm quyền"}
                             </h3>
                             <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>
                                 <X className="w-5 h-5" />
@@ -281,7 +281,7 @@ export default function RoleManagement() {
 
                         <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                             <div>
-                                <Label className="mb-3">Tên role</Label>
+                                <Label className="mb-3">Tên quyền</Label>
                                 <Input
                                     value={formData.display_name}
                                     onChange={(e) => setFormData((p) => ({ ...p, display_name: e.target.value }))}
