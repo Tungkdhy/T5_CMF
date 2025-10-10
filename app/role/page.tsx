@@ -10,7 +10,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Giả lập API
-import { getRoles, createRole, updateRole, deleteRole, getRolesAction, createRoleAction, getRole, getDetail, updateRoleAction } from "@/api/role";
+import { getRoles, createRole, updateRole, deleteRole, getRolesAction, createRoleAction, getRole, getDetail, updateRoleAction, getUsersByRoleId } from "@/api/role";
 
 // 👉 giả lập danh sách quyền (sau bạn gọi API getActions)
 // const actions = [
@@ -33,11 +33,14 @@ interface Role {
 export default function RoleManagement() {
     const [roles, setRoles] = useState<any[]>([]);
     const [actions, setActions] = useState<any[]>([]);
+    const [usersInRole, setUsersInRole] = useState<any[]>([]);
     const [pageIndex, setPageIndex] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
     const [editingRole, setEditingRole] = useState<Role | null>(null);
+    const [currentRoleName, setCurrentRoleName] = useState<string>("");
     const [formData, setFormData] = useState<Omit<Role, "roleId">>({
         roleName: "",
         actionIds: [],
@@ -126,6 +129,17 @@ export default function RoleManagement() {
 
         catch (e) {
 
+        }
+    }
+
+    const handleViewUsersInRole = async (roleId: string, roleName: string) => {
+        try {
+            const res = await getUsersByRoleId(roleId);
+            setUsersInRole(res.data.users || []);
+            setCurrentRoleName(roleName);
+            setIsUsersModalOpen(true);
+        } catch (err: any) {
+            showAlert(err.response?.data?.message || "Lỗi khi tải danh sách người dùng", "error");
         }
     }
     const handleDelete = async (id: string) => {
@@ -227,6 +241,13 @@ export default function RoleManagement() {
                                     <Button
                                         size="sm"
                                         variant="outline"
+                                        onClick={() => handleViewUsersInRole(r.id, r.display_name)}
+                                    >
+                                        <Edit className="w-4 h-4" /> Xem người dùng
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
                                         onClick={() => handleGetDetailRole(r.id, r.display_name, r)}
                                     >
                                         <Edit className="w-4 h-4" /> Sửa
@@ -272,7 +293,7 @@ export default function RoleManagement() {
                     <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl">
                         <div className="flex justify-between items-center p-4 border-b">
                             <h3 className="text-lg font-semibold">
-                                {editingRole ? "Sửa quyền" : "Thêm quyền"}
+                                {editingRole ? "Sửa role" : "Thêm role"}
                             </h3>
                             <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>
                                 <X className="w-5 h-5" />
@@ -281,7 +302,7 @@ export default function RoleManagement() {
 
                         <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                             <div>
-                                <Label className="mb-3">Tên quyền</Label>
+                                <Label className="mb-3">Tên role</Label>
                                 <Input
                                     value={formData.display_name}
                                     onChange={(e) => setFormData((p) => ({ ...p, display_name: e.target.value }))}
@@ -350,6 +371,73 @@ export default function RoleManagement() {
                                 Hủy
                             </Button>
                             <Button onClick={handleSave}>{editingRole ? "Cập nhật" : "Thêm mới"}</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal danh sách users trong role */}
+            {isUsersModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center p-4 border-b">
+                            <h3 className="text-lg font-semibold">
+                                Danh sách người dùng thuộc quyền: {currentRoleName}
+                            </h3>
+                            <Button variant="ghost" size="sm" onClick={() => setIsUsersModalOpen(false)}>
+                                <X className="w-5 h-5" />
+                            </Button>
+                        </div>
+
+                        <div className="p-6">
+                            {usersInRole.length > 0 ? (
+                                <Table className="w-full">
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>STT</TableHead>
+                                            <TableHead>Tên đăng nhập</TableHead>
+                                            <TableHead>Tên hiển thị</TableHead>
+                                            <TableHead>Trạng thái</TableHead>
+                                            <TableHead>Online</TableHead>
+                                            <TableHead>Đơn vị</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {usersInRole.map((user, index) => (
+                                            <TableRow key={user.id}>
+                                                <TableCell>{index + 1}</TableCell>
+                                                <TableCell>{user.user_name}</TableCell>
+                                                <TableCell>{user.display_name}</TableCell>
+                                                <TableCell>
+                                                    <span className={`px-2 py-1 rounded text-xs ${
+                                                        user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                    }`}>
+                                                        {user.is_active ? 'Hoạt động' : 'Không hoạt động'}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className={`px-2 py-1 rounded text-xs ${
+                                                        user.is_online ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                                                    }`}>
+                                                        {user.is_online ? 'Online' : 'Offline'}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell>{user.unit_name || 'Chưa phân loại'}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            ) : (
+                                <div className="text-center py-8 text-gray-500">
+                                    Không có người dùng nào thuộc quyền này
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex justify-end gap-2 p-4 border-t">
+                            <Button variant="outline" onClick={() => setIsUsersModalOpen(false)}>
+                                Đóng
+                            </Button>
                         </div>
                     </div>
                 </div>
