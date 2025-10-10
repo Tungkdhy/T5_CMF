@@ -32,7 +32,8 @@ import {
   BatteryWarning,
   Laptop,
   FileWarning,
-  Eraser
+  Eraser,
+  Crosshair
 } from "lucide-react";
 import {
   Sidebar,
@@ -117,6 +118,12 @@ function Layout({ children }: { children: ReactNode }) {
       title: "Danh sách mục tiêu TCTT",
       icon: <RefreshCcw className="w-5 h-5" />,
       href: "/target",
+    },
+    {
+      id: "combat-targets",
+      title: "Mục tiêu tác chiến",
+      icon: <Crosshair className="w-5 h-5" />,
+      href: "/combat-targets",
     },
     {
       id: "backup",
@@ -264,6 +271,12 @@ function Layout({ children }: { children: ReactNode }) {
           title: "Danh sách mục tiêu TCTT",
           icon: <Target className="w-5 h-5" />,
           href: "/target",
+        },
+        {
+          id: "combat-targets",
+          title: "Mục tiêu tác chiến",
+          icon: <Crosshair className="w-5 h-5" />,
+          href: "/combat-targets",
         },
         {
           id: "backup",
