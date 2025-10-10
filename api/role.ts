@@ -158,3 +158,9 @@ export async function getDetail(id: string) {
     const res = await api.get(`/roles-actions/${id}`);
     return res.data;
 }
+
+// Lấy danh sách users theo role ID
+export async function getUsersByRoleId(roleId: string) {
+    const res = await api.get(`/role/${roleId}/users`);
+    return res.data;
+}
