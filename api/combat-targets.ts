@@ -26,7 +26,7 @@ export async function createCombatTarget(data: {
   combat_status: string;
   description?: string;
 //   type_target?: string;
-  target_tctt?: string;
+  type_target?: string;
 }) {
   return api.post("/targets-tctt", data);
 }
@@ -38,7 +38,7 @@ export async function updateCombatTarget(id: string, data: {
   combat_status?: string;
   description?: string;
 //   type_target?: string;
-  target_tctt?: string;
+  type_target?: string;
 }) {
   return api.put(`/targets-tctt/${id}`, data);
 }

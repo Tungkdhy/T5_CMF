@@ -97,7 +97,7 @@ export default function CombatTargetsPage() {
   const handleSave = async () => {
     try {
       // Loại bỏ các field _name khi gửi lên server
-      const { type_target_name, target_tctt_name,type_target,target_tctt, ...dataToSend } = formData;
+      const { type_target_name, target_tctt_name,target_tctt, ...dataToSend } = formData;
       
       if (editingTarget) {
         await updateCombatTarget(editingTarget.id, dataToSend);
@@ -200,7 +200,8 @@ export default function CombatTargetsPage() {
 
       <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Mục tiêu tác chiến</h1>
+          {/* <h1 className="text-2xl font-bold text-gray-800">Mục tiêu tác chiến</h1> */}
+          <div></div>
           <Button
             onClick={() => {
               setIsModalOpen(true);
@@ -220,7 +221,7 @@ export default function CombatTargetsPage() {
           </Button>
         </div>
 
-        <div className="flex items-center gap-3 mb-4">
+        {/* <div className="flex items-center gap-3 mb-4">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
@@ -239,11 +240,11 @@ export default function CombatTargetsPage() {
           <Button onClick={handleSearch} variant="outline">
             Tìm kiếm
           </Button>
-        </div>
+        </div> */}
 
-        <div className="mb-4 text-sm text-gray-600">
+        {/* <div className="mb-4 text-sm text-gray-600">
           Tổng số: <span className="font-semibold">{total}</span> mục tiêu
-        </div>
+        </div> */}
 
         <Table className="w-full table-auto">
           <TableHeader>
@@ -251,7 +252,7 @@ export default function CombatTargetsPage() {
               <TableHead className="w-[60px]">STT</TableHead>
               <TableHead>Tên mục tiêu</TableHead>
               <TableHead>URL mục tiêu</TableHead>
-              <TableHead>Loại mục tiêu</TableHead>
+              {/* <TableHead>Loại mục tiêu</TableHead> */}
               <TableHead>Hướng tác chiến</TableHead>
               <TableHead>Trạng thái</TableHead>
               <TableHead>Mô tả</TableHead>
@@ -282,7 +283,7 @@ export default function CombatTargetsPage() {
                     </a>
                   </TableCell>
                   <TableCell>{target.type_target_name || "-"}</TableCell>
-                  <TableCell>{target.target_tctt_name || "-"}</TableCell>
+                  {/* <TableCell>{target.target_tctt_name || "-"}</TableCell> */}
                   <TableCell>
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
@@ -411,12 +412,12 @@ export default function CombatTargetsPage() {
               <div>
                 <Label className="mb-1">Hướng tác chiến</Label>
                 <Select
-                  value={formData.target_tctt ?? ""}
-                  onValueChange={(val) => handleChange("target_tctt", val)}
+                  value={formData.type_target ?? ""}
+                  onValueChange={(val) => handleChange("type_target", val)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Chọn hướng tác chiến">
-                      {typeTargetTC?.find((x: any) => x.id === formData.target_tctt)?.display_name}
+                      {typeTargetTC?.find((x: any) => x.id === formData.type_target)?.display_name}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>

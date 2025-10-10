@@ -33,7 +33,7 @@ interface Device {
     description: string;
     unit_name?: string;
     device_group?: string;
-    date_created?: string,
+    created_at?: string,
     date_received?: string,
     device_type_name?: string,
     reload?: boolean;
@@ -57,7 +57,7 @@ export default function DeviceManagementPage() {
         description: "",
         reload: true,
         unit_name: "",
-        date_created: "",
+        created_at: "",
         date_received: ""
         // device_group: ""
     });
@@ -220,7 +220,7 @@ export default function DeviceManagementPage() {
                                 status: "active",
                                 description: "",
                                 reload: true,
-                                date_created: "",
+                                created_at: "",
                                 date_received: ""
                             })
                             setEditingDevice(null);
@@ -257,7 +257,7 @@ export default function DeviceManagementPage() {
                                 <TableCell>{d.device_type_name}</TableCell>
                                 <TableCell>{d.unit_name}</TableCell>
                                 <TableCell className="max-w-[200px] truncate whitespace-nowrap overflow-hidden">{d.description}</TableCell>
-                                <TableCell>{new Date(d.date_created ?? "").toLocaleDateString("en-GB")}</TableCell>
+                                <TableCell>{new Date(d.created_at ?? "").toLocaleDateString("en-GB")}</TableCell>
                                 <TableCell>{new Date(d.date_received ?? "").toLocaleDateString("en-GB")}</TableCell>
                                 <TableCell>{d.status === "active" ? "Hoạt động" : "Ngừng"}</TableCell>
                                 <TableCell className="flex gap-2 justify-end">
