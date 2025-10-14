@@ -25,7 +25,7 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip"
-import { Check, Search, ChevronDown, ChevronRight, X } from "lucide-react"
+import { Check, Search, ChevronDown, ChevronRight } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -54,6 +54,7 @@ import TaskAttachments from "@/components/file/File";
 import CommentItem from "@/components/task/Comment";
 import api from "@/api/base";
 import { createDocument } from "@/api/document";
+import { Upload, FileText, Paperclip } from "lucide-react";
 interface Task {
   id: string;
   title: string;
@@ -153,6 +154,8 @@ export default function TasksPage() {
   const [staff, setStaff] = useState<any[]>([]);
   const [comments, setComments] = useState<any[]>([])
   const [newComment, setNewComment] = useState("")
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [tasks, setTasks] = useState(initialTasks);
   const [columns, setColumns] = useState(initialColumns);
   const [status, setStatus] = useState<any[]>([{
@@ -542,9 +545,17 @@ export default function TasksPage() {
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
   const handleUpload = async (e: any) => {
     const files = e.target.files?.[0];
     if (files) {
+      setIsUploading(true);
       const formDataUpload = new FormData();
       formDataUpload.append("file", files);
       try {
@@ -554,19 +565,26 @@ export default function TasksPage() {
           },
         });
         const data = res.data.data;
-        // const documet = await createDocument({
-        //   "file_name": data.file_name,
-        //   "file_size": data.file_size,
-        //   "file_path": data.file_path,
-        //   "description": "Sample document"
-        // })
-        setIdDocument(data.file_path)
+        setIdDocument(data.file_path);
+        setSelectedFile(null);
+        // Reset file input
+        const fileInput = document.getElementById('file-input') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
       }
       catch (err) {
         console.error("Upload failed:", err);
+      } finally {
+        setIsUploading(false);
       }
     }
-  }
+  };
+
+  const removeSelectedFile = () => {
+    setSelectedFile(null);
+    setIdDocument("");
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
   useEffect(() => {
     setComments([])
     if (editingTask?.id) fetchComment(editingTask.id);
@@ -1376,11 +1394,81 @@ export default function TasksPage() {
                       </div>
 
                       {/* Upload file cho comment */}
-                      <input
-                        type="file"
-                        multiple
-                        onChange={handleUpload}
-                      />
+                      <div className="space-y-3">
+                        {/* File input với UI đẹp */}
+                        <div className="flex items-center gap-2">
+                          <label
+                            htmlFor="file-input"
+                            className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                          >
+                            <Paperclip className="w-4 h-4 text-gray-500" />
+                            <span className="text-sm text-gray-600">Chọn tệp đính kèm</span>
+                          </label>
+                          <input
+                            id="file-input"
+                            type="file"
+                            className="hidden"
+                            onChange={handleUpload}
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.zip,.rar"
+                          />
+                        </div>
+
+                        {/* Selected file preview */}
+                        {selectedFile && (
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <FileText className="w-5 h-5 text-blue-600" />
+                                <div>
+                                  <p className="text-sm font-medium text-blue-900">
+                                    {selectedFile.name}
+                                  </p>
+                                  <p className="text-xs text-blue-600">
+                                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {isUploading ? (
+                                  <div className="flex items-center gap-2 text-blue-600">
+                                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                                    <span className="text-sm">Đang tải...</span>
+                                  </div>
+                                ) : (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={removeSelectedFile}
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  >
+                                    <XCircle className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Uploaded file indicator */}
+                        {idDocument && (
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-2 h-2 bg-green-500 rounded-full" />
+                              <span className="text-sm text-green-800">
+                                Tệp đã được tải lên thành công
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={removeSelectedFile}
+                                className="ml-auto text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <XCircle className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </>
                 )}

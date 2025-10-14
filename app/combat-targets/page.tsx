@@ -355,7 +355,7 @@ export default function CombatTargetsPage() {
       {/* Modal thêm/sửa */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl">
             <div className="flex justify-between items-center p-4 border-b">
               <h3 className="text-lg font-semibold">
                 {editingTarget ? "Sửa mục tiêu tác chiến" : "Thêm mục tiêu tác chiến"}

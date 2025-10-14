@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FileText, Download, X } from "lucide-react";
 import axios from "axios";
 
 // Hàm tạo màu avatar từ tên
@@ -56,9 +57,8 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
       const response = await axios.get('http://10.10.53.58:3002/' + fileUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
-          // Accept: "application/octet-stream", // thường cần cho API download
         },
-        responseType: "blob", // quan trọng để nhận file nhị phân
+        responseType: "blob",
       });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -71,6 +71,41 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Download error:", error);
+    }
+  };
+
+  // Hàm lấy tên file từ URL
+  const getFileName = (url?: string) => {
+    if (!url) return "Tệp đính kèm";
+    const parts = url.split('/');
+    return parts[parts.length - 1] || "Tệp đính kèm";
+  };
+
+  // Hàm lấy icon theo loại file
+  const getFileIcon = (filename: string) => {
+    const ext = filename.split('.').pop()?.toLowerCase();
+    switch (ext) {
+      case 'pdf':
+        return '📄';
+      case 'doc':
+      case 'docx':
+        return '📝';
+      case 'xls':
+      case 'xlsx':
+        return '📊';
+      case 'ppt':
+      case 'pptx':
+        return '📽️';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+        return '🖼️';
+      case 'zip':
+      case 'rar':
+        return '📦';
+      default:
+        return '📎';
     }
   };
   // focus khi hiện ô reply
@@ -104,22 +139,37 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
           <span className="text-sm font-semibold">{comment.user_name}</span>
           <span className="text-sm text-gray-800">{comment.content}</span>
 
-          {
-            comment.document_url && <div className="mt-2 space-y-1">
-
-              <a
-                // key={idx}
-                // href={comment.document_url || "#"}
-                // target="_blank"
-                rel="noopener noreferrer"
-                className=" text-blue-600 hover:underline flex items-center gap-1"
-                onClick={(e) => downloadFile(comment.document_url, comment.document_url)}
-              >
-                📎 {comment.document_url}
-              </a>
-
+          {/* File đính kèm */}
+          {comment.document_url && (
+            <div className="mt-3">
+              <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="text-2xl">
+                      {getFileIcon(getFileName(comment.document_url))}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {getFileName(comment.document_url)}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Tệp đính kèm
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => downloadFile(comment.document_url, getFileName(comment.document_url))}
+                    className="ml-2 flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span className="hidden sm:inline">Tải về</span>
+                  </Button>
+                </div>
+              </div>
             </div>
-          }
+          )}
 
           {/* Icon hành động */}
           <div className="flex gap-3 mt-1 text-gray-500 text-xs">

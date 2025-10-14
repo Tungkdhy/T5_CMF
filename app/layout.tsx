@@ -44,6 +44,12 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { useRouter } from "next/navigation";
@@ -66,7 +72,7 @@ const geistMono = Geist_Mono({
 interface MenuItem {
   id: string;
   title: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   href?: string;
   badge?: number;
   children?: MenuItem[]; // Thêm thuộc tính children để hỗ trợ submenu  
@@ -188,59 +194,129 @@ function Layout({ children }: { children: ReactNode }) {
           href: "/",
         },
         {
-          id: "profile",
-          title: "Quản lý tài khoản",
-          icon: <User className="w-5 h-5" />,
-          href: "/user",
+          id: "user_management",
+          title: "Quản lý người dùng",
+          icon: <Users className="w-5 h-5" />,
+          children: [
+            {
+              id: "profile",
+              title: "Quản lý tài khoản",
+              href: "/user",
+            },
+            {
+              id: "staff",
+              title: "Danh sách cán bộ, nhân viên",
+              href: "/staff",
+            },
+          ],
         },
-        { id: "staff", title: "Danh sách cán bộ, nhân viên", icon: <Users className="w-5 h-5" />, href: "/staff" },
         {
-          id: "role",
-          title: "Phân quyền nhóm người sử dụng",
+          id: "role_management",
+          title: "Phân quyền",
           icon: <RollerCoaster className="w-5 h-5" />,
           children: [
             {
               id: "roles",
               title: "Danh sách quyền",
-              // icon: <Folder className="w-5 h-5" />,
-              href: "/role", // 👈 cho hết vào đây làm submenu
-            }, {
+              href: "/role",
+            },
+            {
               id: "action",
               title: "Danh sách hành động",
-              // icon: <Folder className="w-5 h-5" />,
-              href: "/role/action", // 👈 cho hết vào đây làm submenu
+              href: "/role/action",
             },
-          ], // 👈 cho hết vào đây làm submenu
+          ],
         },
         {
-          id: "category_task",
-          title: "Danh mục nhiệm vụ",
-          icon: <ClipboardList className="w-5 h-5" />,
-          href: "/category/MISSION",
-        },
-        {
-          id: "messages",
+          id: "task_management",
           title: "Quản lý nhiệm vụ",
           icon: <Clipboard className="w-5 h-5" />,
-          href: "/tasks",
+          children: [
+            {
+              id: "category_task",
+              title: "Danh mục nhiệm vụ",
+              href: "/category/MISSION",
+            },
+            {
+              id: "messages",
+              title: "Quản lý nhiệm vụ",
+              href: "/tasks",
+            },
+          ],
         },
         {
-          id: "bccs",
-          title: "Danh sách báo cáo chuyên sâu",
+          id: "reports_management",
+          title: "Báo cáo",
           icon: <FileText className="w-5 h-5" />,
-          href: "/reports",
+          children: [
+            {
+              id: "bccs",
+              title: "Danh sách báo cáo chuyên sâu",
+              href: "/reports",
+            },
+            {
+              id: "performance",
+              title: "Hiệu suất thực hiện TCCS",
+              href: "/work_performance",
+            },
+          ],
         },
         {
-          id: "device",
-          title: "Danh sách thiết bị tham gia mạng đơn vị",
+          id: "device_management",
+          title: "Quản lý thiết bị",
           icon: <Cpu className="w-5 h-5" />,
-          href: "/devices",
+          children: [
+            {
+              id: "device",
+              title: "Danh sách thiết bị tham gia mạng đơn vị",
+              href: "/devices",
+            },
+            {
+              id: "device_manager",
+              title: "Danh sách trang thiết bị quản lý",
+              href: "/manager_device",
+            },
+          ],
         },
         {
-          id: "device_manager",
-          title: "Danh sách trang thiết bị quản lý",
-          icon: <Laptop className="w-5 h-5" />,
-          href: "/manager_device",
+          id: "target_management",
+          title: "Quản lý mục tiêu",
+          icon: <Target className="w-5 h-5" />,
+          children: [
+            {
+              id: "target",
+              title: "Danh sách mục tiêu TCTT",
+              href: "/target",
+            },
+            {
+              id: "combat-targets",
+              title: "Mục tiêu tác chiến",
+              href: "/combat-targets",
+            },
+          ],
+        },
+        {
+          id: "data_management",
+          title: "Quản lý dữ liệu & tài liệu",
+          icon: <Database className="w-5 h-5" />,
+          children: [
+            {
+              id: "collected_data",
+              title: "Danh sách dữ liệu thu thập từ tác chiến",
+              href: "/collected_data",
+            },
+            {
+              id: "document",
+              title: "Danh sách tài liệu trên hệ thống",
+              href: "/document",
+            },
+          ],
+        },
+        {
+          id: "category",
+          title: "Quản lý danh mục",
+          icon: <Folder className="w-5 h-5" />,
+          children: submenu,
         },
         {
           id: "category_type",
@@ -249,89 +325,58 @@ function Layout({ children }: { children: ReactNode }) {
           href: "/category_type",
         },
         {
-          id: "document",
-          title: "Danh sách tài liệu trên hệ  thống",
-          icon: <BookAIcon className="w-5 h-5" />,
-          href: "/document",
-        },
-        {
-          id: "collected_data",
-          title: "Danh sách dữ liệu thu thập từ tác chiến",
-          icon: <Database className="w-5 h-5" />,
-          href: "/collected_data",
-        },
-        {
-          id: "link",
-          title: "Quản lý liên kết với các hệ thống khác",
-          icon: <Paperclip className="w-5 h-5" />,
-          href: "/link",
-        },
-        {
-          id: "target",
-          title: "Danh sách mục tiêu TCTT",
-          icon: <Target className="w-5 h-5" />,
-          href: "/target",
-        },
-        {
-          id: "combat-targets",
-          title: "Mục tiêu tác chiến",
-          icon: <Crosshair className="w-5 h-5" />,
-          href: "/combat-targets",
-        },
-        {
-          id: "backup",
-          title: "Sao lưu phục hồi hệ thống",
-          icon: <RefreshCcw className="w-5 h-5" />,
-          href: "/backup",
-        },
-        {
-          id: "warning",
-          title: " Cảnh báo trạng thái hoạt động của máy chủ hệ thống",
+          id: "security_management",
+          title: "Bảo mật & cảnh báo",
           icon: <AlertCircle className="w-5 h-5" />,
-          href: "/warning",
+          children: [
+            {
+              id: "warning",
+              title: "Cảnh báo trạng thái hoạt động của máy chủ hệ thống",
+              href: "/warning",
+            },
+            {
+              id: "alert",
+              title: "Danh sách dấu hiệu mất an toàn thông tin",
+              href: "/alert",
+            },
+            {
+              id: "error",
+              title: "Quản lý mã lỗi hệ thống",
+              href: "/category/SYSTEM_CODE",
+            },
+          ],
         },
         {
-          id: "alert",
-          title: "Danh sách dấu hiệu mất an toàn thông tin",
-          icon: <FileWarning className="w-5 h-5" />,
-          href: "/alert",
-        },
-        {
-          id: "log",
-          title: "Nhật ký hệ thống",
-          icon: <FileText className="w-5 h-5" />,
-          href: "/log",
-        },
-        // category/SYSTEM_CODE
-        {
-          id: "access_history",
-          title: "Lịch sử truy cập",
-          icon: <History className="w-5 h-5" />,
-          href: "/access_history",
-        },
-        {
-          id: "params",
-          title: "Tham số hệ thống",
-          icon: <Sliders className="w-5 h-5" />,
-          href: "/params",
-        },
-        {
-          id: "performance",
-          title: "Hiệu suất thực hiện TCCS",
-          icon: <Zap className="w-5 h-5" />,
-          href: "/work_performance", // 👈 cho hết vào đây làm submenu
-        },
-         {
-          id: "error",
-          title: "Quản lý mã lỗi hệ thống",
-          icon: <Eraser className="w-5 h-5" />,
-          href: "/category/SYSTEM_CODE", // 👈 cho hết vào đây làm submenu
-        },
-        {
-          id: "category",
-          title: "Quản lý danh mục",
-          icon: <Folder className="w-5 h-5" />,
-          children: submenu, // 👈 cho hết vào đây làm submenu
+          id: "system_management",
+          title: "Hệ thống & bảo trì",
+          icon: <Cpu className="w-5 h-5" />,
+          children: [
+            {
+              id: "backup",
+              title: "Sao lưu phục hồi hệ thống",
+              href: "/backup",
+            },
+            {
+              id: "log",
+              title: "Nhật ký hệ thống",
+              href: "/log",
+            },
+            {
+              id: "access_history",
+              title: "Lịch sử truy cập",
+              href: "/access_history",
+            },
+            {
+              id: "params",
+              title: "Tham số hệ thống",
+              href: "/params",
+            },
+            {
+              id: "link",
+              title: "Quản lý liên kết với các hệ thống khác",
+              href: "/link",
+            },
+          ],
         },
       ]);
     };
@@ -354,12 +399,44 @@ function Layout({ children }: { children: ReactNode }) {
     window.location.href = "/login"; // Redirect to login page
   };
 
-  const activeItem =
-    menuItems.find((item) => item.href === pathname)?.id || // tìm menu chính
-    menuItems
-      .flatMap((item) => item.children || []) // lấy tất cả subMenu
-      .find((sub) => sub.href === pathname)?.id || // tìm subMenu
-    "dashboard";
+  const activeItem = (() => {
+    // Tìm menu chính trực tiếp
+    const mainMenu = menuItems.find((item) => item.href === pathname);
+    if (mainMenu) return mainMenu.id;
+
+    // Tìm trong tất cả submenu (bao gồm cả nested submenu)
+    for (const item of menuItems) {
+      if (item.children) {
+        for (const sub of item.children) {
+          if (sub.href === pathname) return sub.id;
+          // Kiểm tra nested submenu (như category có children)
+          if (sub.children) {
+            for (const nested of sub.children) {
+              if (nested.href === pathname) return nested.id;
+            }
+          }
+        }
+      }
+    }
+    return "dashboard";
+  })();
+
+  // Tìm parent menu để mở collapsible
+  const getParentMenuId = (() => {
+    for (const item of menuItems) {
+      if (item.children) {
+        for (const sub of item.children) {
+          if (sub.href === pathname || sub.id === activeItem) return item.id;
+          if (sub.children) {
+            for (const nested of sub.children) {
+              if (nested.href === pathname || nested.id === activeItem) return item.id;
+            }
+          }
+        }
+      }
+    }
+    return null;
+  })();
 
   return (
 
@@ -391,6 +468,9 @@ function Layout({ children }: { children: ReactNode }) {
                     <span className="text-xl font-bold text-gray-800">CMF</span>
                   </div>
                 )}
+                {isCollapsed && (
+                  <div className="bg-blue-600 w-8 h-8 rounded-lg"></div>
+                )}
                 <button onClick={toggleSidebar} className="p-2 rounded-lg hover:bg-gray-100 md:hidden">
                   <X className="w-5 h-5" />
                 </button>
@@ -400,82 +480,146 @@ function Layout({ children }: { children: ReactNode }) {
 
               <SidebarContent>
                 <SidebarGroup>
-                  {menuItems.map((item) =>
-                    item.children ? (
-                      // Nếu có submenu => dùng Collapsible
-                      <Collapsible key={item.id} className="group/collapsible">
-                        <CollapsibleTrigger
-                          className={`flex items-center px-4 py-2 rounded-lg transition-colors w-full ${activeItem === item.id
-                            ? "bg-blue-50 text-blue-600"
-                            : "hover:bg-gray-100 text-gray-700"
-                            }`}
-                        >
-                          {item.icon}
-                          <span className="ml-3 truncate">{item.title}</span>
-                          <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                        </CollapsibleTrigger>
-
-                        <CollapsibleContent>
-                          <SidebarGroupContent>
-                            {item.children.map((sub: any) => (
-                              <Link
-                                key={sub.id}
-                                href={sub.href || "#"}
-                                className={`flex items-center ml-4 px-4 py-2 rounded-lg transition-colors ${activeItem === sub.id
+                  <TooltipProvider>
+                    {menuItems.map((item) =>
+                      item.children ? (
+                        // Nếu có submenu => dùng Collapsible
+                        <Collapsible key={item.id} className="group/collapsible" defaultOpen={getParentMenuId === item.id}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <CollapsibleTrigger
+                                className={`flex items-center px-4 py-2 rounded-lg transition-colors w-full ${activeItem === item.id || getParentMenuId === item.id
                                   ? "bg-blue-50 text-blue-600"
                                   : "hover:bg-gray-100 text-gray-700"
                                   }`}
-                                title={sub.title}
-                                style={{ fontSize: '16px' }}
-                                onClick={() => {
-
-                                }}
                               >
-                                {/* {sub.icon} */}
-                                <span className="ml-3 flex-1 truncate">{sub.title}</span>
-                                {sub.badge && (
-                                  <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                                    {sub.badge}
-                                  </span>
-                                )}
-                              </Link>
-                            ))}
+                                {item.icon}
+                                {!isCollapsed && <span className="ml-3 truncate">{item.title}</span>}
+                                {!isCollapsed && <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />}
+                              </CollapsibleTrigger>
+                            </TooltipTrigger>
+                            {isCollapsed && (
+                              <TooltipContent side="right" className="ml-2">
+                                <p>{item.title}</p>
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+
+                        <CollapsibleContent>
+                          <SidebarGroupContent>
+                            {!isCollapsed && item.children.map((sub: any) => 
+                              sub.children ? (
+                                // Nested submenu (như category)
+                                <Collapsible key={sub.id} className="group/collapsible" defaultOpen={activeItem === sub.id || (sub.children && sub.children.some((nested: any) => nested.id === activeItem))}>
+                                  <CollapsibleTrigger
+                                    className={`flex items-center ml-4 px-4 py-2 rounded-lg transition-colors w-full ${activeItem === sub.id || (sub.children && sub.children.some((nested: any) => nested.id === activeItem))
+                                      ? "bg-blue-50 text-blue-600"
+                                      : "hover:bg-gray-100 text-gray-700"
+                                      }`}
+                                  >
+                                    <span className="ml-3 truncate">{sub.title}</span>
+                                    <ChevronDown className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                                  </CollapsibleTrigger>
+                                  <CollapsibleContent>
+                                    <SidebarGroupContent>
+                                      {sub.children.map((nested: any) => (
+                                          <Link
+                                            key={nested.id}
+                                            href={nested.href || "#"}
+                                            className={`flex items-center ml-8 px-4 py-2 rounded-lg transition-colors ${activeItem === nested.id
+                                              ? "bg-blue-50 text-blue-600"
+                                              : "hover:bg-gray-100 text-gray-700"
+                                              }`}
+                                          title={nested.title}
+                                          style={{ fontSize: '16px' }}
+                                        >
+                                          <span className="ml-3 flex-1 truncate">{nested.title}</span>
+                                          {nested.badge && (
+                                            <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                              {nested.badge}
+                                            </span>
+                                          )}
+                                        </Link>
+                                      ))}
+                                    </SidebarGroupContent>
+                                  </CollapsibleContent>
+                                </Collapsible>
+                              ) : (
+                                // Regular submenu item
+                                <Link
+                                  key={sub.id}
+                                  href={sub.href || "#"}
+                                  className={`flex items-center ml-4 px-4 py-2 rounded-lg transition-colors ${activeItem === sub.id
+                                    ? "bg-blue-50 text-blue-600"
+                                    : "hover:bg-gray-100 text-gray-700"
+                                    }`}
+                                  title={sub.title}
+                                  style={{ fontSize: '16px' }}
+                                >
+                                  <span className="ml-3 flex-1 truncate">{sub.title}</span>
+                                  {sub.badge && (
+                                    <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                      {sub.badge}
+                                    </span>
+                                  )}
+                                </Link>
+                              )
+                            )}
                           </SidebarGroupContent>
                         </CollapsibleContent>
                       </Collapsible>
                     ) : (
                       // Menu item bình thường
-                      <Link
-                        key={item.id}
-                        href={item.href || "#"}
-                        className={`flex items-center px-4 py-2 rounded-lg transition-colors ${activeItem === item.id
-                          ? "bg-blue-50 text-blue-600"
-                          : "hover:bg-gray-100 text-gray-700"
-                          }`}
-                        title={item.title}
-                      >
-                        {item.icon}
-                        <span className="ml-3 flex-1 truncate">{item.title}</span>
-                        {item.badge && (
-                          <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                            {item.badge}
-                          </span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Link
+                            key={item.id}
+                            href={item.href || "#"}
+                            className={`flex items-center px-4 py-2 rounded-lg transition-colors ${activeItem === item.id
+                              ? "bg-blue-50 text-blue-600"
+                              : "hover:bg-gray-100 text-gray-700"
+                              }`}
+                            title={item.title}
+                          >
+                            {item.icon}
+                            {!isCollapsed && <span className="ml-3 flex-1 truncate">{item.title}</span>}
+                            {!isCollapsed && item.badge && (
+                              <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                {item.badge}
+                              </span>
+                            )}
+                          </Link>
+                        </TooltipTrigger>
+                        {isCollapsed && (
+                          <TooltipContent side="right" className="ml-2">
+                            <p>{item.title}</p>
+                          </TooltipContent>
                         )}
-                      </Link>
+                      </Tooltip>
                     )
                   )}
+                  </TooltipProvider>
                 </SidebarGroup>
               </SidebarContent>
 
               {/* Footer */}
               <div className="p-2 border-t">
-                <button
-                  onClick={handleLogout}
-                  className={`flex items-center w-full p-3 rounded-lg text-gray-700 hover:bg-gray-100 ${isCollapsed ? "justify-center" : "justify-start"}`}
-                >
-                  <LogOut className="w-5 h-5" />
-                  {!isCollapsed && <span className="ml-3">Đăng xuất</span>}
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={handleLogout}
+                      className={`flex items-center w-full p-3 rounded-lg text-gray-700 hover:bg-gray-100 ${isCollapsed ? "justify-center" : "justify-start"}`}
+                    >
+                      <LogOut className="w-5 h-5" />
+                      {!isCollapsed && <span className="ml-3">Đăng xuất</span>}
+                    </button>
+                  </TooltipTrigger>
+                  {isCollapsed && (
+                    <TooltipContent side="right" className="ml-2">
+                      <p>Đăng xuất</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
               </div>
             </div>
           </aside>
@@ -487,25 +631,36 @@ function Layout({ children }: { children: ReactNode }) {
           {/* Top Bar */}
 
           <header className="flex items-center justify-between p-4 bg-white shadow-sm">
-            <div className="flex items-center">
-              <button onClick={toggleSidebar} className="p-2 rounded-lg hover:bg-gray-100 md:mr-4">
-                <Menu className="w-5 h-5" />
-              </button>
+              <div className="flex items-center">
+                <button onClick={toggleSidebar} className="p-2 rounded-lg hover:bg-gray-100 md:mr-4">
+                  <Menu className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={() => setIsCollapsed(!isCollapsed)} 
+                  className="hidden md:block p-2 rounded-lg hover:bg-gray-100"
+                  title={isCollapsed ? "Mở rộng sidebar" : "Thu gọn sidebar"}
+                >
+                  <ChevronDown className={`w-5 h-5 transition-transform ${isCollapsed ? "rotate-90" : "-rotate-90"}`} />
+                </button>
               <h1 className="text-xl font-semibold text-gray-800">
                 {(() => {
                   // Tìm menu chính
                   const menu = menuItems.find((item) => item.id === activeItem);
                   if (menu) return menu.title;
 
-
-                  // Nếu không tìm menu chính, tìm trong tất cả subMenu
+                  // Tìm trong tất cả submenu (bao gồm cả nested submenu)
                   for (const item of menuItems) {
-
-                    const sub = item.children?.find((s) => s.id === activeItem);
-
-                    console.log(sub);
-
-                    if (sub) return sub.title;
+                    if (item.children) {
+                      for (const sub of item.children) {
+                        if (sub.id === activeItem) return sub.title;
+                        // Kiểm tra nested submenu
+                        if (sub.children) {
+                          for (const nested of sub.children) {
+                            if (nested.id === activeItem) return nested.title;
+                          }
+                        }
+                      }
+                    }
                   }
 
                   return "Trang chủ"; // fallback
