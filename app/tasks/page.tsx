@@ -722,7 +722,7 @@ export default function TasksPage() {
               </SelectTrigger>
               <SelectContent>
                 {status.map((item: any) => (
-                  <SelectItem key={item.id} value={item.id}>{item.display_name}</SelectItem>
+                  <SelectItem key={item.id} value={item.id}>{item.description}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

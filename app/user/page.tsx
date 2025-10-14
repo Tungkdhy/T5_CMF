@@ -257,7 +257,7 @@ export default function UserManagement() {
           <TableHeader>
             <TableRow>
               <TableHead>STT</TableHead>
-              <TableHead>Username</TableHead>
+              <TableHead>Tài khoản</TableHead>
               <TableHead>Tên hiển thị</TableHead>
               <TableHead>Quyền</TableHead>
               <TableHead>Kích hoạt</TableHead>
