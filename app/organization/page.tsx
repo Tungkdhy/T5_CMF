@@ -140,9 +140,9 @@ export default function OrganizationManagementPage() {
             newErrors.description = 'Mô tả là bắt buộc';
         }
 
-        if (!formData.data.unit_id.trim()) {
-            newErrors.unit_id = 'Unit ID là bắt buộc';
-        }
+        // if (!formData.data.unit_id.trim()) {
+        //     newErrors.unit_id = 'Unit ID là bắt buộc';
+        // }
 
         if (!formData.data.parent_id.trim()) {
             newErrors.parent_id = 'Parent ID là bắt buộc';
@@ -535,7 +535,8 @@ export default function OrganizationManagementPage() {
                                             ...formData, 
                                             data: {
                                                 ...formData.data,
-                                                parent_id: value
+                                                parent_id: value,
+                                                unit_id: value
                                             }
                                         })
                                     }}
