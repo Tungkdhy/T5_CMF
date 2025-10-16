@@ -183,7 +183,7 @@ function Layout({ children }: { children: ReactNode }) {
         id: item.id,
         title: item.display_name,
         icon: <Folder className="w-4 h-4" />, // nhỏ hơn để phù hợp submenu
-        href: `/category/${item.scope}`,
+        href: item.scope ==="ORGANIZATION" ? "/organization" : `/category/${item.scope}`,
       }));
 
       setMenuItems([
