@@ -174,7 +174,7 @@ useEffect(() => {
                         }}
                         className="flex items-center gap-2"
                     >
-                        <Plus className="w-4 h-4" /> Thêm document
+                        <Plus className="w-4 h-4" /> Thêm tài liệu
                     </Button>
                 </div>
 
@@ -185,7 +185,7 @@ useEffect(() => {
                             <TableHead>Tên file</TableHead>
                             <TableHead>Kích thước (KB)</TableHead>
                             <TableHead>Mô tả</TableHead>
-                            <TableHead>Target</TableHead>
+                            <TableHead>Mục tiêu</TableHead>
                             <TableHead className="w-[150px]">Hành động</TableHead>
                         </TableRow>
                     </TableHeader>

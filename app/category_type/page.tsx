@@ -257,7 +257,7 @@ export default function CategoryManagement() {
                                 <Input value={formData.description} onChange={(e) => handleChange("description", e.target.value)} />
                             </div>
                             <div>
-                                <Label className="mb-3">Scope</Label>
+                                <Label className="mb-3">Phạm vi</Label>
                                 <Input value={formData.scope} onChange={(e) => handleChange("scope", e.target.value)} />
                             </div>
                             <div className="flex items-center gap-2">
