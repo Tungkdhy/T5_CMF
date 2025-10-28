@@ -153,7 +153,7 @@ export default function ResourceManagement() {
                             <TableHead>STT</TableHead>
                             <TableHead>Tên</TableHead>
                             <TableHead>Sử dụng</TableHead>
-                            <TableHead>Total</TableHead>
+                            <TableHead>Tổng</TableHead>
                             <TableHead>Người tạo</TableHead>
                             <TableHead>Ngày tạo</TableHead>
                             <TableHead className="w-[150px]">Hành động</TableHead>

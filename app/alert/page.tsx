@@ -218,7 +218,7 @@ export default function AlertManagement() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>STT</TableHead>
-                            <TableHead>Mã Alert</TableHead>
+                            <TableHead>Mã cảnh báo</TableHead>
                             <TableHead>Tiêu đề</TableHead>
                             <TableHead>Mức độ</TableHead>
                             <TableHead>Trạng thái</TableHead>
@@ -322,7 +322,7 @@ export default function AlertManagement() {
 
                         <div className="p-6 space-y-4">
                             {/* <div>
-                <Label className="mb-3">Mã Alert</Label>
+                <Label className="mb-3">Mã cảnh báo</Label>
                 <Input
                   value={formData.alert_code}
                   onChange={(e) =>
