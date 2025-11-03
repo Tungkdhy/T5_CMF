@@ -570,7 +570,7 @@ function Layout({ children }: { children: ReactNode }) {
                       </Collapsible>
                     ) : (
                       // Menu item bình thường
-                      <Tooltip>
+                      <Tooltip key={item.id}>
                         <TooltipTrigger asChild>
                           <Link
                             key={item.id}
