@@ -22,8 +22,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getTaskStatistics } from "@/api/dashboard";
 
 export default function TaskTimeline() {
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
+  // Tính ngày mặc định: 3 tháng trước đến hôm nay
+  const today = new Date();
+  const endDateDefault = today.toISOString().split("T")[0];
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(today.getMonth() - 3);
+  const startDateDefault = threeMonthsAgo.toISOString().split("T")[0];
+
+  const [startDate, setStartDate] = useState<string>(startDateDefault);
+  const [endDate, setEndDate] = useState<string>(endDateDefault);
   const [groupBy, setGroupBy] = useState<string>("day");
   const [chartData, setChartData] = useState<any[]>([]);
   const [rawData, setRawData] = useState<any[]>([]);

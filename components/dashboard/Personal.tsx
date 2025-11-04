@@ -50,11 +50,18 @@ const apiData = {
 export default function PersonnelOverview() {
   const [data, setData] = useState<any>(apiData);
 
+  // Tính ngày mặc định: 3 tháng trước đến hôm nay
+  const today = new Date();
+  const endDateDefault = today.toISOString().split("T")[0];
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(today.getMonth() - 3);
+  const startDateDefault = threeMonthsAgo.toISOString().split("T")[0];
+
   // Bộ lọc
   const [filters, setFilters] = useState({
     unit_id: units[0].id,
-    start_date: "2025-08-08",
-    end_date: "2025-09-07",
+    start_date: startDateDefault,
+    end_date: endDateDefault,
     group_by: "week",
   });
 

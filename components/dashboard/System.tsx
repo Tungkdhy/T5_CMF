@@ -26,9 +26,9 @@ export default function StatisticsDashboard() {
   // === Tính ngày mặc định ===
   const today = new Date();
   const endDateDefault = today.toISOString().split("T")[0];
-  const prevMonth = new Date();
-  prevMonth.setMonth(today.getMonth() - 1);
-  const startDateDefault = prevMonth.toISOString().split("T")[0];
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(today.getMonth() - 3);
+  const startDateDefault = threeMonthsAgo.toISOString().split("T")[0];
 
   // filter state
   const [startDate, setStartDate] = useState(startDateDefault);

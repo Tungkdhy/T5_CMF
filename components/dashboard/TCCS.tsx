@@ -120,11 +120,19 @@ const apiData = {
 export default function TaskOverview() {
   const [data, setData] = useState<any>(apiData);
   const [categoryTask, setCategoryTask] = useState<any>([])
+
+  // Tính ngày mặc định: 3 tháng trước đến hôm nay
+  const today = new Date();
+  const endDateDefault = today.toISOString().split("T")[0];
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(today.getMonth() - 3);
+  const startDateDefault = threeMonthsAgo.toISOString().split("T")[0];
+
   // Bộ lọc
   const [filters, setFilters] = useState({
     category_id: categories[0].id,
-    start_date: "2024-01-01",
-    end_date: "2025-10-31",
+    start_date: startDateDefault,
+    end_date: endDateDefault,
   });
 
   // Mock fetch API

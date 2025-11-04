@@ -42,11 +42,18 @@ const COLORS = [
 ];
 
 export default function DeviceStatistics() {
+  // Tính ngày mặc định: 3 tháng trước đến hôm nay
+  const today = new Date();
+  const endDateDefault = today.toISOString().split("T")[0];
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(today.getMonth() - 3);
+  const startDateDefault = threeMonthsAgo.toISOString().split("T")[0];
+
   const [chartData, setChartData] = useState<any[]>([]);
   const [rawData, setRawData] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>({});
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>(startDateDefault);
+  const [endDate, setEndDate] = useState<string>(endDateDefault);
 
   const fetchData = async () => {
     try {
