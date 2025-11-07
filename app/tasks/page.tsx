@@ -702,7 +702,7 @@ export default function TasksPage() {
               onValueChange={(v) => setFilter({ ...filter, priority_id: v })}
             >
               <SelectTrigger className="w-full  w-[160px]">
-                <SelectValue placeholder="Độ ưu tiên" />
+                <SelectValue placeholder="Độ khẩn" />
               </SelectTrigger>
               <SelectContent>
                 {priority.map((item: any) => (

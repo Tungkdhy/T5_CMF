@@ -251,7 +251,7 @@ export default function Dashboard() {
         {/* Dashboard tổng hợp */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Thống kê hệ thống</CardTitle>
+            <CardTitle>Thống kê hoạt động của máy chủ hệ thống</CardTitle>
           </CardHeader>
           <CardContent>
             <StatisticsDashboard />

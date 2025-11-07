@@ -208,6 +208,11 @@ function Layout({ children }: { children: ReactNode }) {
               title: "Danh sách cán bộ, nhân viên",
               href: "/staff",
             },
+             {
+              id: "lltccs",
+              title: "Lực lượng TCCS",
+              href: "/lltccs",
+            },
           ],
         },
         {
