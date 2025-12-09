@@ -118,7 +118,7 @@ export default function RoleManagement() {
         try {
             const res = await getDetail(id)
             setEditingRole({ roleId: id });
-            setFormData({ roleName: name, id: res.data.actions.map((data: any) => data.id) });
+            setFormData({ roleName: name, id: res.data.actions.map((data: any) => data?.id) });
             setIsModalOpen(true);
             setFormData(prev => ({
                 ...prev,
@@ -214,6 +214,7 @@ export default function RoleManagement() {
                         onClick={() => {
                             setIsModalOpen(true);
                             setFormData({ roleName: "", actionIds: [] });
+                            setEditingRole(null)
                         }}
                         className="flex items-center gap-2"
                     >
