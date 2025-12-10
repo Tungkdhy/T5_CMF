@@ -822,15 +822,17 @@ export default function TasksPage() {
                               {...provided.dragHandleProps}
                               className={cn(
                                 "bg-white border rounded-lg shadow-sm mb-3 overflow-hidden cursor-pointer",
-                                "transition-all duration-300 ease-out",
-                                "hover:shadow-lg hover:-translate-y-1 hover:border-blue-200",
-                                "animate-in fade-in slide-in-from-left-2",
-                                snapshot.isDragging && "shadow-2xl scale-105 rotate-2 ring-2 ring-blue-400"
+                                "transition-shadow duration-300 ease-out",
+                                !snapshot.isDragging && "hover:shadow-lg hover:border-blue-200",
+                                !snapshot.isDragging && "animate-in fade-in slide-in-from-left-2",
+                                snapshot.isDragging && "shadow-2xl ring-2 ring-blue-400 z-50"
                               )}
                               style={{ 
-                                animationDelay: `${(colIndex * 100) + (index * 50)}ms`,
-                                animationFillMode: 'backwards',
-                                ...provided.draggableProps.style
+                                ...provided.draggableProps.style,
+                                ...(snapshot.isDragging ? {} : {
+                                  animationDelay: `${(colIndex * 100) + (index * 50)}ms`,
+                                  animationFillMode: 'backwards'
+                                })
                               }}
                               onClick={() => handleOpenModal(task)}
                             >
