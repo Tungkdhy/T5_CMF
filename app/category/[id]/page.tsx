@@ -252,17 +252,19 @@ export default function CategoryManagementPage() {
     return (
         <div className="min-h-screen bg-gray-50 p-3">
             {message && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in fade-in slide-in-from-top-4 duration-300">
                     <Alert
-                        className={`rounded-xl shadow-lg ${status === "success"
-                            ? "bg-green-100 border-green-500 text-green-800"
-                            : "bg-red-100 border-red-500 text-red-800"
-                            }`}
+                        className={cn(
+                            "rounded-xl shadow-lg transition-all",
+                            status === "success"
+                                ? "bg-green-100 border-green-500 text-green-800"
+                                : "bg-red-100 border-red-500 text-red-800"
+                        )}
                     >
                         {status === "success" ? (
-                            <CheckCircle className="h-5 w-5" />
+                            <CheckCircle className="h-5 w-5 animate-bounce" />
                         ) : (
-                            <XCircle className="h-5 w-5" />
+                            <XCircle className="h-5 w-5 animate-shake" />
                         )}
                         <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
                         <AlertDescription>{message}</AlertDescription>
@@ -270,19 +272,22 @@ export default function CategoryManagementPage() {
                 </div>
             )}
             <div className="mx-auto">
-                <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="bg-white rounded-xl shadow-sm p-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                        <div className="relative ">
+                        <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                             <Input
                                 type="text"
                                 placeholder="Tìm kiếm danh mục..."
-                                className="pl-10"
+                                className="pl-10 transition-all focus:ring-2 focus:ring-blue-300"
                                 value={searchTerm}
                                 onChange={(e: any) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <Button onClick={handleAddCategory} className="flex items-center gap-2">
+                        <Button 
+                            onClick={handleAddCategory} 
+                            className="flex items-center gap-2 transition-all hover:scale-105 hover:shadow-md"
+                        >
                             <Plus className="w-4 h-4" />
                             Thêm danh mục
                         </Button>
@@ -366,19 +371,27 @@ export default function CategoryManagementPage() {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {categories.map((item: any, index: number) => (
-                                    <tr key={item.id} className="hover:bg-gray-50">
+                                    <tr 
+                                        key={item.id} 
+                                        className="hover:bg-blue-50/50 transition-colors animate-in fade-in slide-in-from-left-2"
+                                        style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'backwards' }}
+                                    >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {index + 1}
                                         </td>
                                         <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                            {item.display_name}
+                                            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                                {item.display_name}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500">
                                             {item.description}
                                         </td>
                                         {
                                             id_scope === "MISSION" && <td className="px-6 py-4 text-sm text-gray-500">
-                                                {item?.data?.do_khan || ""}
+                                                <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
+                                                    {item?.data?.do_khan || "—"}
+                                                </span>
                                             </td>
                                         }
                                         <td className="px-6 py-4 text-sm text-gray-500">
@@ -390,7 +403,7 @@ export default function CategoryManagementPage() {
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() => handleEdit(item)}
-                                                    className="flex items-center gap-1"
+                                                    className="flex items-center gap-1 transition-all hover:scale-105 hover:border-blue-400 hover:text-blue-600"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                     Sửa
@@ -400,13 +413,13 @@ export default function CategoryManagementPage() {
                                                         <Button
                                                             variant="destructive"
                                                             size="sm"
-                                                            className="flex items-center gap-1"
+                                                            className="flex items-center gap-1 transition-all hover:scale-105"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                             Xóa
                                                         </Button>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="w-56">
+                                                    <PopoverContent className="w-56 animate-in fade-in zoom-in-95 duration-200">
                                                         <p className="text-sm mb-3">Bạn có chắc muốn xóa mục này?</p>
                                                         <div className="flex justify-end gap-2">
                                                             <Button variant="outline" size="sm">Hủy</Button>
@@ -432,11 +445,11 @@ export default function CategoryManagementPage() {
                                 variant="outline"
                                 disabled={pageIndex === 1}
                                 onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
-                                className="p-1"
+                                className="p-1 transition-all hover:scale-105 hover:border-blue-400 disabled:opacity-50"
                             >
                                 <ChevronLeft className="w-4 h-4" />
                             </Button>
-                            <span className="flex items-center px-2">
+                            <span className="flex items-center px-3 py-1 bg-gray-100 rounded-md font-medium">
                                 Trang {pageIndex} / {totalPages}
                             </span>
                             <Button
@@ -444,7 +457,7 @@ export default function CategoryManagementPage() {
                                 variant="outline"
                                 disabled={pageIndex === totalPages}
                                 onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
-                                className="p-1"
+                                className="p-1 transition-all hover:scale-105 hover:border-blue-400 disabled:opacity-50"
                             >
                                 <ChevronRight className="w-4 h-4" />
                             </Button>
@@ -465,10 +478,10 @@ export default function CategoryManagementPage() {
 
             {/* Category Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+                <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-lg shadow-2xl w-full max-w-md animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
                         {/* Header */}
-                        <div className="flex justify-between items-center border-b p-4">
+                        <div className="flex justify-between items-center border-b p-4 bg-gray-50 rounded-t-lg">
                             <h3 className="text-lg font-semibold">
                                 {editingCategory ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}
                             </h3>
@@ -476,7 +489,7 @@ export default function CategoryManagementPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setIsModalOpen(false)}
-                                className="p-0 h-auto"
+                                className="p-0 h-auto hover:bg-red-100 hover:text-red-600 transition-colors"
                             >
                                 <X className="w-5 h-5" />
                             </Button>
@@ -485,20 +498,23 @@ export default function CategoryManagementPage() {
                         {/* Body */}
                         <div className="p-6 space-y-4">
                             {/* Tên hiển thị */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: '50ms' }}>
                                 <Label className='mb-3' htmlFor="display_name">Tên hiển thị</Label>
                                 <Input
                                     id="display_name"
                                     value={formData.display_name || ""}
                                     onChange={(e) => handleChange("display_name", e.target.value)}
-                                    className={errors.display_name ? "border-red-500" : ""}
+                                    className={cn(
+                                        "transition-all focus:ring-2 focus:ring-blue-300",
+                                        errors.display_name && "border-red-500"
+                                    )}
                                 />
                                 {errors.display_name && (
                                     <p className="text-red-500 text-sm mt-1">{errors.display_name}</p>
                                 )}
                             </div>
                             {
-                                id_scope === "MISSION" && <div>
+                                id_scope === "MISSION" && <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: '100ms' }}>
                                     <Label className='mb-3' htmlFor="description">Độ khẩn</Label>
                                     <Input
                                         id="description"
@@ -511,7 +527,10 @@ export default function CategoryManagementPage() {
                                                 }
                                             })
                                         }}
-                                        className={errors.description ? "border-red-500" : ""}
+                                        className={cn(
+                                            "transition-all focus:ring-2 focus:ring-blue-300",
+                                            errors.description && "border-red-500"
+                                        )}
                                     />
                                     {errors.description && (
                                         <p className="text-red-500 text-sm mt-1">{errors.description}</p>
@@ -520,13 +539,16 @@ export default function CategoryManagementPage() {
                             }
 
                             {/* Mô tả */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: '150ms' }}>
                                 <Label className='mb-3' htmlFor="description">Mô tả</Label>
                                 <Input
                                     id="description"
                                     value={formData.description || ""}
                                     onChange={(e) => handleChange("description", e.target.value)}
-                                    className={errors.description ? "border-red-500" : ""}
+                                    className={cn(
+                                        "transition-all focus:ring-2 focus:ring-blue-300",
+                                        errors.description && "border-red-500"
+                                    )}
                                 />
                                 {errors.description && (
                                     <p className="text-red-500 text-sm mt-1">{errors.description}</p>
@@ -593,13 +615,16 @@ export default function CategoryManagementPage() {
                                     </SelectContent>
                                 </Select>
                             </div> */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: '200ms' }}>
                                 <Label className='mb-3' htmlFor="value">Giá trị</Label>
                                 <Input
                                     id="value"
                                     value={formData.value || ""}
                                     onChange={(e) => handleChange("value", e.target.value)}
-                                    className={errors.value ? "border-red-500" : ""}
+                                    className={cn(
+                                        "transition-all focus:ring-2 focus:ring-blue-300",
+                                        errors.value && "border-red-500"
+                                    )}
                                 />
                                 {errors.value && (
                                     <p className="text-red-500 text-sm mt-1">{errors.value}</p>
@@ -608,11 +633,18 @@ export default function CategoryManagementPage() {
                         </div>
 
                         {/* Footer */}
-                        <div className="flex justify-end space-x-3 p-4 border-t">
-                            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                        <div className="flex justify-end space-x-3 p-4 border-t bg-gray-50 rounded-b-lg">
+                            <Button 
+                                variant="outline" 
+                                onClick={() => setIsModalOpen(false)}
+                                className="transition-all hover:scale-105"
+                            >
                                 Hủy
                             </Button>
-                            <Button onClick={handleSaveCategory}>
+                            <Button 
+                                onClick={handleSaveCategory}
+                                className="transition-all hover:scale-105 hover:shadow-md"
+                            >
                                 {editingCategory ? "Cập nhật" : "Thêm mới"}
                             </Button>
                         </div>

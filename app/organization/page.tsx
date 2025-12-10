@@ -254,9 +254,9 @@ export default function OrganizationManagementPage() {
     }, [formData.reload, searchTerm, pageIndex]);
     
     return (
-        <div className="min-h-screen bg-gray-50 p-3">
+        <div className="min-h-screen bg-gray-50 p-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {message && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in slide-in-from-top-4 fade-in duration-300">
                     <Alert
                         className={`rounded-xl shadow-lg ${status === "success"
                             ? "bg-green-100 border-green-500 text-green-800"
@@ -264,9 +264,9 @@ export default function OrganizationManagementPage() {
                             }`}
                     >
                         {status === "success" ? (
-                            <CheckCircle className="h-5 w-5" />
+                            <CheckCircle className="h-5 w-5 animate-bounce" />
                         ) : (
-                            <XCircle className="h-5 w-5" />
+                            <XCircle className="h-5 w-5 animate-pulse" />
                         )}
                         <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
                         <AlertDescription>{message}</AlertDescription>
@@ -281,12 +281,12 @@ export default function OrganizationManagementPage() {
                             <Input
                                 type="text"
                                 placeholder="Tìm kiếm đơn vị..."
-                                className="pl-10"
+                                className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                                 value={searchTerm}
                                 onChange={(e: any) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <Button onClick={handleAddCategory} className="flex items-center gap-2">
+                        <Button onClick={handleAddCategory} className="flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:shadow-md">
                             <Plus className="w-4 h-4" />
                             Thêm đơn vị
                         </Button>
@@ -324,23 +324,37 @@ export default function OrganizationManagementPage() {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {categories.map((item: any, index: number) => (
-                                    <tr key={item.id} className="hover:bg-gray-50">
+                                    <tr 
+                                        key={item.id} 
+                                        className="hover:bg-blue-50 transition-all duration-200 animate-in fade-in slide-in-from-left-4"
+                                        style={{ animationDelay: `${index * 50}ms` }}
+                                    >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {index + 1}
                                         </td>
                                         <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                            {item.display_name}
+                                            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                                {item.display_name}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500">
                                             {item.description}
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500">
-                                            {item.value || "—"}
+                                            {item.value ? (
+                                                <span className="font-mono text-xs px-2 py-1 bg-gray-100 rounded">
+                                                    {item.value}
+                                                </span>
+                                            ) : "—"}
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500">
                                             {(() => {
                                                 const unit = units.find((u: any) => u.id === item.data?.unit_id);
-                                                return unit ? `${unit.display_name} (${unit.value})` : (item.data?.unit_id || "—");
+                                                return unit ? (
+                                                    <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                                        {unit.display_name} ({unit.value})
+                                                    </span>
+                                                ) : (item.data?.unit_id || "—");
                                             })()}
                                         </td>
                                         {/* <td className="px-6 py-4 text-sm text-gray-500">
@@ -358,7 +372,7 @@ export default function OrganizationManagementPage() {
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() => handleEdit(item)}
-                                                    className="flex items-center gap-1"
+                                                    className="flex items-center gap-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                     Sửa
@@ -368,13 +382,13 @@ export default function OrganizationManagementPage() {
                                                         <Button
                                                             variant="destructive"
                                                             size="sm"
-                                                            className="flex items-center gap-1"
+                                                            className="flex items-center gap-1 transition-all duration-200 hover:scale-105"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                             Xóa
                                                         </Button>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="w-56">
+                                                    <PopoverContent className="w-56 animate-in zoom-in-95 fade-in duration-200">
                                                         <p className="text-sm mb-3">Bạn có chắc muốn xóa mục này?</p>
                                                         <div className="flex justify-end gap-2">
                                                             <Button variant="outline" size="sm">Hủy</Button>
@@ -400,11 +414,11 @@ export default function OrganizationManagementPage() {
                                 variant="outline"
                                 disabled={pageIndex === 1}
                                 onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
-                                className="p-1"
+                                className="p-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                             >
                                 <ChevronLeft className="w-4 h-4" />
                             </Button>
-                            <span className="flex items-center px-2">
+                            <span className="flex items-center px-3 py-1 bg-gray-100 rounded-full text-sm">
                                 Trang {pageIndex} / {totalPages}
                             </span>
                             <Button
@@ -412,7 +426,7 @@ export default function OrganizationManagementPage() {
                                 variant="outline"
                                 disabled={pageIndex === totalPages}
                                 onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
-                                className="p-1"
+                                className="p-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                             >
                                 <ChevronRight className="w-4 h-4" />
                             </Button>
@@ -420,7 +434,7 @@ export default function OrganizationManagementPage() {
                     </div>
 
                     {categories.length === 0 && (
-                        <div className="text-center py-12">
+                        <div className="text-center py-12 animate-in fade-in duration-500">
                             <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 mx-auto mb-4" />
                             <h3 className="mt-2 text-sm font-medium text-gray-900">Không tìm thấy đơn vị</h3>
                             <p className="mt-1 text-sm text-gray-500">
@@ -433,10 +447,10 @@ export default function OrganizationManagementPage() {
 
             {/* Category Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+                <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
                         {/* Header */}
-                        <div className="flex justify-between items-center border-b p-4">
+                        <div className="flex justify-between items-center border-b p-4 bg-gray-50 rounded-t-lg">
                             <h3 className="text-lg font-semibold">
                                 {editingCategory ? "Chỉnh sửa đơn vị" : "Thêm đơn vị mới"}
                             </h3>
@@ -444,7 +458,7 @@ export default function OrganizationManagementPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setIsModalOpen(false)}
-                                className="p-0 h-auto"
+                                className="p-0 h-auto transition-transform duration-200 hover:scale-110 hover:rotate-90"
                             >
                                 <X className="w-5 h-5" />
                             </Button>
@@ -453,13 +467,13 @@ export default function OrganizationManagementPage() {
                         {/* Body */}
                         <div className="p-6 space-y-4">
                             {/* Tên đơn vị */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "100ms" }}>
                                 <Label className='mb-3' htmlFor="display_name">Tên đơn vị</Label>
                                 <Input
                                     id="display_name"
                                     value={formData.display_name || ""}
                                     onChange={(e) => handleChange("display_name", e.target.value)}
-                                    className={errors.display_name ? "border-red-500" : ""}
+                                    className={`transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${errors.display_name ? "border-red-500" : ""}`}
                                 />
                                 {errors.display_name && (
                                     <p className="text-red-500 text-sm mt-1">{errors.display_name}</p>
@@ -467,13 +481,13 @@ export default function OrganizationManagementPage() {
                             </div>
 
                             {/* Mô tả */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "150ms" }}>
                                 <Label className='mb-3' htmlFor="description">Mô tả</Label>
                                 <Input
                                     id="description"
                                     value={formData.description || ""}
                                     onChange={(e) => handleChange("description", e.target.value)}
-                                    className={errors.description ? "border-red-500" : ""}
+                                    className={`transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${errors.description ? "border-red-500" : ""}`}
                                 />
                                 {errors.description && (
                                     <p className="text-red-500 text-sm mt-1">{errors.description}</p>
@@ -481,13 +495,13 @@ export default function OrganizationManagementPage() {
                             </div>
 
                             {/* Giá trị */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "200ms" }}>
                                 <Label className='mb-3' htmlFor="value">Giá trị</Label>
                                 <Input
                                     id="value"
                                     value={formData.value || ""}
                                     onChange={(e) => handleChange("value", e.target.value)}
-                                    className={errors.value ? "border-red-500" : ""}
+                                    className={`transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${errors.value ? "border-red-500" : ""}`}
                                 />
                                 {errors.value && (
                                     <p className="text-red-500 text-sm mt-1">{errors.value}</p>
@@ -526,7 +540,7 @@ export default function OrganizationManagementPage() {
                             </div> */}
 
                             {/* Parent ID */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "250ms" }}>
                                 <Label className='mb-3' htmlFor="parent_id">Đơn vị</Label>
                                 <Select 
                                     value={formData.data.parent_id || ""} 
@@ -541,12 +555,12 @@ export default function OrganizationManagementPage() {
                                         })
                                     }}
                                 >
-                                    <SelectTrigger className={"w-full"}>
+                                    <SelectTrigger className="w-full transition-all duration-200 focus:ring-2 focus:ring-blue-500">
                                         <SelectValue placeholder="Chọn đơn vị" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="animate-in zoom-in-95 fade-in duration-200">
                                         {units.map((unit: any) => (
-                                            <SelectItem key={unit.id} value={unit.id}>
+                                            <SelectItem key={unit.id} value={unit.id} className="transition-colors duration-150 hover:bg-blue-50">
                                                 {unit.display_name} ({unit.value})
                                             </SelectItem>
                                         ))}
@@ -559,11 +573,11 @@ export default function OrganizationManagementPage() {
                         </div>
 
                         {/* Footer */}
-                        <div className="flex justify-end space-x-3 p-4 border-t">
-                            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                        <div className="flex justify-end space-x-3 p-4 border-t bg-gray-50 rounded-b-lg">
+                            <Button variant="outline" onClick={() => setIsModalOpen(false)} className="transition-all duration-200 hover:scale-105">
                                 Hủy
                             </Button>
-                            <Button onClick={handleSaveCategory}>
+                            <Button onClick={handleSaveCategory} className="transition-all duration-200 hover:scale-105 hover:shadow-md">
                                 {editingCategory ? "Cập nhật" : "Thêm mới"}
                             </Button>
                         </div>

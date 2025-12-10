@@ -9,13 +9,16 @@ import axios from "axios";
 // Hàm tạo màu avatar từ tên
 function stringToColor(str: string) {
   let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  if(str){
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const color = Math.floor(
+      Math.abs((Math.sin(hash) * 10000) % 1) * 16777215
+    ).toString(16);
+    return `#${"0".repeat(6 - color.length) + color}`;
   }
-  const color = Math.floor(
-    Math.abs((Math.sin(hash) * 10000) % 1) * 16777215
-  ).toString(16);
-  return `#${"0".repeat(6 - color.length) + color}`;
+  return "#000000";
 }
 
 interface FileData {
@@ -131,7 +134,7 @@ export default function CommentItem({ comment, onReply, onEdit }: CommentItemPro
           style={{ backgroundColor: stringToColor(comment.user_name) }}
           className="h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold text-gray-700"
         >
-          {comment.user_name.slice(0, 2)}
+          {comment.user_name ? comment.user_name.slice(0, 2) : "AN"}
         </div>
 
         {/* Nội dung */}

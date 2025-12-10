@@ -1,17 +1,66 @@
-export function mapTasksToBoard(data: any) {
-  const statusMap: Record<string, string> = {
-    Open: "open",
-    "In Progress": "in progress",
-    Done: "done",
-    Cancelled: "cancelled",
-  };
+// Icon mapping cho các trạng thái
+const statusIcons: Record<string, string> = {
+  open: "📌",
+  in_progress: "⚡",
+  done: "✅",
+  cancelled: "❌",
+};
 
-  const columns: any = {
-    open: { id: "open", title: "📌 Cần làm", taskIds: [] },
-    "in progress": { id: "in progress", title: "⚡ Đang làm", taskIds: [] },
-    done: { id: "done", title: "✅ Hoàn thành", taskIds: [] },
-    cancelled: { id: "cancelled", title: "❌ Đã hủy", taskIds: [] },
-  };
+export interface StatusItem {
+  id: string;
+  display_name: string;
+  value: string;
+  description: string;
+  is_default?: boolean;
+  is_active?: boolean;
+}
+
+export function mapTasksToBoard(data: any, statusList: StatusItem[] = []) {
+  // Tạo statusMap và columns động từ statusList
+  const statusMap: Record<string, string> = {};
+  const columns: any = {};
+  const columnOrder: string[] = [];
+
+  // Sắp xếp status theo thứ tự: open -> in_progress -> done -> cancelled
+  const statusOrder = ["open", "in_progress", "done", "cancelled"];
+  const sortedStatusList = [...statusList].sort((a, b) => {
+    const indexA = statusOrder.indexOf(a.value);
+    const indexB = statusOrder.indexOf(b.value);
+    return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+  });
+
+  // Build dynamic statusMap và columns từ API data
+  sortedStatusList.forEach((status) => {
+    const key = status.value; // Sử dụng value làm key (open, in_progress, done, cancelled)
+    statusMap[status.display_name] = key;
+    const icon = statusIcons[key] || "📋";
+    columns[key] = {
+      id: key,
+      title: `${icon} ${status.description}`,
+      taskIds: [],
+    };
+    columnOrder.push(key);
+  });
+
+  // Fallback nếu không có statusList
+  if (statusList.length === 0) {
+    const defaultStatuses = [
+      { value: "open", display_name: "Open", description: "Cần làm" },
+      { value: "in_progress", display_name: "In Progress", description: "Đang làm" },
+      { value: "done", display_name: "Done", description: "Hoàn thành" },
+      { value: "cancelled", display_name: "Cancelled", description: "Đã hủy" },
+    ];
+    defaultStatuses.forEach((status) => {
+      statusMap[status.display_name] = status.value;
+      const icon = statusIcons[status.value] || "📋";
+      columns[status.value] = {
+        id: status.value,
+        title: `${icon} ${status.description}`,
+        taskIds: [],
+      };
+      columnOrder.push(status.value);
+    });
+  }
 
   const tasks: Record<string, any> = {};
 
@@ -37,12 +86,11 @@ export function mapTasksToBoard(data: any) {
       team_id: t.team_id,
       parent_task_id: t.parent_task_id,
       subTasks: [],
-      progress_percent:t.progress_percent,
-      actual_hours:t.actual_hours,
-      estimated_hours:t.estimated_hours,
+      progress_percent: t.progress_percent,
+      actual_hours: t.actual_hours,
+      estimated_hours: t.estimated_hours,
       sender: t.sender_id,
-      author_name:t.author_name
-      
+      author_name: t.author_name,
     };
   });
 
@@ -51,18 +99,22 @@ export function mapTasksToBoard(data: any) {
     if (t.parent_task_id && tasks[t.parent_task_id]) {
       tasks[t.parent_task_id].subTasks.push(tasks[t.id]);
     } else {
-      const colKey = statusMap[t?.status?.display_name] || "open";
-      columns[colKey].taskIds.push(t.id);
+      const colKey = statusMap[t?.status?.display_name] || columnOrder[0] || "open";
+      if (columns[colKey]) {
+        columns[colKey].taskIds.push(t.id);
+      }
     }
   });
 
-  // cập nhật lại title với số lượng task
+  // Cập nhật lại title với số lượng task
   Object.keys(columns).forEach((key) => {
     const col = columns[key];
-    col.title = `${col.title} (${col.taskIds.length})`;
+    // Lấy lại title gốc (không có số lượng) để tránh duplicate
+    const baseTitle = col.title.replace(/\s*\(\d+\)$/, "");
+    col.title = `${baseTitle} (${col.taskIds.length})`;
   });
 
-  return { tasks, columns, columnOrder: Object.keys(columns) };
+  return { tasks, columns, columnOrder };
 }
 interface Comment {
   id: string;

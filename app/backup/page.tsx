@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 
 // API giả lập
 import { getBackups, deleteBackup, restoreBackup, createBackup, deleteBackupAll } from "@/api/backup";
@@ -87,34 +88,46 @@ export default function BackupManagement() {
   return (
     <div className="min-h-screen bg-gray-50 p-3">
       {message && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in fade-in slide-in-from-top-4 duration-300">
           <Alert
-            className={`rounded-xl shadow-lg ${status === "success"
-              ? "bg-green-100 border-green-500 text-green-800"
-              : "bg-red-100 border-red-500 text-red-800"
-              }`}
+            className={cn(
+              "rounded-xl shadow-lg transition-all",
+              status === "success"
+                ? "bg-green-100 border-green-500 text-green-800"
+                : "bg-red-100 border-red-500 text-red-800"
+            )}
           >
-            {status === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+            {status === "success" ? <CheckCircle className="h-5 w-5 animate-bounce" /> : <XCircle className="h-5 w-5 animate-shake" />}
             <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
             <AlertDescription>{message}</AlertDescription>
           </Alert>
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
+      <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Nút backup dữ liệu */}
         <div className="flex justify-end gap-2 mb-3">
-          <Button size="sm" variant="default" onClick={handleCreateBackup} className="flex items-center gap-2">
+          <Button 
+            size="sm" 
+            variant="default" 
+            onClick={handleCreateBackup} 
+            className="flex items-center gap-2 transition-all hover:scale-105 hover:shadow-md"
+          >
             <Plus className="w-4 h-4" /> Backup dữ liệu
           </Button>
-          <Button size="sm" variant="destructive" onClick={handleDeleteBackup} className="flex items-center gap-2">
+          <Button 
+            size="sm" 
+            variant="destructive" 
+            onClick={handleDeleteBackup} 
+            className="flex items-center gap-2 transition-all hover:scale-105 hover:shadow-md"
+          >
             <Trash2 className="w-4 h-4" /> Xóa dữ liệu
           </Button>
         </div>
 
         <Table className="w-full table-auto">
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-gray-50">
               <TableHead>STT</TableHead>
               <TableHead>Tên bản sao lưu</TableHead>
               <TableHead>Đường dẫn</TableHead>
@@ -125,16 +138,29 @@ export default function BackupManagement() {
           </TableHeader>
           <TableBody>
             {backups.map((b, i) => (
-              <TableRow key={b.id}>
+              <TableRow 
+                key={b.id}
+                className="animate-in fade-in slide-in-from-left-2 hover:bg-blue-50/50 transition-colors"
+                style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'backwards' }}
+              >
                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
-                <TableCell>{b.name}</TableCell>
-                <TableCell>{b.path}</TableCell>
+                <TableCell className="font-medium">{b.name}</TableCell>
                 <TableCell>
-                  <Switch checked={b.is_active} disabled />
+                  <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                    {b.path}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <Switch checked={b.is_active} disabled className="transition-all" />
                 </TableCell>
                 <TableCell>{b.created_by_user?.display_name || "-"}</TableCell>
                 <TableCell className="flex gap-2 justify-end">
-                  <Button size="sm" variant="outline" onClick={() => handleRestore(b.id)}>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => handleRestore(b.id)}
+                    className="transition-all hover:scale-105 hover:border-green-400 hover:text-green-600"
+                  >
                     <RefreshCcw className="w-4 h-4" /> Phục hồi
                   </Button>
                 </TableCell>
@@ -150,12 +176,12 @@ export default function BackupManagement() {
             variant="outline"
             disabled={pageIndex === 1}
             onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
-            className="p-1"
+            className="p-1 transition-all hover:scale-105 hover:border-blue-400 disabled:opacity-50"
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
 
-          <span className="flex items-center px-2">
+          <span className="flex items-center px-3 py-1 bg-gray-100 rounded-md font-medium">
             Trang {pageIndex} / {totalPages}
           </span>
 
@@ -164,7 +190,7 @@ export default function BackupManagement() {
             variant="outline"
             disabled={pageIndex === totalPages}
             onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
-            className="p-1"
+            className="p-1 transition-all hover:scale-105 hover:border-blue-400 disabled:opacity-50"
           >
             <ChevronRight className="w-4 h-4" />
           </Button>

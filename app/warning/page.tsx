@@ -18,6 +18,7 @@ import axios from "axios";
 import api from "@/api/base";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 
 interface Resource {
     id: string;
@@ -113,17 +114,19 @@ export default function ResourceManagement() {
     return (
         <div className="min-h-screen bg-gray-50 p-3">
             {message && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in fade-in slide-in-from-top-4 duration-300">
                     <Alert
-                        className={`rounded-xl shadow-lg ${status === "success"
-                            ? "bg-green-100 border-green-500 text-green-800"
-                            : "bg-red-100 border-red-500 text-red-800"
-                            }`}
+                        className={cn(
+                            "rounded-xl shadow-lg transition-all",
+                            status === "success"
+                                ? "bg-green-100 border-green-500 text-green-800"
+                                : "bg-red-100 border-red-500 text-red-800"
+                        )}
                     >
                         {status === "success" ? (
-                            <CheckCircle className="h-5 w-5" />
+                            <CheckCircle className="h-5 w-5 animate-bounce" />
                         ) : (
-                            <XCircle className="h-5 w-5" />
+                            <XCircle className="h-5 w-5 animate-shake" />
                         )}
                         <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
                         <AlertDescription>{message}</AlertDescription>
@@ -131,7 +134,7 @@ export default function ResourceManagement() {
                 </div>
             )}
 
-            <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
+            <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Search */}
                 <div className="flex items-center justify-between mb-3">
                     <div className="relative">
@@ -139,7 +142,7 @@ export default function ResourceManagement() {
                         <Input
                             type="text"
                             placeholder="Tìm kiếm..."
-                            className="pl-10"
+                            className="pl-10 transition-all focus:ring-2 focus:ring-blue-300"
                             value={searchTerm}
                             onChange={(e: any) => setSearchTerm(e.target.value)}
                         />
@@ -149,7 +152,7 @@ export default function ResourceManagement() {
                 {/* Table */}
                 <Table className="w-full table-auto">
                     <TableHeader>
-                        <TableRow>
+                        <TableRow className="bg-gray-50">
                             <TableHead>STT</TableHead>
                             <TableHead>Tên</TableHead>
                             <TableHead>Sử dụng</TableHead>
@@ -165,25 +168,37 @@ export default function ResourceManagement() {
                                 r.display_name.toLowerCase().includes(searchTerm.toLowerCase())
                             )
                             .map((r, i) => (
-                                <TableRow key={r.id}>
+                                <TableRow 
+                                    key={r.id}
+                                    className="animate-in fade-in slide-in-from-left-2 hover:bg-blue-50/50 transition-colors"
+                                    style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'backwards' }}
+                                >
                                     <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
-                                    <TableCell>
+                                    <TableCell className="font-medium">
                                         {editing?.id === r.id ? (
                                             <Input
                                                 value={editName}
                                                 onChange={(e) => setEditName(e.target.value)}
-                                                className="w-40"
+                                                className="w-40 transition-all focus:ring-2 focus:ring-blue-300"
                                             />
                                         ) : (
                                             r.display_name
                                         )}
                                     </TableCell>
-                                    <TableCell>{r.usage.toFixed(2)}</TableCell>
-                                    <TableCell>{r.total.toFixed(2)}</TableCell>
+                                    <TableCell>
+                                        <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
+                                            {r.usage.toFixed(2)}
+                                        </span>
+                                    </TableCell>
+                                    <TableCell>
+                                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                            {r.total.toFixed(2)}
+                                        </span>
+                                    </TableCell>
                                     <TableCell>
                                         {r.created_by_user?.display_name || "-"}
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="text-gray-500 text-sm">
                                         {new Date(r.created_at).toLocaleString()}
                                     </TableCell>
                                     <TableCell className="space-x-2">
@@ -193,6 +208,7 @@ export default function ResourceManagement() {
                                                     size="sm"
                                                     variant="outline"
                                                     onClick={handleSave}
+                                                    className="transition-all hover:scale-105 hover:bg-green-50 hover:border-green-400 hover:text-green-600"
                                                 >
                                                     Lưu
                                                 </Button>
@@ -200,6 +216,7 @@ export default function ResourceManagement() {
                                                     size="sm"
                                                     variant="ghost"
                                                     onClick={() => setEditing(null)}
+                                                    className="transition-all hover:scale-105"
                                                 >
                                                     Huỷ
                                                 </Button>
@@ -210,16 +227,21 @@ export default function ResourceManagement() {
                                                     size="sm"
                                                     variant="outline"
                                                     onClick={() => handleSave(r)}
+                                                    className="transition-all hover:scale-105 hover:border-blue-400 hover:text-blue-600"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                 </Button>
                                                 <Popover>
                                                     <PopoverTrigger asChild>
-                                                        <Button size="sm" variant="destructive">
+                                                        <Button 
+                                                            size="sm" 
+                                                            variant="destructive"
+                                                            className="transition-all hover:scale-105"
+                                                        >
                                                             <Trash2 className="w-4 h-4" /> Xóa
                                                         </Button>
                                                     </PopoverTrigger>
-                                                    <PopoverContent>
+                                                    <PopoverContent className="animate-in fade-in zoom-in-95 duration-200">
                                                         <p>Bạn có chắc muốn xóa?</p>
                                                         <div className="flex justify-end gap-2 mt-2">
                                                             <Button size="sm" variant="outline" onClick={() => { }}>Hủy</Button>
@@ -242,12 +264,12 @@ export default function ResourceManagement() {
                         variant="outline"
                         disabled={pageIndex === 1}
                         onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
-                        className="p-1"
+                        className="p-1 transition-all hover:scale-105 hover:border-blue-400 disabled:opacity-50"
                     >
                         <ChevronLeft className="w-4 h-4" />
                     </Button>
 
-                    <span className="flex items-center px-2">
+                    <span className="flex items-center px-3 py-1 bg-gray-100 rounded-md font-medium">
                         Trang {pageIndex} / {totalPages}
                     </span>
 
@@ -256,7 +278,7 @@ export default function ResourceManagement() {
                         variant="outline"
                         disabled={pageIndex === totalPages}
                         onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
-                        className="p-1"
+                        className="p-1 transition-all hover:scale-105 hover:border-blue-400 disabled:opacity-50"
                     >
                         <ChevronRight className="w-4 h-4" />
                     </Button>

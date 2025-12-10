@@ -185,16 +185,16 @@ export default function DeviceManagementPage() {
         fetchSelect(1);
     }, []);
     return (
-        <div className="min-h-screen bg-gray-50 p-3">
+        <div className="min-h-screen bg-gray-50 p-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {message && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in slide-in-from-top-4 fade-in duration-300">
                     <Alert
                         className={`rounded-xl shadow-lg ${status === "success"
                             ? "bg-green-100 border-green-500 text-green-800"
                             : "bg-red-100 border-red-500 text-red-800"
                             }`}
                     >
-                        {status === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+                        {status === "success" ? <CheckCircle className="h-5 w-5 animate-bounce" /> : <XCircle className="h-5 w-5 animate-pulse" />}
                         <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
                         <AlertDescription>{message}</AlertDescription>
                     </Alert>
@@ -224,7 +224,7 @@ export default function DeviceManagementPage() {
                                 date_received: ""
                             })
                             setEditingDevice(null);
-                        }} className="flex items-center gap-2">
+                        }} className="flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:shadow-md">
                             <Plus className="w-4 h-4" />
                             Thêm thiết bị
                         </Button>
@@ -233,7 +233,7 @@ export default function DeviceManagementPage() {
 
                 <Table>
                     <TableHeader>
-                        <TableRow>
+                        <TableRow className="bg-gray-50">
                             <TableHead>STT</TableHead>
                             <TableHead>Tên thiết bị</TableHead>
                             <TableHead>IP</TableHead>
@@ -249,28 +249,79 @@ export default function DeviceManagementPage() {
                     </TableHeader>
                     <TableBody>
                         {devices.map((d, i) => (
-                            <TableRow key={d.id}>
+                            <TableRow 
+                                key={d.id}
+                                className="transition-all duration-200 hover:bg-blue-50 animate-in fade-in slide-in-from-left-4"
+                                style={{ animationDelay: `${i * 50}ms` }}
+                            >
                                 <TableCell>{i + 1}</TableCell>
-                                <TableCell>{d.device_name}</TableCell>
-                                <TableCell>{d.ip_address}</TableCell>
-                                <TableCell>{d.mac_address}</TableCell>
-                                <TableCell>{d.device_type_name}</TableCell>
-                                <TableCell>{d.unit_name}</TableCell>
+                                <TableCell>
+                                    <span className="font-medium">{d.device_name}</span>
+                                </TableCell>
+                                <TableCell>
+                                    <span className="font-mono text-xs px-2 py-1 bg-gray-100 rounded">
+                                        {d.ip_address}
+                                    </span>
+                                </TableCell>
+                                <TableCell>
+                                    <span className="font-mono text-xs px-2 py-1 bg-gray-100 rounded">
+                                        {d.mac_address}
+                                    </span>
+                                </TableCell>
+                                <TableCell>
+                                    {d.device_type_name ? (
+                                        <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                            {d.device_type_name}
+                                        </span>
+                                    ) : "-"}
+                                </TableCell>
+                                <TableCell>
+                                    {d.unit_name ? (
+                                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                            {d.unit_name}
+                                        </span>
+                                    ) : "-"}
+                                </TableCell>
                                 <TableCell className="max-w-[200px] truncate whitespace-nowrap overflow-hidden">{d.description}</TableCell>
-                                <TableCell>{new Date(d.created_at ?? "").toLocaleDateString("en-GB")}</TableCell>
-                                <TableCell>{new Date(d.date_received ?? "").toLocaleDateString("en-GB")}</TableCell>
-                                <TableCell>{d.status === "active" ? "Hoạt động" : "Ngừng"}</TableCell>
+                                <TableCell>
+                                    <span className="text-xs text-gray-500">
+                                        {new Date(d.created_at ?? "").toLocaleDateString("en-GB")}
+                                    </span>
+                                </TableCell>
+                                <TableCell>
+                                    <span className="text-xs text-gray-500">
+                                        {new Date(d.date_received ?? "").toLocaleDateString("en-GB")}
+                                    </span>
+                                </TableCell>
+                                <TableCell>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                        d.status === "active" 
+                                            ? "bg-green-100 text-green-700" 
+                                            : "bg-gray-100 text-gray-700"
+                                    }`}>
+                                        {d.status === "active" ? "Hoạt động" : "Ngừng"}
+                                    </span>
+                                </TableCell>
                                 <TableCell className="flex gap-2 justify-end">
-                                    <Button size="sm" variant="outline" onClick={() => handleEdit(d)}>
+                                    <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        onClick={() => handleEdit(d)}
+                                        className="transition-all duration-200 hover:scale-105 hover:border-blue-500"
+                                    >
                                         <Edit className="w-4 h-4" /> Sửa
                                     </Button>
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                            <Button size="sm" variant="destructive">
+                                            <Button 
+                                                size="sm" 
+                                                variant="destructive"
+                                                className="transition-all duration-200 hover:scale-105"
+                                            >
                                                 <Trash2 className="w-4 h-4" /> Xóa
                                             </Button>
                                         </PopoverTrigger>
-                                        <PopoverContent>
+                                        <PopoverContent className="animate-in zoom-in-95 fade-in duration-200">
                                             <p>Bạn có chắc muốn xóa?</p>
                                             <div className="flex justify-end gap-2 mt-2">
                                                 <Button size="sm" variant="outline" onClick={() => { }}>Hủy</Button>
@@ -287,27 +338,39 @@ export default function DeviceManagementPage() {
 
             {/* Modal thêm/sửa thiết bị */}
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-                    <div className="bg-white rounded-lg shadow-lg w-full max-w-lg">
-                        <div className="flex justify-between items-center p-4 border-b">
+                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-lg animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+                        <div className="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
                             <h3 className="text-lg font-semibold">{editingDevice ? "Sửa thiết bị" : "Thêm thiết bị"}</h3>
-                            <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>
+                            <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)} className="transition-transform duration-200 hover:scale-110 hover:rotate-90">
                                 <X className="w-5 h-5" />
                             </Button>
                         </div>
 
                         <div className="p-6 space-y-4">
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "100ms" }}>
                                 <Label className="mb-3">Tên thiết bị</Label>
-                                <Input value={formData.device_name} onChange={(e) => handleChange("device_name", e.target.value)} />
+                                <Input 
+                                    value={formData.device_name} 
+                                    onChange={(e) => handleChange("device_name", e.target.value)}
+                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                                />
                             </div>
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "150ms" }}>
                                 <Label className="mb-3">Địa chỉ IP</Label>
-                                <Input value={formData.ip_address} onChange={(e) => handleChange("ip_address", e.target.value)} />
+                                <Input 
+                                    value={formData.ip_address} 
+                                    onChange={(e) => handleChange("ip_address", e.target.value)}
+                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                                />
                             </div>
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "200ms" }}>
                                 <Label className="mb-3">Địa chỉ MAC</Label>
-                                <Input value={formData.mac_address} onChange={(e) => handleChange("mac_address", e.target.value)} />
+                                <Input 
+                                    value={formData.mac_address} 
+                                    onChange={(e) => handleChange("mac_address", e.target.value)}
+                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                                />
                             </div>
                             {/* <div>
                                 <Label className="mb-3">Nhóm thiết bị</Label>
@@ -327,18 +390,18 @@ export default function DeviceManagementPage() {
                                     </SelectContent>
                                 </Select>
                             </div> */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "250ms" }}>
                                 <Label className="mb-3">Loại thiết bị</Label>
                                 <Select
                                     value={formData.device_type}
                                     onValueChange={(value) => handleChange("device_type", value)}
                                 >
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full transition-all duration-200 focus:ring-2 focus:ring-blue-500">
                                         <SelectValue placeholder="Chọn loại thiết bị" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="animate-in zoom-in-95 fade-in duration-200">
                                         {groups.map((type) => (
-                                            <SelectItem key={type.id} value={type.id}>
+                                            <SelectItem key={type.id} value={type.id} className="transition-colors duration-150 hover:bg-blue-50">
                                                 {type.display_name}
                                             </SelectItem>
                                         ))}
@@ -347,41 +410,50 @@ export default function DeviceManagementPage() {
                             </div>
 
                             {/* Đơn vị */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "300ms" }}>
                                 <Label className="mb-3">Đơn vị</Label>
                                 <Select
                                     value={formData.unit_id}
                                     onValueChange={(value) => handleChange("unit_id", value)}
                                 >
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full transition-all duration-200 focus:ring-2 focus:ring-blue-500">
                                         <SelectValue placeholder="Chọn đơn vị" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="animate-in zoom-in-95 fade-in duration-200">
                                         {units.map((unit) => (
-                                            <SelectItem key={unit.id} value={unit.id}>
+                                            <SelectItem key={unit.id} value={unit.id} className="transition-colors duration-150 hover:bg-blue-50">
                                                 {unit.display_name}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="w-full">
+                            <div className="w-full animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "350ms" }}>
                                 <Label className="mb-3">Thời gian tiếp nhận</Label>
-                                <Input className="w-full block min-w-0" type="date" value={
-                                    formData.date_received
-                                        ? new Date(formData.date_received).toISOString().split("T")[0]
-                                        : ""
-                                } onChange={(e) => handleChange("date_received", e.target.value)} />
+                                <Input 
+                                    className="w-full block min-w-0 transition-all duration-200 focus:ring-2 focus:ring-blue-500" 
+                                    type="date" 
+                                    value={
+                                        formData.date_received
+                                            ? new Date(formData.date_received).toISOString().split("T")[0]
+                                            : ""
+                                    } 
+                                    onChange={(e) => handleChange("date_received", e.target.value)} 
+                                />
                             </div>
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "400ms" }}>
                                 <Label className="mb-3">Mô tả</Label>
-                                <Input value={formData.description} onChange={(e) => handleChange("description", e.target.value)} />
+                                <Input 
+                                    value={formData.description} 
+                                    onChange={(e) => handleChange("description", e.target.value)}
+                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                                />
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-2 p-4 border-t">
-                            <Button variant="outline" onClick={handleCancel}>Hủy</Button>
-                            <Button onClick={handleSave}>{editingDevice ? "Cập nhật" : "Thêm mới"}</Button>
+                        <div className="flex justify-end gap-2 p-4 border-t bg-gray-50 rounded-b-lg">
+                            <Button variant="outline" onClick={handleCancel} className="transition-all duration-200 hover:scale-105">Hủy</Button>
+                            <Button onClick={handleSave} className="transition-all duration-200 hover:scale-105 hover:shadow-md">{editingDevice ? "Cập nhật" : "Thêm mới"}</Button>
                         </div>
                     </div>
                 </div>

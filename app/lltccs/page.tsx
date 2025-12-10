@@ -293,21 +293,23 @@ export default function UserManagement() {
   return (
     <div className="min-h-screen bg-gray-50 p-3">
       {message && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in fade-in slide-in-from-top-4 duration-300">
           <Alert
-            className={`rounded-xl shadow-lg ${status === "success"
-              ? "bg-green-100 border-green-500 text-green-800"
-              : "bg-red-100 border-red-500 text-red-800"
-              }`}
+            className={cn(
+              "rounded-xl shadow-lg transition-all",
+              status === "success"
+                ? "bg-green-100 border-green-500 text-green-800"
+                : "bg-red-100 border-red-500 text-red-800"
+            )}
           >
-            {status === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+            {status === "success" ? <CheckCircle className="h-5 w-5 animate-bounce" /> : <XCircle className="h-5 w-5 animate-shake" />}
             <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
             <AlertDescription>{message}</AlertDescription>
           </Alert>
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
+      <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="flex items-center gap-3 mb-3">
           {/* Search */}
           <div className="relative w-[180px]">
@@ -315,7 +317,7 @@ export default function UserManagement() {
             <Input
               type="text"
               placeholder="Tìm kiếm nhân viên..."
-              className="pl-10"
+              className="pl-10 transition-all focus:ring-2 focus:ring-blue-300"
               value={searchTerm}
               onChange={(e: any) => setSearchTerm(e.target.value)}
             />
@@ -411,7 +413,7 @@ export default function UserManagement() {
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+          <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2 transition-all hover:scale-105 hover:shadow-md">
             <FileSpreadsheet className="w-4 h-4 text-green-600" />
             Xuất csv
           </Button>
@@ -433,7 +435,7 @@ export default function UserManagement() {
               });
               setSelected({ skill: [], certificate: [] });
             }}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 transition-all hover:scale-105 hover:shadow-md"
           >
             <Plus className="w-4 h-4" /> Thêm nhân viên
           </Button>
@@ -442,7 +444,7 @@ export default function UserManagement() {
 
         <Table className="w-full table-auto">
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-gray-50">
               <TableHead>STT</TableHead>
               <TableHead>Tên hiển thị</TableHead>
               <TableHead>SĐT</TableHead>
@@ -458,31 +460,54 @@ export default function UserManagement() {
             {users
               .filter(u => u.display_name.toLowerCase().includes(searchTerm.toLowerCase()))
               .map((u, i) => (
-                <TableRow key={u.id}>
+                <TableRow 
+                  key={u.id}
+                  className="animate-in fade-in slide-in-from-left-2 hover:bg-blue-50/50 transition-colors"
+                  style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'backwards' }}
+                >
                   <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
-                  <TableCell>{u.display_name}</TableCell>
+                  <TableCell className="font-medium">{u.display_name}</TableCell>
                   <TableCell>{u.phone_number || "-"}</TableCell>
                   <TableCell>{u.email || "-"}</TableCell>
-                  <TableCell>{u.rank_name || "-"}</TableCell>
-                  <TableCell>{u.position_name || "-"}</TableCell>
-                  <TableCell>{u.tckgm_level_name || "-"}</TableCell>
+                  <TableCell>
+                    {u.rank_name ? (
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                        {u.rank_name}
+                      </span>
+                    ) : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {u.position_name ? (
+                      <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                        {u.position_name}
+                      </span>
+                    ) : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {u.tckgm_level_name ? (
+                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                        {u.tckgm_level_name}
+                      </span>
+                    ) : "-"}
+                  </TableCell>
                   <TableCell>
                     <Switch
                       checked={u.is_active}
                       onCheckedChange={(val) => updateStaff(u.id, { ...u, is_active: val })}
+                      className="transition-all"
                     />
                   </TableCell>
                   <TableCell className="flex gap-2 justify-end">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(u)}>
+                    <Button size="sm" variant="outline" onClick={() => handleEdit(u)} className="transition-all hover:scale-105 hover:border-blue-400 hover:text-blue-600">
                       <Edit className="w-4 h-4" /> Sửa
                     </Button>
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button size="sm" variant="destructive">
+                        <Button size="sm" variant="destructive" className="transition-all hover:scale-105">
                           <Trash2 className="w-4 h-4" /> Xóa
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent>
+                      <PopoverContent className="animate-in fade-in zoom-in-95 duration-200">
                         <p>Bạn có chắc muốn xóa?</p>
                         <div className="flex justify-end gap-2 mt-2">
                           <Button size="sm" variant="outline">Hủy</Button>
@@ -503,19 +528,19 @@ export default function UserManagement() {
             variant="outline"
             disabled={pageIndex === 1}
             onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
-            className="p-1"
+            className="p-1 transition-all hover:scale-105 hover:border-blue-400 disabled:opacity-50"
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
 
-          <span className="flex items-center px-2">Trang {pageIndex} / {totalPages}</span>
+          <span className="flex items-center px-3 py-1 bg-gray-100 rounded-md font-medium">Trang {pageIndex} / {totalPages}</span>
 
           <Button
             size="sm"
             variant="outline"
             disabled={pageIndex === totalPages}
             onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
-            className="p-1"
+            className="p-1 transition-all hover:scale-105 hover:border-blue-400 disabled:opacity-50"
           >
             <ChevronRight className="w-4 h-4" />
           </Button>
@@ -524,11 +549,11 @@ export default function UserManagement() {
 
       {/* Modal thêm/sửa */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg">
-            <div className="flex justify-between items-center p-4 border-b">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+            <div className="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
               <h3 className="text-lg font-semibold">{editingUser ? "Sửa Nhân viên" : "Thêm Nhân viên"}</h3>
-              <Button variant="ghost" size="sm" onClick={handleCancel}>
+              <Button variant="ghost" size="sm" onClick={handleCancel} className="hover:bg-red-100 hover:text-red-600 transition-colors">
                 <X className="w-5 h-5" />
               </Button>
             </div>
@@ -935,9 +960,9 @@ export default function UserManagement() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 p-4 border-t">
-              <Button variant="outline" onClick={handleCancel}>Hủy</Button>
-              <Button onClick={handleSave}>{editingUser ? "Cập nhật" : "Thêm mới"}</Button>
+            <div className="flex justify-end gap-2 p-4 border-t bg-gray-50 rounded-b-lg">
+              <Button variant="outline" onClick={handleCancel} className="transition-all hover:scale-105">Hủy</Button>
+              <Button onClick={handleSave} className="transition-all hover:scale-105 hover:shadow-md">{editingUser ? "Cập nhật" : "Thêm mới"}</Button>
             </div>
           </div>
         </div>

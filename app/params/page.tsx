@@ -228,11 +228,11 @@ export default function ConfigManagement() {
   }, [])
   // ---- Render ----
   return (
-    <div className="min-h-screen bg-gray-50 p-3">
+    <div className="min-h-screen bg-gray-50 p-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {message && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in slide-in-from-top-4 fade-in duration-300">
           <Alert className={`rounded-xl shadow-lg ${status === "success" ? "bg-green-100 border-green-500 text-green-800" : "bg-red-100 border-red-500 text-red-800"}`}>
-            {status === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+            {status === "success" ? <CheckCircle className="h-5 w-5 animate-bounce" /> : <XCircle className="h-5 w-5 animate-pulse" />}
             <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
             <AlertDescription>{message}</AlertDescription>
           </Alert>
@@ -248,23 +248,23 @@ export default function ConfigManagement() {
             <Input
               type="text"
               placeholder="Tìm kiếm cấu hình..."
-              className="pl-10"
+              className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="flex justify-end gap-2 mb-3">
-            <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+            <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:shadow-md">
               <FileSpreadsheet className="w-4 h-4 text-green-600" />
               Xuất csv
             </Button>
-            <Button onClick={handleAddNew}>+ Thêm mới</Button>
+            <Button onClick={handleAddNew} className="transition-all duration-200 hover:scale-105 hover:shadow-md">+ Thêm mới</Button>
           </div>
         </div>
 
         <Table className="w-full table-auto">
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-gray-50">
               <TableHead>STT</TableHead>
               <TableHead>Tên</TableHead>
               <TableHead>Giá trị hiển thị</TableHead>
@@ -277,25 +277,48 @@ export default function ConfigManagement() {
           </TableHeader>
           <TableBody>
             {configs.map((c, i) => (
-              <TableRow key={c.id}>
+              <TableRow 
+                key={c.id}
+                className="transition-all duration-200 hover:bg-blue-50 animate-in fade-in slide-in-from-left-4"
+                style={{ animationDelay: `${i * 50}ms` }}
+              >
                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
-                <TableCell>{c.display_name}</TableCell>
+                <TableCell>
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                    {c.display_name}
+                  </span>
+                </TableCell>
                 <TableCell>{c.data?.display_value}</TableCell>
                 <TableCell>{c.data?.min ?? "-"}</TableCell>
                 <TableCell>{c.data?.max ?? "-"}</TableCell>
                 <TableCell>{c.data?.default_value ?? "-"}</TableCell>
-                <TableCell>{c.data?.unit ?? "-"}</TableCell>
+                <TableCell>
+                  {c.data?.unit ? (
+                    <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                      {c.data.unit}
+                    </span>
+                  ) : "-"}
+                </TableCell>
                 <TableCell className="flex gap-2 justify-end">
-                  <Button size="sm" variant="outline" onClick={() => handleEdit(c)}>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => handleEdit(c)}
+                    className="transition-all duration-200 hover:scale-105 hover:border-blue-500"
+                  >
                     <Edit className="w-4 h-4" /> Sửa
                   </Button>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button size="sm" variant="destructive">
+                      <Button 
+                        size="sm" 
+                        variant="destructive"
+                        className="transition-all duration-200 hover:scale-105"
+                      >
                         <Trash2 className="w-4 h-4" /> Xóa
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent>
+                    <PopoverContent className="animate-in zoom-in-95 fade-in duration-200">
                       <p>Bạn có chắc muốn xóa?</p>
                       <div className="flex justify-end gap-2 mt-2">
                         <Button size="sm" variant="outline" onClick={() => { }}>Hủy</Button>
@@ -310,11 +333,11 @@ export default function ConfigManagement() {
         </Table>
 
         <div className="flex items-center justify-end mt-4 space-x-2">
-          <Button size="sm" variant="outline" disabled={pageIndex === 1} onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}>
+          <Button size="sm" variant="outline" disabled={pageIndex === 1} onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))} className="transition-all duration-200 hover:scale-105 hover:border-blue-500">
             <ChevronLeft className="w-4 h-4" />
           </Button>
-          <span className="flex items-center px-2">Trang {pageIndex} / {totalPages}</span>
-          <Button size="sm" variant="outline" disabled={pageIndex === totalPages} onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}>
+          <span className="flex items-center px-3 py-1 bg-gray-100 rounded-full text-sm">Trang {pageIndex} / {totalPages}</span>
+          <Button size="sm" variant="outline" disabled={pageIndex === totalPages} onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))} className="transition-all duration-200 hover:scale-105 hover:border-blue-500">
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
@@ -359,41 +382,41 @@ interface ModalFormProps {
 
 function ModalForm({ title, config, onCancel, onSave, onChange, unit }: ModalFormProps) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-4 border-b">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 animate-in fade-in duration-200">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+        <div className="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
           <h3 className="text-lg font-semibold">{title}</h3>
-          <Button variant="ghost" size="sm" onClick={onCancel}>
+          <Button variant="ghost" size="sm" onClick={onCancel} className="transition-transform duration-200 hover:scale-110 hover:rotate-90">
             <X className="w-5 h-5" />
           </Button>
         </div>
         <div className="p-6 space-y-4">
-          <div>
+          <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "100ms" }}>
             <Label className="mb-3">Tên hiển thị</Label>
-            <Input value={config.display_name || ""} onChange={(e) => onChange("display_name", e.target.value)} />
+            <Input value={config.display_name || ""} onChange={(e) => onChange("display_name", e.target.value)} className="transition-all duration-200 focus:ring-2 focus:ring-blue-500" />
           </div>
-          <div>
+          <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "150ms" }}>
             <Label className="mb-3">Key</Label>
-            <Input value={config.value || ""} onChange={(e) => onChange("value", e.target.value)} />
+            <Input value={config.value || ""} onChange={(e) => onChange("value", e.target.value)} className="transition-all duration-200 focus:ring-2 focus:ring-blue-500" />
           </div>
-          <div>
+          <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "200ms" }}>
             <Label className="mb-3">Mô tả</Label>
-            <Input value={config.description || ""} onChange={(e) => onChange("description", e.target.value)} />
+            <Input value={config.description || ""} onChange={(e) => onChange("description", e.target.value)} className="transition-all duration-200 focus:ring-2 focus:ring-blue-500" />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "250ms" }}>
             <div>
               <Label className="mb-3">Tối thiểu</Label>
-              <Input type="number" value={config.data?.min ?? ""} onChange={(e) => onChange("min", Number(e.target.value), true)} />
+              <Input type="number" value={config.data?.min ?? ""} onChange={(e) => onChange("min", Number(e.target.value), true)} className="transition-all duration-200 focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
               <Label className="mb-3">Tối đa</Label>
-              <Input type="number" value={config.data?.max ?? ""} onChange={(e) => onChange("max", Number(e.target.value), true)} />
+              <Input type="number" value={config.data?.max ?? ""} onChange={(e) => onChange("max", Number(e.target.value), true)} className="transition-all duration-200 focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "300ms" }}>
             <div>
               <Label className="mb-3">Mặc định</Label>
-              <Input value={config.data?.default_value ?? ""} onChange={(e) => onChange("default_value", e.target.value, true)} />
+              <Input value={config.data?.default_value ?? ""} onChange={(e) => onChange("default_value", e.target.value, true)} className="transition-all duration-200 focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
               <Label className="mb-3">Đơn vị tính</Label>
@@ -401,13 +424,13 @@ function ModalForm({ title, config, onCancel, onSave, onChange, unit }: ModalFor
                 value={config.data?.unit ?? ""}
                 onValueChange={(value: any) => onChange("unit", value, true)}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full transition-all duration-200 focus:ring-2 focus:ring-blue-500">
                   <SelectValue placeholder="Chọn đơn vị tính" />
                 </SelectTrigger>
                 {/* low, medium, high, critical */}
-                <SelectContent>
+                <SelectContent className="animate-in zoom-in-95 fade-in duration-200">
                   {
-                    unit.map((item: any) => (<SelectItem key={item.id} value={item.value}>{item.display_name}</SelectItem>))
+                    unit.map((item: any) => (<SelectItem key={item.id} value={item.value} className="transition-colors duration-150 hover:bg-blue-50">{item.display_name}</SelectItem>))
                   }
 
                   {/* <SelectItem value="resolved">Resolved</SelectItem>
@@ -417,14 +440,14 @@ function ModalForm({ title, config, onCancel, onSave, onChange, unit }: ModalFor
             </div>
 
           </div>
-          <div>
+          <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "350ms" }}>
             <Label className="mb-3">Giá trị hiển thị</Label>
-            <Input value={config.data?.display_value ?? ""} onChange={(e) => onChange("display_value", e.target.value, true)} />
+            <Input value={config.data?.display_value ?? ""} onChange={(e) => onChange("display_value", e.target.value, true)} className="transition-all duration-200 focus:ring-2 focus:ring-blue-500" />
           </div>
         </div>
-        <div className="flex justify-end gap-2 p-4 border-t">
-          <Button variant="outline" onClick={onCancel}>Hủy</Button>
-          <Button onClick={onSave}>Lưu</Button>
+        <div className="flex justify-end gap-2 p-4 border-t bg-gray-50 rounded-b-lg">
+          <Button variant="outline" onClick={onCancel} className="transition-all duration-200 hover:scale-105">Hủy</Button>
+          <Button onClick={onSave} className="transition-all duration-200 hover:scale-105 hover:shadow-md">Lưu</Button>
         </div>
       </div>
     </div>

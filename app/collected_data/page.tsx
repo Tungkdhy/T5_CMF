@@ -147,16 +147,16 @@ useEffect(() => {
   fetchSelectData();
 }, [editingDoc]);
     return (
-        <div className="min-h-screen bg-gray-50 p-3">
+        <div className="min-h-screen bg-gray-50 p-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {message && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in slide-in-from-top-4 fade-in duration-300">
                     <Alert
                         className={`rounded-xl shadow-lg ${status === "success"
                                 ? "bg-green-100 border-green-500 text-green-800"
                                 : "bg-red-100 border-red-500 text-red-800"
                             }`}
                     >
-                        {status === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+                        {status === "success" ? <CheckCircle className="h-5 w-5 animate-bounce" /> : <XCircle className="h-5 w-5 animate-pulse" />}
                         <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
                         <AlertDescription>{message}</AlertDescription>
                     </Alert>
@@ -172,7 +172,7 @@ useEffect(() => {
                             setIsModalOpen(true);
                             setFormData({ file_id: "", target_id: "", description: "" });
                         }}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:shadow-md"
                     >
                         <Plus className="w-4 h-4" /> Thêm tài liệu
                     </Button>
@@ -180,7 +180,7 @@ useEffect(() => {
 
                 <Table className="w-full table-auto">
                     <TableHeader>
-                        <TableRow>
+                        <TableRow className="bg-gray-50">
                             <TableHead>STT</TableHead>
                             <TableHead>Tên file</TableHead>
                             <TableHead>Kích thước (KB)</TableHead>
@@ -191,23 +191,50 @@ useEffect(() => {
                     </TableHeader>
                     <TableBody>
                         {documents.map((doc, i) => (
-                            <TableRow key={doc.id}>
+                            <TableRow 
+                                key={doc.id}
+                                className="transition-all duration-200 hover:bg-blue-50 animate-in fade-in slide-in-from-left-4"
+                                style={{ animationDelay: `${i * 50}ms` }}
+                            >
                                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
-                                <TableCell>{doc.document?.file_name}</TableCell>
-                                <TableCell>{(Number(doc.document?.file_size) / 1024).toFixed(2)}</TableCell>
+                                <TableCell>
+                                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                        {doc.document?.file_name}
+                                    </span>
+                                </TableCell>
+                                <TableCell>
+                                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                                        {(Number(doc.document?.file_size) / 1024).toFixed(2)}
+                                    </span>
+                                </TableCell>
                                 <TableCell>{doc.description}</TableCell>
-                                <TableCell>{doc.target ? doc.target.name : "-"}</TableCell>
+                                <TableCell>
+                                    {doc.target ? (
+                                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                            {doc.target.name}
+                                        </span>
+                                    ) : "-"}
+                                </TableCell>
                                 <TableCell className="flex gap-2 justify-end">
-                                    <Button size="sm" variant="outline" onClick={() => handleEdit(doc)}>
+                                    <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        onClick={() => handleEdit(doc)}
+                                        className="transition-all duration-200 hover:scale-105 hover:border-blue-500"
+                                    >
                                         <Edit className="w-4 h-4" /> Sửa
                                     </Button>
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                            <Button size="sm" variant="destructive">
+                                            <Button 
+                                                size="sm" 
+                                                variant="destructive"
+                                                className="transition-all duration-200 hover:scale-105"
+                                            >
                                                 <Trash2 className="w-4 h-4" /> Xóa
                                             </Button>
                                         </PopoverTrigger>
-                                        <PopoverContent>
+                                        <PopoverContent className="animate-in zoom-in-95 fade-in duration-200">
                                             <p>Bạn có chắc muốn xóa?</p>
                                             <div className="flex justify-end gap-2 mt-2">
                                                 <Button size="sm" variant="outline">
@@ -231,11 +258,11 @@ useEffect(() => {
                         variant="outline"
                         disabled={pageIndex === 1}
                         onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
-                        className="p-1"
+                        className="p-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                     >
                         <ChevronLeft className="w-4 h-4" />
                     </Button>
-                    <span className="flex items-center px-2">
+                    <span className="flex items-center px-3 py-1 bg-gray-100 rounded-full text-sm">
                         Trang {pageIndex} / {totalPages}
                     </span>
                     <Button
@@ -243,7 +270,7 @@ useEffect(() => {
                         variant="outline"
                         disabled={pageIndex === totalPages}
                         onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
-                        className="p-1"
+                        className="p-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                     >
                         <ChevronRight className="w-4 h-4" />
                     </Button>
@@ -252,18 +279,18 @@ useEffect(() => {
 
             {/* Modal thêm / sửa */}
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-                    <div className="bg-white rounded-lg shadow-lg w-full max-w-lg">
-                        <div className="flex justify-between items-center p-4 border-b">
+                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-lg animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+                        <div className="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
                             <h3 className="text-lg font-semibold">{editingDoc ? "Sửa document" : "Thêm document"}</h3>
-                            <Button variant="ghost" size="sm" onClick={handleCancel}>
+                            <Button variant="ghost" size="sm" onClick={handleCancel} className="transition-transform duration-200 hover:scale-110 hover:rotate-90">
                                 <X className="w-5 h-5" />
                             </Button>
                         </div>
 
                         <div className="p-6 space-y-4">
                             {/* Lựa chọn file */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "100ms" }}>
                                 <Label className="mb-3">Chọn tài liệu</Label>
                                 <Select
                                     value={formData.file_id || ""}
@@ -271,12 +298,12 @@ useEffect(() => {
                                         setFormData((p) => ({ ...p, file_id: value }))
                                     }
                                 >
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full transition-all duration-200 focus:ring-2 focus:ring-blue-500">
                                         <SelectValue placeholder="-- Chọn file --" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="animate-in zoom-in-95 fade-in duration-200">
                                         {files.map((d) => (
-                                            <SelectItem key={d.id} value={d.id}>
+                                            <SelectItem key={d.id} value={d.id} className="transition-colors duration-150 hover:bg-blue-50">
                                                 {d.file_name}
                                             </SelectItem>
                                         ))}
@@ -285,7 +312,7 @@ useEffect(() => {
                             </div>
 
                             {/* Lựa chọn mục tiêu */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "150ms" }}>
                                 <Label className="mb-3">Chọn mục tiêu</Label>
                                 <Select
                                     value={formData.target_id || ""}
@@ -293,12 +320,12 @@ useEffect(() => {
                                         setFormData((p) => ({ ...p, target_id: value }))
                                     }
                                 >
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full transition-all duration-200 focus:ring-2 focus:ring-blue-500">
                                         <SelectValue placeholder="-- Chọn mục tiêu --" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="animate-in zoom-in-95 fade-in duration-200">
                                         {targets.map((t) => (
-                                            <SelectItem key={t.id} value={t.id}>
+                                            <SelectItem key={t.id} value={t.id} className="transition-colors duration-150 hover:bg-blue-50">
                                                 {t.target_name}
                                             </SelectItem>
                                         ))}
@@ -307,22 +334,23 @@ useEffect(() => {
                             </div>
 
                             {/* Mô tả */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "200ms" }}>
                                 <Label className="mb-3">Mô tả</Label>
                                 <Input
                                     value={formData.description || ""}
                                     onChange={(e) =>
                                         setFormData((p) => ({ ...p, description: e.target.value }))
                                     }
+                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-2 p-4 border-t">
-                            <Button variant="outline" onClick={handleCancel}>
+                        <div className="flex justify-end gap-2 p-4 border-t bg-gray-50 rounded-b-lg">
+                            <Button variant="outline" onClick={handleCancel} className="transition-all duration-200 hover:scale-105">
                                 Hủy
                             </Button>
-                            <Button onClick={handleSave}>{editingDoc ? "Cập nhật" : "Thêm mới"}</Button>
+                            <Button onClick={handleSave} className="transition-all duration-200 hover:scale-105 hover:shadow-md">{editingDoc ? "Cập nhật" : "Thêm mới"}</Button>
                         </div>
                     </div>
                 </div>

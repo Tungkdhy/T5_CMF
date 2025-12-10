@@ -139,16 +139,16 @@ export default function LogManagement() {
         fetchStatus()
     }, []);
     return (
-        <div className="min-h-screen bg-gray-50 p-3">
+        <div className="min-h-screen bg-gray-50 p-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {message && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in slide-in-from-top-4 fade-in duration-300">
                     <Alert
                         className={`rounded-xl shadow-lg ${status === "success"
                             ? "bg-green-100 border-green-500 text-green-800"
                             : "bg-red-100 border-red-500 text-red-800"
                             }`}
                     >
-                        {status === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+                        {status === "success" ? <CheckCircle className="h-5 w-5 animate-bounce" /> : <XCircle className="h-5 w-5 animate-pulse" />}
                         <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
                         <AlertDescription>{message}</AlertDescription>
                     </Alert>
@@ -162,20 +162,20 @@ export default function LogManagement() {
                         <Input
                             type="text"
                             placeholder="Tìm kiếm log..."
-                            className="pl-10 w-[240px]"
+                            className="pl-10 w-[240px] transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                             value={searchTerm}
                             onChange={(e: any) => setSearchTerm(e.target.value)}
                         />
                     </div>
                     <div className="w-[240px]">
                         <Select onValueChange={(v) => setSelectedLogType(v || null)} value={selectedLogType || ""}>
-                            <SelectTrigger className="w-[240px]">
+                            <SelectTrigger className="w-[240px] transition-all duration-200 focus:ring-2 focus:ring-blue-500">
                                 <SelectValue placeholder="Lọc theo loại log" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="animate-in zoom-in-95 fade-in duration-200">
                                 {
                                     typeLogs.map((type: any) => (
-                                        <SelectItem key={type.id} value={type.id}>
+                                        <SelectItem key={type.id} value={type.id} className="transition-colors duration-150 hover:bg-blue-50">
                                             {type.display_name}
                                         </SelectItem>
                                     ))
@@ -189,7 +189,7 @@ export default function LogManagement() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+                    <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:shadow-md">
                         <FileSpreadsheet className="w-4 h-4 text-green-600" />
                         Xuất csv
                     </Button>
@@ -197,7 +197,7 @@ export default function LogManagement() {
 
                 <Table className="w-full table-auto">
                     <TableHeader>
-                        <TableRow>
+                        <TableRow className="bg-gray-50">
                             <TableHead>STT</TableHead>
                             <TableHead>Người dùng</TableHead>
                             <TableHead>Hành động</TableHead>
@@ -208,23 +208,46 @@ export default function LogManagement() {
                     </TableHeader>
                     <TableBody>
                         {logs.map((log, i) => (
-                            <TableRow key={log.id}>
+                            <TableRow 
+                                key={log.id}
+                                className="transition-all duration-200 hover:bg-blue-50 animate-in fade-in slide-in-from-left-4"
+                                style={{ animationDelay: `${i * 50}ms` }}
+                            >
                                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
                                 <TableCell>{log.user?.display_name}</TableCell>
-                                <TableCell>{log.action_name}</TableCell>
-                                <TableCell>{log.log_type?.display_name || "-"}</TableCell>
+                                <TableCell>
+                                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                        {log.action_name}
+                                    </span>
+                                </TableCell>
+                                <TableCell>
+                                    {log.log_type?.display_name ? (
+                                        <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                            {log.log_type.display_name}
+                                        </span>
+                                    ) : "-"}
+                                </TableCell>
                                 <TableCell className="max-w-[400px] truncate whitespace-nowrap overflow-hidden">{log.description || "-"}</TableCell>
                                 <TableCell className="flex gap-2 justify-end">
-                                    <Button size="sm" variant="outline" onClick={() => setModalLog(log)}>
+                                    <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        onClick={() => setModalLog(log)}
+                                        className="transition-all duration-200 hover:scale-105 hover:border-blue-500"
+                                    >
                                         Xem
                                     </Button>
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                            <Button size="sm" variant="destructive">
+                                            <Button 
+                                                size="sm" 
+                                                variant="destructive"
+                                                className="transition-all duration-200 hover:scale-105"
+                                            >
                                                 <Trash2 className="w-4 h-4" /> Xóa
                                             </Button>
                                         </PopoverTrigger>
-                                        <PopoverContent>
+                                        <PopoverContent className="animate-in zoom-in-95 fade-in duration-200">
                                             <p>Bạn có chắc muốn xóa log này?</p>
                                             <div className="flex justify-end gap-2 mt-2">
                                                 <Button size="sm" variant="outline" onClick={() => { }}>
@@ -249,12 +272,12 @@ export default function LogManagement() {
                         variant="outline"
                         disabled={pageIndex === 1}
                         onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
-                        className="p-1"
+                        className="p-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                     >
                         <ChevronLeft className="w-4 h-4" />
                     </Button>
 
-                    <span className="flex items-center px-2">
+                    <span className="flex items-center px-3 py-1 bg-gray-100 rounded-full text-sm">
                         Trang {pageIndex} / {totalPages}
                     </span>
 
@@ -263,7 +286,7 @@ export default function LogManagement() {
                         variant="outline"
                         disabled={pageIndex === totalPages}
                         onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
-                        className="p-1"
+                        className="p-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                     >
                         <ChevronRight className="w-4 h-4" />
                     </Button>
@@ -272,35 +295,46 @@ export default function LogManagement() {
 
             {/* Modal chi tiết log */}
             {modalLog && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-                    <div className="bg-white rounded-lg shadow-lg w-full max-w-lg">
-                        <div className="flex justify-between items-center p-4 border-b">
+                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-lg animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+                        <div className="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
                             <h3 className="text-lg font-semibold">Chi tiết log</h3>
-                            <Button variant="ghost" size="sm" onClick={() => setModalLog(null)}>
+                            <Button variant="ghost" size="sm" onClick={() => setModalLog(null)} className="transition-transform duration-200 hover:scale-110 hover:rotate-90">
                                 <X className="w-5 h-5" />
                             </Button>
                         </div>
 
-                        <div className="p-6 space-y-2">
-                            <p>
+                        <div className="p-6 space-y-3">
+                            <p className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "100ms" }}>
                                 <strong>Người dùng:</strong> {modalLog.user.display_name} ({modalLog.user.user_name})
                             </p>
-                            <p>
-                                <strong>Hành động:</strong> {modalLog.action_name}
+                            <p className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "150ms" }}>
+                                <strong>Hành động:</strong>{" "}
+                                <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                    {modalLog.action_name}
+                                </span>
                             </p>
-                            <p>
-                                <strong>Loại log:</strong> {modalLog.log_type?.display_name || "-"}
+                            <p className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "200ms" }}>
+                                <strong>Loại log:</strong>{" "}
+                                {modalLog.log_type?.display_name ? (
+                                    <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                        {modalLog.log_type.display_name}
+                                    </span>
+                                ) : "-"}
                             </p>
-                            <p>
+                            <p className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "250ms" }}>
                                 <strong>Mô tả:</strong> {modalLog.description || "-"}
                             </p>
-                            <p>
-                                <strong>Trạng thái:</strong> {modalLog.is_active ? "Active" : "Inactive"}
+                            <p className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "300ms" }}>
+                                <strong>Trạng thái:</strong>{" "}
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${modalLog.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}>
+                                    {modalLog.is_active ? "Active" : "Inactive"}
+                                </span>
                             </p>
                         </div>
 
-                        <div className="flex justify-end gap-2 p-4 border-t">
-                            <Button variant="outline" onClick={() => setModalLog(null)}>
+                        <div className="flex justify-end gap-2 p-4 border-t bg-gray-50 rounded-b-lg">
+                            <Button variant="outline" onClick={() => setModalLog(null)} className="transition-all duration-200 hover:scale-105">
                                 Đóng
                             </Button>
                         </div>

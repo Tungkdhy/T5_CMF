@@ -127,16 +127,16 @@ export default function CategoryManagement() {
     }, [pageIndex, formData.reload]);
 
     return (
-        <div className="min-h-screen bg-gray-50 p-3">
+        <div className="min-h-screen bg-gray-50 p-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {message && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in slide-in-from-top-4 fade-in duration-300">
                     <Alert
                         className={`rounded-xl shadow-lg ${status === "success"
                             ? "bg-green-100 border-green-500 text-green-800"
                             : "bg-red-100 border-red-500 text-red-800"
                             }`}
                     >
-                        {status === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+                        {status === "success" ? <CheckCircle className="h-5 w-5 animate-bounce" /> : <XCircle className="h-5 w-5 animate-pulse" />}
                         <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
                         <AlertDescription>{message}</AlertDescription>
                     </Alert>
@@ -150,7 +150,7 @@ export default function CategoryManagement() {
                         <Input
                             type="text"
                             placeholder="Tìm kiếm danh mục..."
-                            className="pl-10"
+                            className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                             value={searchTerm}
                             onChange={(e: any) => setSearchTerm(e.target.value)}
                         />
@@ -158,14 +158,14 @@ export default function CategoryManagement() {
                     <Button onClick={() => {
                         setIsModalOpen(true);
                         setFormData({ display_name: "", description: "", scope: "", visible: true });
-                    }} className="flex items-center gap-2">
+                    }} className="flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:shadow-md">
                         <Plus className="w-4 h-4" /> Thêm danh mục
                     </Button>
                 </div>
 
                 <Table className="w-full table-auto">
                     <TableHeader>
-                        <TableRow>
+                        <TableRow className="bg-gray-50">
                             <TableHead>STT</TableHead>
                             <TableHead>Tên danh mục</TableHead>
                             <TableHead>Mô tả</TableHead>
@@ -177,26 +177,47 @@ export default function CategoryManagement() {
                     </TableHeader>
                     <TableBody>
                         {categories.map((c, i) => (
-                            <TableRow key={c.id}>
+                            <TableRow 
+                                key={c.id}
+                                className="transition-all duration-200 hover:bg-blue-50 animate-in fade-in slide-in-from-left-4"
+                                style={{ animationDelay: `${i * 50}ms` }}
+                            >
                                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
-                                <TableCell>{c.display_name}</TableCell>
+                                <TableCell>
+                                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                        {c.display_name}
+                                    </span>
+                                </TableCell>
                                 <TableCell>{c.description}</TableCell>
                                 {/* <TableCell>{c.scope}</TableCell> */}
                                 <TableCell>
-                                    <Switch checked={c.visible} onCheckedChange={() => handleVisibleToggle(c)} />
+                                    <Switch 
+                                        checked={c.visible} 
+                                        onCheckedChange={() => handleVisibleToggle(c)}
+                                        className="transition-transform duration-200 hover:scale-110"
+                                    />
                                 </TableCell>
                                 <TableCell>{c.created_by_user?.display_name || "-"}</TableCell>
                                 <TableCell className="flex gap-2 justify-end">
-                                    <Button size="sm" variant="outline" onClick={() => handleEdit(c)}>
+                                    <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        onClick={() => handleEdit(c)}
+                                        className="transition-all duration-200 hover:scale-105 hover:border-blue-500"
+                                    >
                                         <Edit className="w-4 h-4" /> Sửa
                                     </Button>
                                     <Popover>
                                         <PopoverTrigger asChild>
-                                            <Button size="sm" variant="destructive">
+                                            <Button 
+                                                size="sm" 
+                                                variant="destructive"
+                                                className="transition-all duration-200 hover:scale-105"
+                                            >
                                                 <Trash2 className="w-4 h-4" /> Xóa
                                             </Button>
                                         </PopoverTrigger>
-                                        <PopoverContent>
+                                        <PopoverContent className="animate-in zoom-in-95 fade-in duration-200">
                                             <p>Bạn có chắc muốn xóa?</p>
                                             <div className="flex justify-end gap-2 mt-2">
                                                 <Button size="sm" variant="outline" onClick={() => { }}>Hủy</Button>
@@ -217,19 +238,19 @@ export default function CategoryManagement() {
                         variant="outline"
                         disabled={pageIndex === 1}
                         onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
-                        className="p-1"
+                        className="p-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                     >
                         <ChevronLeft className="w-4 h-4" />
                     </Button>
 
-                    <span className="flex items-center px-2">Trang {pageIndex} / {totalPages}</span>
+                    <span className="flex items-center px-3 py-1 bg-gray-100 rounded-full text-sm">Trang {pageIndex} / {totalPages}</span>
 
                     <Button
                         size="sm"
                         variant="outline"
                         disabled={pageIndex === totalPages}
                         onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
-                        className="p-1"
+                        className="p-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                     >
                         <ChevronRight className="w-4 h-4" />
                     </Button>
@@ -238,37 +259,49 @@ export default function CategoryManagement() {
 
             {/* Modal thêm/sửa danh mục */}
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-                    <div className="bg-white rounded-lg shadow-lg w-full max-w-lg">
-                        <div className="flex justify-between items-center p-4 border-b">
+                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-lg animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+                        <div className="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
                             <h3 className="text-lg font-semibold">{editingCategory ? "Sửa danh mục" : "Thêm danh mục"}</h3>
-                            <Button variant="ghost" size="sm" onClick={handleCancel}>
+                            <Button variant="ghost" size="sm" onClick={handleCancel} className="transition-transform duration-200 hover:scale-110 hover:rotate-90">
                                 <X className="w-5 h-5" />
                             </Button>
                         </div>
 
                         <div className="p-6 space-y-4">
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "100ms" }}>
                                 <Label className="mb-3">Tên danh mục</Label>
-                                <Input value={formData.display_name} onChange={(e) => handleChange("display_name", e.target.value)} />
+                                <Input 
+                                    value={formData.display_name} 
+                                    onChange={(e) => handleChange("display_name", e.target.value)}
+                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                                />
                             </div>
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "150ms" }}>
                                 <Label className="mb-3">Mô tả</Label>
-                                <Input value={formData.description} onChange={(e) => handleChange("description", e.target.value)} />
+                                <Input 
+                                    value={formData.description} 
+                                    onChange={(e) => handleChange("description", e.target.value)}
+                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                                />
                             </div>
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "200ms" }}>
                                 <Label className="mb-3">Phạm vi</Label>
-                                <Input value={formData.scope} onChange={(e) => handleChange("scope", e.target.value)} />
+                                <Input 
+                                    value={formData.scope} 
+                                    onChange={(e) => handleChange("scope", e.target.value)}
+                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
+                                />
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "250ms" }}>
                                 <Label>Hiển thị</Label>
                                 <Switch checked={formData.visible} onCheckedChange={(checked) => handleChange("visible", checked)} />
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-2 p-4 border-t">
-                            <Button variant="outline" onClick={handleCancel}>Hủy</Button>
-                            <Button onClick={handleSave}>{editingCategory ? "Cập nhật" : "Thêm mới"}</Button>
+                        <div className="flex justify-end gap-2 p-4 border-t bg-gray-50 rounded-b-lg">
+                            <Button variant="outline" onClick={handleCancel} className="transition-all duration-200 hover:scale-105">Hủy</Button>
+                            <Button onClick={handleSave} className="transition-all duration-200 hover:scale-105 hover:shadow-md">{editingCategory ? "Cập nhật" : "Thêm mới"}</Button>
                         </div>
                     </div>
                 </div>

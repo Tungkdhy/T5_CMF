@@ -45,7 +45,7 @@ import { Skeleton } from "@/components/ui/skeleton"; // 👈 Skeleton từ shadc
 
 import { getCategory } from "@/api/categor";
 import { createTasks, deleteTask, getTaskById, getTasks, sendNotification, sendNotificationDue, sendNotificationProcess, updateTask } from "@/api/task";
-import { buildCommentTree, mapTasksToBoard } from "@/utils/convert";
+import { buildCommentTree, mapTasksToBoard, StatusItem } from "@/utils/convert";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { createComment, getComments, replyComment as replyComments, updateComment } from "@/api/comment";
@@ -125,13 +125,11 @@ const initialTasks: Record<string, Task> = {
 };
 
 const initialColumns: Record<string, Column> = {
-  open: { id: "open", title: "📌 Việc cần làm", taskIds: ["task-1"] },
-  "in progress": { id: "in progress", title: "⚡ Đang làm", taskIds: ["task-2"] },
-  done: { id: "done", title: "✅ Hoàn thành", taskIds: ["task-3"] },
-  cancelled: { id: "cancelled", title: "❌ Đã hủy", taskIds: [] },
+  open: { id: "open", title: "📌 Cần làm (0)", taskIds: [] },
+  in_progress: { id: "in_progress", title: "⚡ Đang làm (0)", taskIds: [] },
+  done: { id: "done", title: "✅ Hoàn thành (0)", taskIds: [] },
+  cancelled: { id: "cancelled", title: "❌ Đã hủy (0)", taskIds: [] },
 };
-
-const columnOrder = ["open", "in progress", "done", "cancelled"];
 
 export default function TasksPage() {
   const [showComments, setShowComments] = useState(true);
@@ -158,10 +156,8 @@ export default function TasksPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [tasks, setTasks] = useState(initialTasks);
   const [columns, setColumns] = useState(initialColumns);
-  const [status, setStatus] = useState<any[]>([{
-    id: '1',
-    display_name: "Todo"
-  }]);
+  const [columnOrder, setColumnOrder] = useState<string[]>(["open", "in_progress", "done", "cancelled"]);
+  const [status, setStatus] = useState<StatusItem[]>([]);
   const [filter, setFilter] = useState({
     priority_id: "",
     status_id: "",
@@ -340,7 +336,7 @@ export default function TasksPage() {
     });
 
 
-    const id = status.find((s: any) => s.display_name.toUpperCase() === result.destination?.droppableId.toUpperCase())?.id;
+    const id = status.find((s: StatusItem) => s.value === result.destination?.droppableId)?.id;
     // console.log(id);
     try {
       await updateTask(result.draggableId, { status_id: id });
@@ -520,17 +516,17 @@ export default function TasksPage() {
         category_id: filter.category_id,
         team_id: filter.team_id
       });
-      setColumns(mapTasksToBoard(res.data.rows).columns);
-      setTasks(mapTasksToBoard(res.data.rows).tasks);
-      // console.log(mapTasksToBoard(res.data.rows).tasks);
+      const boardData = mapTasksToBoard(res.data.rows, status);
+      setColumns(boardData.columns);
+      setTasks(boardData.tasks);
+      setColumnOrder(boardData.columnOrder);
       if (editingTask?.id) {
-        const edit_task = Object.keys(mapTasksToBoard(res.data.rows).tasks).filter(key => (key === editingTask.id))
-        setEditingTask(mapTasksToBoard(res.data.rows).tasks[`${edit_task}`])
+        const edit_task = Object.keys(boardData.tasks).filter(key => (key === editingTask.id));
+        setEditingTask(boardData.tasks[`${edit_task}`]);
       }
     } catch (err: any) {
       console.log(err);
-
-      showAlert(err.response.data.message, "error");
+      showAlert(err.response?.data?.message || "Có lỗi xảy ra", "error");
     }
   };
   const fetchComment = async (id: any) => {
@@ -590,12 +586,14 @@ export default function TasksPage() {
     if (editingTask?.id) fetchComment(editingTask.id);
   }, [editingTask?.id, isReload]);
   useEffect(() => {
+    // Chỉ fetch task khi đã có status list
+    if (status.length === 0) return;
+    
     const delayDebounce = setTimeout(() => {
       fetchTask();
-
     }, 500);
     return () => clearTimeout(delayDebounce);
-  }, [filter, formData.reload]);
+  }, [filter, formData.reload, status]);
   const fetchStatus = async () => {
     try {
       const res = await getCategory({ pageSize: 1000, pageIndex: 1, scope: "STATUS" });
@@ -639,14 +637,16 @@ export default function TasksPage() {
   return (
     <div className="p-3 bg-gray-50 min-h-screen">
       {message && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in fade-in slide-in-from-top-4 duration-300">
           <Alert
-            className={`rounded-xl shadow-lg ${type === "success"
-              ? "bg-green-100 border-green-500 text-green-800"
-              : "bg-red-100 border-red-500 text-red-800"
-              }`}
+            className={cn(
+              "rounded-xl shadow-lg transition-all",
+              type === "success"
+                ? "bg-green-100 border-green-500 text-green-800"
+                : "bg-red-100 border-red-500 text-red-800"
+            )}
           >
-            {type === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+            {type === "success" ? <CheckCircle className="h-5 w-5 animate-bounce" /> : <XCircle className="h-5 w-5 animate-shake" />}
             <AlertTitle>{type === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
             <AlertDescription>{message}</AlertDescription>
           </Alert>
@@ -766,8 +766,8 @@ export default function TasksPage() {
         </div>
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {columnOrder.map((colId) => {
+        <div className="flex gap-4">
+          {columnOrder.map((colId, colIndex) => {
             const column = columns[colId];
             const columnTasks = column.taskIds.map((id) => tasks[id]);
 
@@ -777,8 +777,13 @@ export default function TasksPage() {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`bg-white rounded-xl shadow p-4 flex flex-col ${snapshot.isDraggingOver ? "bg-blue-50" : ""
-                      }`}
+                    className={cn(
+                      "bg-white rounded-xl shadow p-4 flex flex-col flex-1 min-w-0",
+                      "animate-in fade-in slide-in-from-bottom-4 duration-500",
+                      "transition-all",
+                      snapshot.isDraggingOver && "bg-blue-50 ring-2 ring-blue-300 ring-opacity-50 scale-[1.02]"
+                    )}
+                    style={{ animationDelay: `${colIndex * 100}ms`, animationFillMode: 'backwards' }}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="font-semibold">{column.title}</h2>
@@ -786,7 +791,7 @@ export default function TasksPage() {
                       {colId === "open" && !loading && (
                         <Button
                           variant="ghost"
-                          className="text-gray-500 hover:text-black"
+                          className="text-gray-500 hover:text-black hover:scale-105 transition-transform"
                           onClick={() => handleOpenModal()}
                         >
                           <Plus size={16} className="mr-1" /> Thêm mới
@@ -797,7 +802,7 @@ export default function TasksPage() {
                       ? Array.from({ length: 3 }).map((_, i) => (
                         <div
                           key={i}
-                          className="border rounded-lg shadow-sm mb-3 p-3"
+                          className="border rounded-lg shadow-sm mb-3 p-3 animate-pulse"
                         >
                           <Skeleton className="w-full h-24 mb-2 rounded" />
                           <Skeleton className="h-4 w-3/4 mb-2" />
@@ -810,19 +815,30 @@ export default function TasksPage() {
                           draggableId={task.id}
                           index={index}
                         >
-                          {(provided) => (
+                          {(provided, snapshot) => (
                             <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className="bg-white border rounded-lg shadow-sm mb-3 overflow-hidden cursor-pointer hover:shadow-md transition"
+                              className={cn(
+                                "bg-white border rounded-lg shadow-sm mb-3 overflow-hidden cursor-pointer",
+                                "transition-all duration-300 ease-out",
+                                "hover:shadow-lg hover:-translate-y-1 hover:border-blue-200",
+                                "animate-in fade-in slide-in-from-left-2",
+                                snapshot.isDragging && "shadow-2xl scale-105 rotate-2 ring-2 ring-blue-400"
+                              )}
+                              style={{ 
+                                animationDelay: `${(colIndex * 100) + (index * 50)}ms`,
+                                animationFillMode: 'backwards',
+                                ...provided.draggableProps.style
+                              }}
                               onClick={() => handleOpenModal(task)}
                             >
                               {task.image && (
                                 <img
                                   src={task.image}
                                   alt={task.title}
-                                  className="w-full h-32 object-cover"
+                                  className="w-full h-32 object-cover transition-transform duration-300 hover:scale-105"
                                 />
                               )}
                               <div className="p-3">
@@ -833,10 +849,12 @@ export default function TasksPage() {
 
                                 {/* Hạn công việc */}
                                 <p
-                                  className={`text-xs font-medium mt-1 ${new Date(task?.dueDate ?? "") < new Date()
-                                    ? "text-red-500"
-                                    : "text-gray-700"
-                                    }`}
+                                  className={cn(
+                                    "text-xs font-medium mt-1 transition-colors",
+                                    new Date(task?.dueDate ?? "") < new Date()
+                                      ? "text-red-500 animate-pulse"
+                                      : "text-gray-700"
+                                  )}
                                 >
                                   {task.dueDate
                                     ? new Date(task.dueDate) < new Date()
@@ -854,7 +872,7 @@ export default function TasksPage() {
                                     </div>
                                     <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                                       <div
-                                        className="h-full bg-green-500"
+                                        className="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-700 ease-out"
                                         style={{
                                           width: `${Math.round(Number(task.progress_percent))}%`,
                                         }}
@@ -890,7 +908,7 @@ export default function TasksPage() {
                                           task?.assignee_name || task.id
                                         ),
                                       }}
-                                      className="w-6 h-6 flex items-center justify-center rounded-full text-white text-xs"
+                                      className="w-6 h-6 flex items-center justify-center rounded-full text-white text-xs transition-transform hover:scale-110"
                                     >
                                       {task?.assignee_name?.slice(0, 2)}
                                     </span>

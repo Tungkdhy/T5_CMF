@@ -199,10 +199,10 @@ export default function ReportManagementPage() {
         fetchLevel();
     }, [searchTerm]);
     return (
-        <div className="min-h-screen bg-gray-50 p-3">
+        <div className="min-h-screen bg-gray-50 p-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Alert */}
             {message && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in slide-in-from-top-4 fade-in duration-300">
                     <Alert
                         className={`rounded-xl shadow-lg ${status === "success"
                             ? "bg-green-100 border-green-500 text-green-800"
@@ -210,9 +210,9 @@ export default function ReportManagementPage() {
                             }`}
                     >
                         {status === "success" ? (
-                            <CheckCircle className="h-5 w-5" />
+                            <CheckCircle className="h-5 w-5 animate-bounce" />
                         ) : (
-                            <XCircle className="h-5 w-5" />
+                            <XCircle className="h-5 w-5 animate-pulse" />
                         )}
                         <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
                         <AlertDescription>{message}</AlertDescription>
@@ -229,12 +229,12 @@ export default function ReportManagementPage() {
                             <Input
                                 type="text"
                                 placeholder="Tìm kiếm báo cáo..."
-                                className="pl-10"
+                                className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                                 value={searchTerm}
                                 onChange={(e: any) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <Button onClick={handleAddReport} className="flex items-center gap-2">
+                        <Button onClick={handleAddReport} className="flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:shadow-md">
                             <Plus className="w-4 h-4" />
                             Thêm báo cáo
                         </Button>
@@ -270,26 +270,42 @@ export default function ReportManagementPage() {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {filteredReports.map((item, index) => (
-                                    <tr key={item.id} className="hover:bg-gray-50">
+                                    <tr 
+                                        key={item.id} 
+                                        className="hover:bg-blue-50 transition-all duration-200 animate-in fade-in slide-in-from-left-4"
+                                        style={{ animationDelay: `${index * 50}ms` }}
+                                    >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {index + 1}
                                         </td>
                                         <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                            {item.report_name}
+                                            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                                {item.report_name}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500">
                                             {item.description}
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500">
-                                            {item.report_status}
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                item.report_status === "published" 
+                                                    ? "bg-green-100 text-green-700" 
+                                                    : "bg-yellow-100 text-yellow-700"
+                                            }`}>
+                                                {item.report_status}
+                                            </span>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500">
-                                            {item.level_name}
+                                            {item.level_name ? (
+                                                <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                                    {item.level_name}
+                                                </span>
+                                            ) : "-"}
                                         </td>
                                         <td className="px-6 py-4 text-sm text-gray-500">
                                             <button
                                                 onClick={() => downloadFile(`http://10.10.53.58:3002/${item.url}`, `${item.url}`)}
-                                                className="text-blue-500 hover:underline"
+                                                className="text-blue-500 hover:underline transition-colors duration-200 hover:text-blue-700"
                                             >
                                                 Tải file
                                             </button>
@@ -300,7 +316,7 @@ export default function ReportManagementPage() {
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() => handleEdit(item)}
-                                                    className="flex items-center gap-1"
+                                                    className="flex items-center gap-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                     Sửa
@@ -310,13 +326,13 @@ export default function ReportManagementPage() {
                                                         <Button
                                                             variant="destructive"
                                                             size="sm"
-                                                            className="flex items-center gap-1"
+                                                            className="flex items-center gap-1 transition-all duration-200 hover:scale-105"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
                                                             Xóa
                                                         </Button>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="w-56">
+                                                    <PopoverContent className="w-56 animate-in zoom-in-95 fade-in duration-200">
                                                         <p className="text-sm mb-3">Bạn có chắc muốn xóa báo cáo này?</p>
                                                         <div className="flex justify-end gap-2">
                                                             <Button variant="outline" size="sm">
@@ -344,11 +360,11 @@ export default function ReportManagementPage() {
                                 variant="outline"
                                 disabled={pageIndex === 1}
                                 onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
-                                className="p-1"
+                                className="p-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                             >
                                 <ChevronLeft className="w-4 h-4" />
                             </Button>
-                            <span className="flex items-center px-2">
+                            <span className="flex items-center px-3 py-1 bg-gray-100 rounded-full text-sm">
                                 Trang {pageIndex} / {totalPages}
                             </span>
                             <Button
@@ -356,7 +372,7 @@ export default function ReportManagementPage() {
                                 variant="outline"
                                 disabled={pageIndex === totalPages}
                                 onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
-                                className="p-1"
+                                className="p-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                             >
                                 <ChevronRight className="w-4 h-4" />
                             </Button>
@@ -364,7 +380,7 @@ export default function ReportManagementPage() {
                     </div>
 
                     {reports.length === 0 && (
-                        <div className="text-center py-12">
+                        <div className="text-center py-12 animate-in fade-in duration-500">
                             <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 mx-auto mb-4" />
                             <h3 className="mt-2 text-sm font-medium text-gray-900">
                                 Không tìm thấy báo cáo
@@ -379,10 +395,10 @@ export default function ReportManagementPage() {
 
             {/* Report Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+                <div className="fixed inset-0 flex items-center justify-center p-4 z-50 bg-black/30 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
                         {/* Header */}
-                        <div className="flex justify-between items-center border-b p-4">
+                        <div className="flex justify-between items-center border-b p-4 bg-gray-50 rounded-t-lg">
                             <h3 className="text-lg font-semibold">
                                 {editingReport ? "Chỉnh sửa báo cáo" : "Thêm báo cáo mới"}
                             </h3>
@@ -390,7 +406,7 @@ export default function ReportManagementPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setIsModalOpen(false)}
-                                className="p-0 h-auto"
+                                className="p-0 h-auto transition-transform duration-200 hover:scale-110 hover:rotate-90"
                             >
                                 <X className="w-5 h-5" />
                             </Button>
@@ -398,10 +414,11 @@ export default function ReportManagementPage() {
 
                         {/* Body */}
                         <div className="p-6 space-y-4">
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "100ms" }}>
                                 <Label className="mb-3">Chọn file</Label>
                                 <Input
                                     type="file"
+                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                                     onChange={async (e) => {
                                         const file = e.target.files?.[0];
                                         if (file) {
@@ -434,7 +451,7 @@ export default function ReportManagementPage() {
                                     }}
                                 />
                             </div>
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "150ms" }}>
                                 <Label className="mb-3" htmlFor="report_name">
                                     Tên báo cáo
                                 </Label>
@@ -442,14 +459,14 @@ export default function ReportManagementPage() {
                                     id="report_name"
                                     value={formData.report_name || ""}
                                     onChange={(e) => handleChange("report_name", e.target.value)}
-                                    className={errors.report_name ? "border-red-500" : ""}
+                                    className={`transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${errors.report_name ? "border-red-500" : ""}`}
                                 />
                                 {errors.report_name && (
                                     <p className="text-red-500 text-sm mt-1">{errors.report_name}</p>
                                 )}
                             </div>
 
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "200ms" }}>
                                 <Label className="mb-3" htmlFor="description">
                                     Mô tả
                                 </Label>
@@ -457,14 +474,14 @@ export default function ReportManagementPage() {
                                     id="description"
                                     value={formData.description || ""}
                                     onChange={(e) => handleChange("description", e.target.value)}
-                                    className={errors.description ? "border-red-500" : ""}
+                                    className={`transition-all duration-200 focus:ring-2 focus:ring-blue-500 ${errors.description ? "border-red-500" : ""}`}
                                 />
                                 {errors.description && (
                                     <p className="text-red-500 text-sm mt-1">{errors.description}</p>
                                 )}
                             </div>
 
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "250ms" }}>
                                 <Label className="mb-3" htmlFor="report_status">
                                     Trạng thái
                                 </Label>
@@ -473,16 +490,16 @@ export default function ReportManagementPage() {
 
                                     onValueChange={(value) => handleChange("report_status", value)}
                                 >
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full transition-all duration-200 focus:ring-2 focus:ring-blue-500">
                                         <SelectValue placeholder="Chọn trạng thái" />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="draft">Draft</SelectItem>
-                                        <SelectItem value="published">Published</SelectItem>
+                                    <SelectContent className="animate-in zoom-in-95 fade-in duration-200">
+                                        <SelectItem value="draft" className="transition-colors duration-150 hover:bg-blue-50">Draft</SelectItem>
+                                        <SelectItem value="published" className="transition-colors duration-150 hover:bg-blue-50">Published</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "300ms" }}>
                                 <Label className="mb-3" htmlFor="level_id">
                                     Cấp
                                 </Label>
@@ -490,13 +507,13 @@ export default function ReportManagementPage() {
                                     value={formData.level_id}
                                     onValueChange={(value) => handleChange("level_id", value)}
                                 >
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full transition-all duration-200 focus:ring-2 focus:ring-blue-500">
                                         <SelectValue placeholder="Chọn cấp báo cáo" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="animate-in zoom-in-95 fade-in duration-200">
 
                                         {
-                                            level.map((item: any) => <SelectItem value={item.id}>{item.display_name}</SelectItem>)
+                                            level.map((item: any) => <SelectItem key={item.id} value={item.id} className="transition-colors duration-150 hover:bg-blue-50">{item.display_name}</SelectItem>)
                                         }
 
 
@@ -509,11 +526,11 @@ export default function ReportManagementPage() {
                         </div>
 
                         {/* Footer */}
-                        <div className="flex justify-end space-x-3 p-4 border-t">
-                            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                        <div className="flex justify-end space-x-3 p-4 border-t bg-gray-50 rounded-b-lg">
+                            <Button variant="outline" onClick={() => setIsModalOpen(false)} className="transition-all duration-200 hover:scale-105">
                                 Hủy
                             </Button>
-                            <Button onClick={handleSaveReport}>
+                            <Button onClick={handleSaveReport} className="transition-all duration-200 hover:scale-105 hover:shadow-md">
                                 {editingReport ? "Cập nhật" : "Thêm mới"}
                             </Button>
                         </div>

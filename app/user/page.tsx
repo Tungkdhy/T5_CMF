@@ -32,6 +32,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { exportExcel } from "@/api/excel";
+import { cn } from "@/lib/utils";
 
 interface User {
   id?: string;
@@ -196,17 +197,19 @@ export default function UserManagement() {
   return (
     <div className="min-h-screen bg-gray-50 p-3">
       {message && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in fade-in slide-in-from-top-4 duration-300">
           <Alert
-            className={`rounded-xl shadow-lg ${status === "success"
-              ? "bg-green-100 border-green-500 text-green-800"
-              : "bg-red-100 border-red-500 text-red-800"
-              }`}
+            className={cn(
+              "rounded-xl shadow-lg transition-all",
+              status === "success"
+                ? "bg-green-100 border-green-500 text-green-800"
+                : "bg-red-100 border-red-500 text-red-800"
+            )}
           >
             {status === "success" ? (
-              <CheckCircle className="h-5 w-5" />
+              <CheckCircle className="h-5 w-5 animate-bounce" />
             ) : (
-              <XCircle className="h-5 w-5" />
+              <XCircle className="h-5 w-5 animate-shake" />
             )}
             <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
             <AlertDescription>{message}</AlertDescription>
@@ -214,7 +217,7 @@ export default function UserManagement() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
+      <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Tìm kiếm + Thêm user */}
         <div className="flex items-center justify-between mb-3">
           <div className="relative">
@@ -222,13 +225,17 @@ export default function UserManagement() {
             <Input
               type="text"
               placeholder="Tìm kiếm tài khoản..."
-              className="pl-10"
+              className="pl-10 transition-all focus:ring-2 focus:ring-blue-300"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <Button onClick={handleExportExcel} variant="outline" className="flex items-center gap-2">
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleExportExcel} 
+              variant="outline" 
+              className="flex items-center gap-2 transition-all hover:scale-105 hover:shadow-md"
+            >
               <FileSpreadsheet className="w-4 h-4 text-green-600" />
               Xuất csv
             </Button>
@@ -245,7 +252,7 @@ export default function UserManagement() {
                   password: "test",
                 });
               }}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 transition-all hover:scale-105 hover:shadow-md"
             >
               <Plus className="w-4 h-4" /> Thêm người dùng
             </Button>
@@ -255,7 +262,7 @@ export default function UserManagement() {
         {/* Bảng user */}
         <Table className="w-full table-auto">
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-gray-50">
               <TableHead>STT</TableHead>
               <TableHead>Tài khoản</TableHead>
               <TableHead>Tên hiển thị</TableHead>
@@ -266,21 +273,31 @@ export default function UserManagement() {
           </TableHeader>
           <TableBody>
             {users.map((u, i) => (
-              <TableRow key={u.id}>
+              <TableRow 
+                key={u.id}
+                className="animate-in fade-in slide-in-from-left-2 hover:bg-blue-50/50 transition-colors"
+                style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'backwards' }}
+              >
                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
-                <TableCell>{u.user_name}</TableCell>
+                <TableCell className="font-medium">{u.user_name}</TableCell>
                 <TableCell>{u.display_name}</TableCell>
-                <TableCell>{u?.role?.display_name}</TableCell>
+                <TableCell>
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                    {u?.role?.display_name}
+                  </span>
+                </TableCell>
                 <TableCell>
                   <Switch
                     checked={u.is_active}
                     onCheckedChange={() => handleToggleActive(u)}
+                    className="transition-all"
                   />
                 </TableCell>
                 <TableCell className="flex gap-2 justify-end">
                   <Button
                     size="sm"
                     variant="outline"
+                    className="transition-all hover:scale-105 hover:border-blue-400 hover:text-blue-600"
                     onClick={() => {
                       setEditingUser(u);
                       setFormData({
@@ -295,11 +312,11 @@ export default function UserManagement() {
                   </Button>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button size="sm" variant="destructive">
+                      <Button size="sm" variant="destructive" className="transition-all hover:scale-105">
                         <Trash2 className="w-4 h-4" /> Xóa
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent>
+                    <PopoverContent className="animate-in fade-in zoom-in-95 duration-200">
                       <p>Bạn có chắc muốn xóa?</p>
                       <div className="flex justify-end gap-2 mt-2">
                         <Button size="sm" variant="outline">
@@ -328,10 +345,11 @@ export default function UserManagement() {
             variant="outline"
             disabled={pageIndex === 1}
             onClick={() => setPageIndex(pageIndex - 1)}
+            className="transition-all hover:scale-105 hover:border-blue-400 disabled:opacity-50"
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
-          <span>
+          <span className="px-3 py-1 bg-gray-100 rounded-md font-medium">
             Trang {pageIndex} / {totalPages}
           </span>
           <Button
@@ -339,6 +357,7 @@ export default function UserManagement() {
             variant="outline"
             disabled={pageIndex === totalPages}
             onClick={() => setPageIndex(pageIndex + 1)}
+            className="transition-all hover:scale-105 hover:border-blue-400 disabled:opacity-50"
           >
             <ChevronRight className="w-4 h-4" />
           </Button>
@@ -347,15 +366,16 @@ export default function UserManagement() {
 
       {/* Modal thêm/sửa user */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg">
-            <div className="flex justify-between items-center p-4 border-b">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-lg animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+            <div className="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
               <h3 className="text-lg font-semibold">
                 {editingUser ? "Sửa user" : "Thêm user"}
               </h3>
               <Button
                 variant="ghost"
                 size="sm"
+                className="hover:bg-red-100 hover:text-red-600 transition-colors"
                 onClick={() => setIsModalOpen(false)}
               >
                 <X className="w-5 h-5" />
@@ -363,16 +383,17 @@ export default function UserManagement() {
             </div>
             <div className="p-6 space-y-4">
               {!editingUser && (
-                <div>
+                <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: '50ms' }}>
                   <Label className="mb-3">Username</Label>
                   <Input
                     value={formData.user_name}
                     onChange={(e) => handleChange("user_name", e.target.value)}
+                    className="transition-all focus:ring-2 focus:ring-blue-300"
                   />
                 </div>
               )}
               {!editingUser && (
-                <div>
+                <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: '100ms' }}>
                   <Label className="mb-3">Password</Label>
                   <div className="relative">
                     <Input
@@ -381,12 +402,12 @@ export default function UserManagement() {
                       onChange={(e) =>
                         handleChange("password", e.target.value)
                       }
-                      className="pr-10"
+                      className="pr-10 transition-all focus:ring-2 focus:ring-blue-300"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
                     >
                       {showPassword ? (
                         <EyeOff className="w-5 h-5" />
@@ -397,36 +418,37 @@ export default function UserManagement() {
                   </div>
                 </div>
               )}
-              <div>
+              <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: '150ms' }}>
                 <Label className="mb-3">Tên hiển thị</Label>
                 <Input
                   value={formData.display_name}
                   onChange={(e) =>
                     handleChange("display_name", e.target.value)
                   }
+                  className="transition-all focus:ring-2 focus:ring-blue-300"
                 />
               </div>
-              <div>
+              <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: '200ms' }}>
                 <Label className="mb-3">Vai trò</Label>
                 <Select
                   value={formData.role}
                   onValueChange={(val) => handleChange("role", val || null)}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full transition-all focus:ring-2 focus:ring-blue-300">
                     <SelectValue placeholder="Chọn vai trò">
                       {roles.find((x: any) => x.id === formData.role)?.display_name}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="animate-in fade-in zoom-in-95 duration-200">
                     {roles.map((r, index: any) => (
-                      <SelectItem key={index} value={r.id}>
+                      <SelectItem key={index} value={r.id} className="transition-colors hover:bg-blue-50">
                         {r.display_name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: '250ms' }}>
                 <Label className="mb-3">Kích hoạt</Label>
                 <Switch
                   checked={formData.is_active}
@@ -434,11 +456,18 @@ export default function UserManagement() {
                 />
               </div>
             </div>
-            <div className="flex justify-end gap-2 p-4 border-t">
-              <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+            <div className="flex justify-end gap-2 p-4 border-t bg-gray-50 rounded-b-lg">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsModalOpen(false)}
+                className="transition-all hover:scale-105"
+              >
                 Hủy
               </Button>
-              <Button onClick={handleSave}>
+              <Button 
+                onClick={handleSave}
+                className="transition-all hover:scale-105 hover:shadow-md"
+              >
                 {editingUser ? "Cập nhật" : "Thêm mới"}
               </Button>
             </div>
