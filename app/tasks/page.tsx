@@ -637,16 +637,14 @@ export default function TasksPage() {
   return (
     <div className="p-3 bg-gray-50 min-h-screen">
       {message && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
           <Alert
-            className={cn(
-              "rounded-xl shadow-lg transition-all",
-              type === "success"
-                ? "bg-green-100 border-green-500 text-green-800"
-                : "bg-red-100 border-red-500 text-red-800"
-            )}
+            className={`rounded-xl shadow-lg ${type === "success"
+              ? "bg-green-100 border-green-500 text-green-800"
+              : "bg-red-100 border-red-500 text-red-800"
+              }`}
           >
-            {type === "success" ? <CheckCircle className="h-5 w-5 animate-bounce" /> : <XCircle className="h-5 w-5 animate-shake" />}
+            {type === "success" ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
             <AlertTitle>{type === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
             <AlertDescription>{message}</AlertDescription>
           </Alert>
@@ -767,7 +765,7 @@ export default function TasksPage() {
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex gap-4">
-          {columnOrder.map((colId, colIndex) => {
+          {columnOrder.map((colId) => {
             const column = columns[colId];
             const columnTasks = column.taskIds.map((id) => tasks[id]);
 
@@ -777,13 +775,8 @@ export default function TasksPage() {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={cn(
-                      "bg-white rounded-xl shadow p-4 flex flex-col flex-1 min-w-0",
-                      "animate-in fade-in slide-in-from-bottom-4 duration-500",
-                      "transition-all",
-                      snapshot.isDraggingOver && "bg-blue-50 ring-2 ring-blue-300 ring-opacity-50 scale-[1.02]"
-                    )}
-                    style={{ animationDelay: `${colIndex * 100}ms`, animationFillMode: 'backwards' }}
+                    className={`bg-white rounded-xl shadow p-4 flex flex-col flex-1 min-w-0 ${snapshot.isDraggingOver ? "bg-blue-50" : ""
+                      }`}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="font-semibold">{column.title}</h2>
@@ -791,7 +784,7 @@ export default function TasksPage() {
                       {colId === "open" && !loading && (
                         <Button
                           variant="ghost"
-                          className="text-gray-500 hover:text-black hover:scale-105 transition-transform"
+                          className="text-gray-500 hover:text-black"
                           onClick={() => handleOpenModal()}
                         >
                           <Plus size={16} className="mr-1" /> Thêm mới
@@ -802,7 +795,7 @@ export default function TasksPage() {
                       ? Array.from({ length: 3 }).map((_, i) => (
                         <div
                           key={i}
-                          className="border rounded-lg shadow-sm mb-3 p-3 animate-pulse"
+                          className="border rounded-lg shadow-sm mb-3 p-3"
                         >
                           <Skeleton className="w-full h-24 mb-2 rounded" />
                           <Skeleton className="h-4 w-3/4 mb-2" />
@@ -815,32 +808,19 @@ export default function TasksPage() {
                           draggableId={task.id}
                           index={index}
                         >
-                          {(provided, snapshot) => (
+                          {(provided) => (
                             <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className={cn(
-                                "bg-white border rounded-lg shadow-sm mb-3 overflow-hidden cursor-pointer",
-                                "transition-shadow duration-300 ease-out",
-                                !snapshot.isDragging && "hover:shadow-lg hover:border-blue-200",
-                                !snapshot.isDragging && "animate-in fade-in slide-in-from-left-2",
-                                snapshot.isDragging && "shadow-2xl ring-2 ring-blue-400 z-50"
-                              )}
-                              style={{ 
-                                ...provided.draggableProps.style,
-                                ...(snapshot.isDragging ? {} : {
-                                  animationDelay: `${(colIndex * 100) + (index * 50)}ms`,
-                                  animationFillMode: 'backwards'
-                                })
-                              }}
+                              className="bg-white border rounded-lg shadow-sm mb-3 overflow-hidden cursor-pointer hover:shadow-md transition"
                               onClick={() => handleOpenModal(task)}
                             >
                               {task.image && (
                                 <img
                                   src={task.image}
                                   alt={task.title}
-                                  className="w-full h-32 object-cover transition-transform duration-300 hover:scale-105"
+                                  className="w-full h-32 object-cover"
                                 />
                               )}
                               <div className="p-3">
@@ -851,12 +831,10 @@ export default function TasksPage() {
 
                                 {/* Hạn công việc */}
                                 <p
-                                  className={cn(
-                                    "text-xs font-medium mt-1 transition-colors",
-                                    new Date(task?.dueDate ?? "") < new Date()
-                                      ? "text-red-500 animate-pulse"
-                                      : "text-gray-700"
-                                  )}
+                                  className={`text-xs font-medium mt-1 ${new Date(task?.dueDate ?? "") < new Date()
+                                    ? "text-red-500"
+                                    : "text-gray-700"
+                                    }`}
                                 >
                                   {task.dueDate
                                     ? new Date(task.dueDate) < new Date()
@@ -874,7 +852,7 @@ export default function TasksPage() {
                                     </div>
                                     <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                                       <div
-                                        className="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-700 ease-out"
+                                        className="h-full bg-green-500"
                                         style={{
                                           width: `${Math.round(Number(task.progress_percent))}%`,
                                         }}
@@ -910,7 +888,7 @@ export default function TasksPage() {
                                           task?.assignee_name || task.id
                                         ),
                                       }}
-                                      className="w-6 h-6 flex items-center justify-center rounded-full text-white text-xs transition-transform hover:scale-110"
+                                      className="w-6 h-6 flex items-center justify-center rounded-full text-white text-xs"
                                     >
                                       {task?.assignee_name?.slice(0, 2)}
                                     </span>

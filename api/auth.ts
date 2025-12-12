@@ -3,6 +3,7 @@ import api from "./base";
 export interface LoginPayload {
   userName: string;
   password: string;
+  otpToken?: string; // Mã OTP 2FA (gửi kèm khi xác thực 2 lớp)
 }
 
 export interface RegisterPayload {
@@ -21,7 +22,7 @@ export interface AuthResponse {
   };
 }
 
-// Đăng nhập
+// Đăng nhập (có thể kèm otpToken cho 2FA)
 export async function login(payload: LoginPayload) {
   const res = await api.post("/login", payload);
   return res.data;

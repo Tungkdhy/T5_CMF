@@ -176,10 +176,10 @@ export default function RoleManagement() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-3">
+        <div className="min-h-screen bg-gray-50 p-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Alert */}
             {message && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50">
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md z-50 animate-in slide-in-from-top-4 fade-in duration-300">
                     <Alert
                         className={`rounded-xl shadow-lg ${status === "success"
                             ? "bg-green-100 border-green-500 text-green-800"
@@ -187,9 +187,9 @@ export default function RoleManagement() {
                             }`}
                     >
                         {status === "success" ? (
-                            <CheckCircle className="h-5 w-5" />
+                            <CheckCircle className="h-5 w-5 animate-bounce" />
                         ) : (
-                            <XCircle className="h-5 w-5" />
+                            <XCircle className="h-5 w-5 animate-pulse" />
                         )}
                         <AlertTitle>{status === "success" ? "Thành công" : "Lỗi"}</AlertTitle>
                         <AlertDescription>{message}</AlertDescription>
@@ -205,7 +205,7 @@ export default function RoleManagement() {
                         <Input
                             type="text"
                             placeholder="Tìm kiếm quyền..."
-                            className="pl-10"
+                            className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -216,7 +216,7 @@ export default function RoleManagement() {
                             setFormData({ roleName: "", actionIds: [] });
                             setEditingRole(null)
                         }}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:shadow-md"
                     >
                         <Plus className="w-4 h-4" /> Thêm quyền
                     </Button>
@@ -225,7 +225,7 @@ export default function RoleManagement() {
                 {/* Table */}
                 <Table className="w-full table-auto">
                     <TableHeader>
-                        <TableRow>
+                        <TableRow className="bg-gray-50">
                             <TableHead>STT</TableHead>
                             <TableHead>Tên quyền</TableHead>
                             <TableHead>Mô tả</TableHead>
@@ -234,15 +234,24 @@ export default function RoleManagement() {
                     </TableHeader>
                     <TableBody>
                         {roles.map((r, i) => (
-                            <TableRow key={r.id}>
+                            <TableRow 
+                                key={r.id}
+                                className="transition-all duration-200 hover:bg-blue-50 animate-in fade-in slide-in-from-left-4"
+                                style={{ animationDelay: `${i * 50}ms` }}
+                            >
                                 <TableCell>{(pageIndex - 1) * pageSize + i + 1}</TableCell>
-                                <TableCell>{r.display_name}</TableCell>
-                                <TableCell>{r.description}</TableCell>
+                                <TableCell>
+                                    <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
+                                        {r.display_name}
+                                    </span>
+                                </TableCell>
+                                <TableCell>{r.description || "-"}</TableCell>
                                 <TableCell className="flex gap-2 justify-end">
                                     <Button
                                         size="sm"
                                         variant="outline"
                                         onClick={() => handleViewUsersInRole(r.id, r.display_name)}
+                                        className="transition-all duration-200 hover:scale-105 hover:border-blue-500"
                                     >
                                         <Edit className="w-4 h-4" /> Xem người dùng
                                     </Button>
@@ -250,10 +259,16 @@ export default function RoleManagement() {
                                         size="sm"
                                         variant="outline"
                                         onClick={() => handleGetDetailRole(r.id, r.display_name, r)}
+                                        className="transition-all duration-200 hover:scale-105 hover:border-green-500"
                                     >
                                         <Edit className="w-4 h-4" /> Sửa
                                     </Button>
-                                    <Button size="sm" variant="destructive" onClick={() => handleDelete(r.id)}>
+                                    <Button 
+                                        size="sm" 
+                                        variant="destructive" 
+                                        onClick={() => handleDelete(r.id)}
+                                        className="transition-all duration-200 hover:scale-105"
+                                    >
                                         <Trash2 className="w-4 h-4" /> Xóa
                                     </Button>
                                 </TableCell>
@@ -269,11 +284,11 @@ export default function RoleManagement() {
                         variant="outline"
                         disabled={pageIndex === 1}
                         onClick={() => setPageIndex((prev) => Math.max(prev - 1, 1))}
-                        className="p-1"
+                        className="p-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                     >
                         <ChevronLeft className="w-4 h-4" />
                     </Button>
-                    <span className="flex items-center px-2">
+                    <span className="flex items-center px-3 py-1 bg-gray-100 rounded-full text-sm">
                         Trang {pageIndex} / {totalPages}
                     </span>
                     <Button
@@ -281,7 +296,7 @@ export default function RoleManagement() {
                         variant="outline"
                         disabled={pageIndex === totalPages}
                         onClick={() => setPageIndex((prev) => Math.min(prev + 1, totalPages))}
-                        className="p-1"
+                        className="p-1 transition-all duration-200 hover:scale-105 hover:border-blue-500"
                     >
                         <ChevronRight className="w-4 h-4" />
                     </Button>
@@ -290,23 +305,24 @@ export default function RoleManagement() {
 
             {/* Modal thêm/sửa */}
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-                    <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl">
-                        <div className="flex justify-between items-center p-4 border-b">
+                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+                        <div className="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
                             <h3 className="text-lg font-semibold">
                                 {editingRole ? "Sửa role" : "Thêm role"}
                             </h3>
-                            <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>
+                            <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)} className="transition-transform duration-200 hover:scale-110 hover:rotate-90">
                                 <X className="w-5 h-5" />
                             </Button>
                         </div>
 
                         <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "100ms" }}>
                                 <Label className="mb-3">Tên role</Label>
                                 <Input
                                     value={formData.display_name}
                                     onChange={(e) => setFormData((p) => ({ ...p, display_name: e.target.value }))}
+                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
                             {/* <div>
@@ -316,20 +332,22 @@ export default function RoleManagement() {
                                     onChange={(e) => setFormData((p) => ({ ...p, display_name: e.target.value }))}
                                 />
                             </div> */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "150ms" }}>
                                 <Label className="mb-3">Mô tả</Label>
                                 <Input
                                     value={formData.description}
                                     onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
                             {/* ✅ Danh sách quyền bằng checkbox */}
-                            <div>
+                            <div className="animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: "200ms" }}>
                                 <Label className="mb-3">Danh sách quyền</Label>
                                 <div className="mb-2">
-                                    <label className="flex items-center gap-2 text-sm font-semibold">
+                                    <label className="flex items-center gap-2 text-sm font-semibold cursor-pointer hover:text-indigo-600 transition-colors">
                                         <input
                                             type="checkbox"
+                                            className="w-4 h-4 accent-indigo-600"
                                             checked={
                                                 actions.length > 0 && formData.id?.length === actions.length
                                             }
@@ -352,26 +370,34 @@ export default function RoleManagement() {
                                         Chọn tất cả
                                     </label>
                                 </div>
-                                <div className="grid grid-cols-2 gap-2 mt-2">
-                                    {actions.map((a) => (
-                                        <label key={a.id} className="flex items-center gap-2 text-sm">
+                                <div className="grid grid-cols-2 gap-2 mt-2 max-h-[300px] overflow-y-auto">
+                                    {actions.map((a, index) => (
+                                        <label 
+                                            key={a.id} 
+                                            className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded hover:bg-gray-50 transition-colors animate-in fade-in duration-300"
+                                            style={{ animationDelay: `${index * 20}ms` }}
+                                        >
                                             <input
                                                 type="checkbox"
+                                                className="w-4 h-4 accent-indigo-600"
                                                 checked={formData?.id?.includes(a.id) ?? ""}
                                                 onChange={() => toggleAction(a.id)}
                                             />
-                                            {a.display_name} ({a.method_category.display_name})
+                                            <span>{a.display_name}</span>
+                                            <span className="px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
+                                                {a.method_category.display_name}
+                                            </span>
                                         </label>
                                     ))}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-2 p-4 border-t">
-                            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                        <div className="flex justify-end gap-2 p-4 border-t bg-gray-50 rounded-b-lg">
+                            <Button variant="outline" onClick={() => setIsModalOpen(false)} className="transition-all duration-200 hover:scale-105">
                                 Hủy
                             </Button>
-                            <Button onClick={handleSave}>{editingRole ? "Cập nhật" : "Thêm mới"}</Button>
+                            <Button onClick={handleSave} className="transition-all duration-200 hover:scale-105 hover:shadow-md">{editingRole ? "Cập nhật" : "Thêm mới"}</Button>
                         </div>
                     </div>
                 </div>
@@ -379,13 +405,13 @@ export default function RoleManagement() {
 
             {/* Modal danh sách users trong role */}
             {isUsersModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-                    <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center p-4 border-b">
+                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+                        <div className="flex justify-between items-center p-4 border-b bg-gray-50 rounded-t-lg">
                             <h3 className="text-lg font-semibold">
-                                Danh sách người dùng thuộc quyền: {currentRoleName}
+                                Danh sách người dùng thuộc quyền: <span className="text-indigo-600">{currentRoleName}</span>
                             </h3>
-                            <Button variant="ghost" size="sm" onClick={() => setIsUsersModalOpen(false)}>
+                            <Button variant="ghost" size="sm" onClick={() => setIsUsersModalOpen(false)} className="transition-transform duration-200 hover:scale-110 hover:rotate-90">
                                 <X className="w-5 h-5" />
                             </Button>
                         </div>
@@ -394,7 +420,7 @@ export default function RoleManagement() {
                             {usersInRole.length > 0 ? (
                                 <Table className="w-full">
                                     <TableHeader>
-                                        <TableRow>
+                                        <TableRow className="bg-gray-50">
                                             <TableHead>STT</TableHead>
                                             <TableHead>Tên đăng nhập</TableHead>
                                             <TableHead>Tên hiển thị</TableHead>
@@ -405,21 +431,34 @@ export default function RoleManagement() {
                                     </TableHeader>
                                     <TableBody>
                                         {usersInRole.map((user, index) => (
-                                            <TableRow key={user.id}>
+                                            <TableRow 
+                                                key={user.id}
+                                                className="transition-all duration-200 hover:bg-blue-50 animate-in fade-in slide-in-from-left-4"
+                                                style={{ animationDelay: `${index * 50}ms` }}
+                                            >
                                                 <TableCell>{index + 1}</TableCell>
-                                                <TableCell>{user.user_name}</TableCell>
-                                                <TableCell>{user.display_name}</TableCell>
                                                 <TableCell>
-                                                    <span className={`px-2 py-1 rounded text-xs ${
+                                                    <span className="px-2 py-1 bg-gray-100 rounded text-xs font-mono">
+                                                        {user.user_name}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                                        {user.display_name}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                                         user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                                     }`}>
                                                         {user.is_active ? 'Hoạt động' : 'Không hoạt động'}
                                                     </span>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <span className={`px-2 py-1 rounded text-xs ${
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit ${
                                                         user.is_online ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
                                                     }`}>
+                                                        <span className={`w-2 h-2 rounded-full ${user.is_online ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></span>
                                                         {user.is_online ? 'Online' : 'Offline'}
                                                     </span>
                                                 </TableCell>
@@ -429,14 +468,14 @@ export default function RoleManagement() {
                                     </TableBody>
                                 </Table>
                             ) : (
-                                <div className="text-center py-8 text-gray-500">
+                                <div className="text-center py-8 text-gray-500 animate-in fade-in duration-500">
                                     Không có người dùng nào thuộc quyền này
                                 </div>
                             )}
                         </div>
 
-                        <div className="flex justify-end gap-2 p-4 border-t">
-                            <Button variant="outline" onClick={() => setIsUsersModalOpen(false)}>
+                        <div className="flex justify-end gap-2 p-4 border-t bg-gray-50 rounded-b-lg">
+                            <Button variant="outline" onClick={() => setIsUsersModalOpen(false)} className="transition-all duration-200 hover:scale-105">
                                 Đóng
                             </Button>
                         </div>
